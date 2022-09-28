@@ -1,0 +1,44 @@
+name: CI
+on:
+  push:
+    on:
+      - main
+      - develop
+  pull_request:
+    paths:
+      - crates/**
+      - Cargo.lock
+      - Cargo.toml
+
+concurrency:
+  group: pr-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Set up checkout
+        uses: actions/checkout@v2
+        with:
+          submodules: true
+
+      - name: Set up cache cargo
+        uses: actions/cache@v2
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            target
+          key: ${{ runner.os }}-cargo-${{ hashFiles('Cargo.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-cargo-
+
+      - name: Set up rust
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+          profile: minimal
+
+      - name: Test rust
+        run: cargo test
