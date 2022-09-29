@@ -3,6 +3,7 @@ pub mod header;
 pub mod section;
 pub mod version;
 
+mod utils;
 mod record;
 
 use self::{body::Body, header::Header};
