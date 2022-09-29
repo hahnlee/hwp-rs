@@ -9,11 +9,11 @@ use cfb::CompoundFile;
 use flate2::read::DeflateDecoder;
 
 use crate::hwp::record::reader::RecordReader;
-use byteorder::{LittleEndian, ReadBytesExt};
+use byteorder::LittleEndian;
 
 use self::{bin_data::BinData, font::Font, id_mappings::IDMappings, properties::Properties};
 
-use super::{version::Version, record::tags::DocInfoRecord};
+use super::{record::tags::DocInfoRecord, version::Version};
 
 #[derive(Debug)]
 pub struct DocInfo {

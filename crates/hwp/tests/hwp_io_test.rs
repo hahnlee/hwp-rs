@@ -22,5 +22,5 @@ fn check_body_size() {
     assert_eq!(hwp.header.license.ccl, false);
     assert_eq!(hwp.header.license.replication_restrictions, false);
 
-    assert_eq!(hwp.body.sections.len(), 1);
+    assert_eq!(hwp.body_texts.sections.len(), 1);
 }
