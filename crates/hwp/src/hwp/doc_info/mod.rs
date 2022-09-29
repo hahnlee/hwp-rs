@@ -3,13 +3,12 @@ pub mod properties;
 
 use std::io::Cursor;
 
-use byteorder::LittleEndian;
 use cfb::CompoundFile;
 use flate2::read::DeflateDecoder;
 
-use self::{properties::Properties, id_mappings::IDMappings};
+use self::{id_mappings::IDMappings, properties::Properties};
 
-use super::{record::reader::RecordReader, version::Version};
+use super::version::Version;
 
 #[derive(Debug)]
 pub struct DocInfo {
