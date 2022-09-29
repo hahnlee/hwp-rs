@@ -3,7 +3,7 @@ use std::io::{Read, Result, Take};
 use byteorder::{ByteOrder, ReadBytesExt};
 
 pub trait RecordReader: Read + ReadBytesExt {
-    fn read_record<T: ByteOrder>(&mut self) -> Result<(u32, u32, Take<&mut Self>)> {
+    fn read_record<T: ByteOrder>(&mut self) -> Result<(u32, u32, u32, Take<&mut Self>)> {
         let value = self.read_u32::<T>()?;
 
         let tag_id = value & 0x3FF;
@@ -16,7 +16,7 @@ pub trait RecordReader: Read + ReadBytesExt {
 
         let data = self.take(size.into());
 
-        Ok((tag_id, level, data))
+        Ok((tag_id, level, size, data))
     }
 }
 
