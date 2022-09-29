@@ -76,16 +76,22 @@ impl BinData {
 #[repr(u16)]
 #[derive(PartialEq, Eq)]
 pub enum BinDataType {
+    /// 그림 외부 파일 참조
     Link,
+    /// 그림 파일 포함
     Embedding,
+    /// OLE 포함
     Storage,
 }
 
 #[derive(Debug)]
 pub struct BinDataProperties {
     // TODO: (@hahnlee) enum
+    /// 타입
     pub data_type: u16,
+    /// 압축 모드
     pub compress_mode: u16,
+    /// 상태
     pub status: u16,
 }
 
