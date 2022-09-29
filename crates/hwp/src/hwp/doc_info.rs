@@ -117,10 +117,10 @@ pub struct IDMappings {
 
 impl IDMappings {
     pub fn from_reader(
-        data: &mut DeflateDecoder<&mut Stream<Cursor<Vec<u8>>>>,
+        stream: &mut DeflateDecoder<&mut Stream<Cursor<Vec<u8>>>>,
         version: &Version,
     ) -> IDMappings {
-        let (tag_id, _, size, _) = data.read_record::<LittleEndian>().unwrap();
+        let (tag_id, _, size, mut data) = stream.read_record::<LittleEndian>().unwrap();
         if tag_id != DocInfoRecord::HWPTAG_ID_MAPPINGS as u32 {
             // TODO: (@hahnlee) 에러
         }
@@ -164,13 +164,13 @@ impl IDMappings {
             0
         };
 
-        let change_tracking = if *version < tracking_supported_version {
+        let change_tracking = if *version >= tracking_supported_version {
             data.read_i32::<LittleEndian>().unwrap()
         } else {
             0
         };
 
-        let change_tracking_user = if *version < tracking_supported_version {
+        let change_tracking_user = if *version >= tracking_supported_version {
             data.read_i32::<LittleEndian>().unwrap()
         } else {
             0
