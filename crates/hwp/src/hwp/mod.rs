@@ -1,13 +1,13 @@
 pub mod body;
-pub mod header;
 pub mod doc_info;
+pub mod header;
 pub mod section;
 pub mod version;
 
-mod utils;
 mod record;
+mod utils;
 
-use self::{body::Body, header::Header, doc_info::DocInfo};
+use self::{body::Body, doc_info::DocInfo, header::Header};
 
 use std::io::Cursor;
 
@@ -16,7 +16,8 @@ use cfb::CompoundFile;
 #[derive(Debug)]
 pub struct HWP {
     pub header: Header,
-    pub body: Body,
+    pub body_texts: Body,
+    pub view_texts: Option<Body>,
     pub doc_info: DocInfo,
 }
 
@@ -29,9 +30,18 @@ impl HWP {
 
         let doc_info = DocInfo::from_cfb(&mut cfb, &header.version);
 
-        // TODO: (@hahnlee) 배포용문서
-        let body = Body::from_cfb(&mut cfb);
+        let body_texts = Body::from_cfb(&mut cfb);
+        let view_texts = if header.flags.distributed {
+            Some(Body::from_distributed(&mut cfb))
+        } else {
+            None
+        };
 
-        HWP { header, doc_info, body }
+        HWP {
+            header,
+            doc_info,
+            body_texts,
+            view_texts,
+        }
     }
 }
