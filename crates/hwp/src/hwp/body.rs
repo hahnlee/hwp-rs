@@ -5,12 +5,12 @@ use cfb::CompoundFile;
 use super::section::Section;
 
 #[derive(Debug)]
-pub struct BodyText {
+pub struct Body {
     pub sections: Vec<Section>,
 }
 
-impl BodyText {
-    pub fn from_cfb(cfb: &mut CompoundFile<Cursor<Vec<u8>>>) -> BodyText {
+impl Body {
+    pub fn from_cfb(cfb: &mut CompoundFile<Cursor<Vec<u8>>>) -> Body {
         let body_text = cfb.read_storage("/BodyText").unwrap();
 
         let size = body_text.count();
@@ -21,6 +21,6 @@ impl BodyText {
             sections.push(section);
         }
 
-        BodyText { sections }
+        Body { sections }
     }
 }

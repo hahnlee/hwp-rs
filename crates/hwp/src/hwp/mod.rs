@@ -1,9 +1,9 @@
-pub mod body_text;
+pub mod body;
 pub mod section;
 
 mod record;
 
-use self::body_text::BodyText;
+use self::body::Body;
 
 use std::io::Cursor;
 
@@ -11,7 +11,7 @@ use cfb::CompoundFile;
 
 #[derive(Debug)]
 pub struct HWP {
-    pub body_text: BodyText,
+    pub body: Body,
 }
 
 impl HWP {
@@ -20,8 +20,8 @@ impl HWP {
         let mut cfb = CompoundFile::open(cursor).unwrap();
 
         // TODO: (@hahnlee) 배포용문서
-        let body_text = BodyText::from_cfb(&mut cfb);
+        let body = Body::from_cfb(&mut cfb);
 
-        HWP { body_text }
+        HWP { body }
     }
 }
