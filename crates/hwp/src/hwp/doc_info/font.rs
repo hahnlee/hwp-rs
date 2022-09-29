@@ -1,8 +1,6 @@
-use std::io::{Cursor, Read};
+use std::io::Read;
 
 use byteorder::{LittleEndian, ReadBytesExt};
-use cfb::Stream;
-use flate2::read::DeflateDecoder;
 
 use crate::hwp::{
     record::{reader::RecordReader, tags::DocInfoRecord},
@@ -26,7 +24,7 @@ pub struct Font {
 }
 
 impl Font {
-    pub fn from_reader(stream: &mut DeflateDecoder<&mut Stream<Cursor<Vec<u8>>>>) -> Font {
+    pub fn from_reader<T: Read>(stream: &mut T) -> Font {
         let (tag_id, _, _, mut data) = stream.read_record::<LittleEndian>().unwrap();
         if tag_id != DocInfoRecord::HWPTAG_FACE_NAME as u32 {
             // TODO: (@hahnlee) 옵셔널

@@ -1,8 +1,6 @@
-use std::io::Cursor;
+use std::io::Read;
 
 use byteorder::{LittleEndian, ReadBytesExt};
-use cfb::Stream;
-use flate2::read::DeflateDecoder;
 
 use crate::hwp::{
     record::{reader::RecordReader, tags::DocInfoRecord},
@@ -19,7 +17,7 @@ pub struct BinData {
 }
 
 impl BinData {
-    pub fn from_reader(stream: &mut DeflateDecoder<&mut Stream<Cursor<Vec<u8>>>>) -> BinData {
+    pub fn from_reader<T: Read>(stream: &mut T) -> BinData {
         let (tag_id, _, _, mut data) = stream.read_record::<LittleEndian>().unwrap();
         if tag_id != DocInfoRecord::HWPTAG_BIN_DATA as u32 {
             // TODO: (@hahnlee) 옵셔널

@@ -8,14 +8,13 @@ use super::{
 use std::io::{Cursor, Read};
 
 use byteorder::{LittleEndian, ReadBytesExt};
-use cfb::Stream;
 use flate2::read::DeflateDecoder;
 
 #[derive(Debug)]
 pub struct Section {}
 
 impl Section {
-    pub fn from_stream(stream: &mut Stream<Cursor<Vec<u8>>>) -> Section {
+    pub fn from_stream<T: Read>(stream: &mut T) -> Section {
         let mut data = DeflateDecoder::new(stream);
 
         // TODO: (@hahnlee) record 구현
@@ -25,7 +24,7 @@ impl Section {
     }
 
     // TODO: (@hahnlee) 통합방법 생각하기
-    pub fn from_distributed(stream: &mut Stream<Cursor<Vec<u8>>>) -> Section {
+    pub fn from_distributed<T: Read>(stream: &mut T) -> Section {
         let (tag_id, _, size, mut reader) = stream.read_record::<LittleEndian>().unwrap();
 
         if tag_id != DocInfoRecord::HWPTAG_DISTRIBUTE_DOC_DATA as u32 || size != 256 {

@@ -1,4 +1,4 @@
-use std::io::Cursor;
+use std::io::{Read, Seek};
 
 use cfb::CompoundFile;
 
@@ -10,7 +10,7 @@ pub struct Body {
 }
 
 impl Body {
-    pub fn from_cfb(cfb: &mut CompoundFile<Cursor<Vec<u8>>>) -> Body {
+    pub fn from_cfb<T: Read + Seek>(cfb: &mut CompoundFile<T>) -> Body {
         let body_text = cfb.read_storage("/BodyText").unwrap();
 
         let size = body_text.count();
@@ -24,7 +24,7 @@ impl Body {
         Body { sections }
     }
 
-    pub fn from_distributed(cfb: &mut CompoundFile<Cursor<Vec<u8>>>) -> Body {
+    pub fn from_distributed<T: Read + Seek>(cfb: &mut CompoundFile<T>) -> Body {
         let view_text = cfb.read_storage("/ViewText").unwrap();
         let size = view_text.count();
 
@@ -37,8 +37,6 @@ impl Body {
             sections.push(section);
         }
 
-        Body {
-            sections
-        }
+        Body { sections }
     }
 }

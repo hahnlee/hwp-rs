@@ -1,8 +1,6 @@
-use std::io::Cursor;
+use std::io::Read;
 
 use byteorder::{LittleEndian, ReadBytesExt};
-use cfb::Stream;
-use flate2::read::DeflateDecoder;
 
 use crate::hwp::record::{reader::RecordReader, tags::DocInfoRecord};
 
@@ -30,9 +28,8 @@ pub struct Properties {
     pub character_in_paragraph: u32,
 }
 
-// TODO: (@hahnlee) 제너릭 사용하기
 impl Properties {
-    pub fn from_reader(reader: &mut DeflateDecoder<&mut Stream<Cursor<Vec<u8>>>>) -> Properties {
+    pub fn from_reader<T: Read>(reader: &mut T) -> Properties {
         let (tag, _, size, mut data) = reader.read_record::<LittleEndian>().unwrap();
 
         if tag != DocInfoRecord::HWPTAG_DOCUMENT_PROPERTIES as u32 || size != 26 {

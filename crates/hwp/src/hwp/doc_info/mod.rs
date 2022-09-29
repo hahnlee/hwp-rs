@@ -3,7 +3,7 @@ pub mod font;
 pub mod id_mappings;
 pub mod properties;
 
-use std::io::{Cursor, Read};
+use std::io::{Read, Seek};
 
 use cfb::CompoundFile;
 use flate2::read::DeflateDecoder;
@@ -24,7 +24,7 @@ pub struct DocInfo {
 }
 
 impl DocInfo {
-    pub fn from_cfb(cfb: &mut CompoundFile<Cursor<Vec<u8>>>, version: &Version) -> DocInfo {
+    pub fn from_cfb<T: Read + Seek>(cfb: &mut CompoundFile<T>, version: &Version) -> DocInfo {
         let mut stream = cfb.open_stream("/DocInfo").unwrap();
         let mut data = DeflateDecoder::new(&mut stream);
 

@@ -1,8 +1,6 @@
-use std::io::Cursor;
+use std::io::Read;
 
 use byteorder::{LittleEndian, ReadBytesExt};
-use cfb::Stream;
-use flate2::read::DeflateDecoder;
 
 use crate::hwp::{
     record::{reader::RecordReader, tags::DocInfoRecord},
@@ -50,10 +48,7 @@ pub struct IDMappings {
 }
 
 impl IDMappings {
-    pub fn from_reader(
-        stream: &mut DeflateDecoder<&mut Stream<Cursor<Vec<u8>>>>,
-        version: &Version,
-    ) -> IDMappings {
+    pub fn from_reader<T: Read>(stream: &mut T, version: &Version) -> IDMappings {
         let (tag_id, _, size, mut data) = stream.read_record::<LittleEndian>().unwrap();
         if tag_id != DocInfoRecord::HWPTAG_ID_MAPPINGS as u32 {
             // TODO: (@hahnlee) 옵셔널
