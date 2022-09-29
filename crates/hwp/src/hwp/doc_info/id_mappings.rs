@@ -28,25 +28,25 @@ pub struct IDMappings {
     /// 사용자 글꼴
     pub user_fonts: i32,
     /// 테두리/배경
-    pub borders: i32,
+    pub border_fils: i32,
     /// 글자 모양
     pub char_shapes: i32,
     /// 탭 정의
-    pub tab_definition: i32,
+    pub tab_definitions: i32,
     /// 문단 번호
-    pub paragraph_number: i32,
+    pub numbering: i32,
     /// 글머리표
-    pub bullet: i32,
+    pub bullets: i32,
     /// 문단 모양
-    pub paragraph_shape: i32,
-    /// 스타일
-    pub style: i32,
+    pub paragraph_shapes: i32,
+    /// 스타일(문단 스타일)
+    pub styles: i32,
     /// 메모 모양 (5.0.2.1 이상)
-    pub memo_shape: i32,
+    pub memo_shapes: i32,
     /// 변경추적 (5.0.3.2 이상)
-    pub change_tracking: i32,
+    pub change_trackings: i32,
     /// 변경추적 사용자 (5.0.3.2 이상)
-    pub change_tracking_user: i32,
+    pub change_tracking_users: i32,
 }
 
 impl IDMappings {
@@ -84,27 +84,27 @@ impl IDMappings {
         let etc_fonts = data.read_i32::<LittleEndian>().unwrap();
         let symbol_fonts = data.read_i32::<LittleEndian>().unwrap();
         let user_fonts = data.read_i32::<LittleEndian>().unwrap();
-        let borders = data.read_i32::<LittleEndian>().unwrap();
+        let border_fils = data.read_i32::<LittleEndian>().unwrap();
         let char_shapes = data.read_i32::<LittleEndian>().unwrap();
-        let tab_definition = data.read_i32::<LittleEndian>().unwrap();
-        let paragraph_number = data.read_i32::<LittleEndian>().unwrap();
-        let bullet = data.read_i32::<LittleEndian>().unwrap();
-        let paragraph_shape = data.read_i32::<LittleEndian>().unwrap();
-        let style = data.read_i32::<LittleEndian>().unwrap();
+        let tab_definitions = data.read_i32::<LittleEndian>().unwrap();
+        let numbering = data.read_i32::<LittleEndian>().unwrap();
+        let bullets = data.read_i32::<LittleEndian>().unwrap();
+        let paragraph_shapes = data.read_i32::<LittleEndian>().unwrap();
+        let styles = data.read_i32::<LittleEndian>().unwrap();
 
-        let memo_shape = if *version >= memo_supported_version {
+        let memo_shapes = if *version >= memo_supported_version {
             data.read_i32::<LittleEndian>().unwrap()
         } else {
             0
         };
 
-        let change_tracking = if *version >= tracking_supported_version {
+        let change_trackings = if *version >= tracking_supported_version {
             data.read_i32::<LittleEndian>().unwrap()
         } else {
             0
         };
 
-        let change_tracking_user = if *version >= tracking_supported_version {
+        let change_tracking_users = if *version >= tracking_supported_version {
             data.read_i32::<LittleEndian>().unwrap()
         } else {
             0
@@ -119,16 +119,16 @@ impl IDMappings {
             etc_fonts,
             symbol_fonts,
             user_fonts,
-            borders,
+            border_fils,
             char_shapes,
-            tab_definition,
-            paragraph_number,
-            bullet,
-            paragraph_shape,
-            style,
-            memo_shape,
-            change_tracking,
-            change_tracking_user,
+            tab_definitions,
+            numbering,
+            bullets,
+            paragraph_shapes,
+            styles,
+            memo_shapes,
+            change_trackings,
+            change_tracking_users,
         }
     }
 
