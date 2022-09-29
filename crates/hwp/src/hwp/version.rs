@@ -7,8 +7,8 @@ pub struct Version {
 }
 
 impl Version {
-    pub fn from_byte(byte: [u8; 4]) -> Self {
-        let [build_number, micro, minor, major] = byte;
+    pub fn from_bytes(bytes: [u8; 4]) -> Self {
+        let [build_number, micro, minor, major] = bytes;
 
         // TODO: (@hahnlee) 각 숫자 검증하기
         Self {
