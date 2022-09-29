@@ -30,7 +30,7 @@ pub struct IDMappings {
     /// 테두리/배경
     pub borders: i32,
     /// 글자 모양
-    pub fonts: i32,
+    pub char_shapes: i32,
     /// 탭 정의
     pub tab_definition: i32,
     /// 문단 번호
@@ -85,7 +85,7 @@ impl IDMappings {
         let symbol_fonts = data.read_i32::<LittleEndian>().unwrap();
         let user_fonts = data.read_i32::<LittleEndian>().unwrap();
         let borders = data.read_i32::<LittleEndian>().unwrap();
-        let fonts = data.read_i32::<LittleEndian>().unwrap();
+        let char_shapes = data.read_i32::<LittleEndian>().unwrap();
         let tab_definition = data.read_i32::<LittleEndian>().unwrap();
         let paragraph_number = data.read_i32::<LittleEndian>().unwrap();
         let bullet = data.read_i32::<LittleEndian>().unwrap();
@@ -120,7 +120,7 @@ impl IDMappings {
             symbol_fonts,
             user_fonts,
             borders,
-            fonts,
+            char_shapes,
             tab_definition,
             paragraph_number,
             bullet,
@@ -130,5 +130,17 @@ impl IDMappings {
             change_tracking,
             change_tracking_user,
         }
+    }
+
+    pub fn fonts_count(&self) -> i32 {
+        let count = self.korean_fonts
+            + self.english_fonts
+            + self.chinese_characters_fonts
+            + self.japanese_fonts
+            + self.etc_fonts
+            + self.user_fonts
+            + self.symbol_fonts;
+
+        count
     }
 }
