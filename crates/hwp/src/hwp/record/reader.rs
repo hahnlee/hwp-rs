@@ -3,6 +3,7 @@ use std::io::{Read, Result, Take};
 use byteorder::{ByteOrder, ReadBytesExt};
 
 pub trait RecordReader: Read + ReadBytesExt {
+    #[inline]
     fn read_record<T: ByteOrder>(&mut self) -> Result<(u32, u32, u32, Take<&mut Self>)> {
         let value = self.read_u32::<T>()?;
 
@@ -17,6 +18,17 @@ pub trait RecordReader: Read + ReadBytesExt {
         let data = self.take(size.into());
 
         Ok((tag_id, level, size, data))
+    }
+
+    #[inline]
+    fn read_string<T: ByteOrder>(&mut self) -> Result<String> {
+        let len = self.read_u16::<T>()? as usize;
+        let mut buf = vec![0u16; len];
+        for i in 0..len {
+            buf[i] = self.read_u16::<T>()?;
+        }
+
+        Ok(String::from_utf16(&buf).unwrap())
     }
 }
 

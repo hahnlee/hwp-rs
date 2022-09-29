@@ -29,19 +29,13 @@ impl BinData {
         let properties = BinDataProperties::from_bits(properties);
 
         let absolute_path = if properties.data_type == BinDataType::Link as u16 {
-            let len = data.read_u16::<LittleEndian>().unwrap() * 2;
-            let mut buf = vec![0u8; len as usize];
-            data.read_exact(&mut buf).unwrap();
-            Some(String::from_utf8(buf).unwrap())
+            Some(data.read_string::<LittleEndian>().unwrap())
         } else {
             None
         };
 
         let relative_path = if properties.data_type == BinDataType::Link as u16 {
-            let len = data.read_u16::<LittleEndian>().unwrap() * 2;
-            let mut buf = vec![0u8; len as usize];
-            data.read_exact(&mut buf).unwrap();
-            Some(String::from_utf8(buf).unwrap())
+            Some(data.read_string::<LittleEndian>().unwrap())
         } else {
             None
         };
@@ -55,10 +49,7 @@ impl BinData {
         };
 
         let extension = if properties.data_type == BinDataType::Embedding as u16 {
-            let len = data.read_u16::<LittleEndian>().unwrap() * 2;
-            let mut buf = vec![0u8; len as usize];
-            data.read_exact(&mut buf).unwrap();
-            Some(String::from_utf8(buf).unwrap())
+            Some(data.read_string::<LittleEndian>().unwrap())
         } else {
             None
         };
