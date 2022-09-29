@@ -29,7 +29,8 @@ impl Font {
     pub fn from_reader(stream: &mut DeflateDecoder<&mut Stream<Cursor<Vec<u8>>>>) -> Font {
         let (tag_id, _, _, mut data) = stream.read_record::<LittleEndian>().unwrap();
         if tag_id != DocInfoRecord::HWPTAG_FACE_NAME as u32 {
-            // TODO: (@hahnlee) 에러
+            // TODO: (@hahnlee) 옵셔널
+            panic!("올바르지 않은 정보");
         }
 
         let property = data.read_u8().unwrap();

@@ -28,7 +28,8 @@ impl Version {
             .collect();
 
         if version.len() != 4 {
-            // TODO: (@hahnlee) 에러 던지기
+            // TODO: (@hahnlee) 옵셔널
+            panic!("올바르지 않은 정보");
         }
 
         // TODO: (@hahnlee) 각 숫자 검증하기

@@ -36,7 +36,8 @@ impl Properties {
         let (tag, _, size, mut data) = reader.read_record::<LittleEndian>().unwrap();
 
         if tag != DocInfoRecord::HWPTAG_DOCUMENT_PROPERTIES as u32 || size != 26 {
-            // TODO: (@hahnlee) 에러
+            // TODO: (@hahnlee) 옵셔널
+            panic!("올바르지 않은 정보");
         }
 
         Properties {

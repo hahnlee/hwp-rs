@@ -1,4 +1,4 @@
-use std::io::{Cursor, Read};
+use std::io::Cursor;
 
 use byteorder::{LittleEndian, ReadBytesExt};
 use cfb::Stream;
@@ -22,7 +22,8 @@ impl BinData {
     pub fn from_reader(stream: &mut DeflateDecoder<&mut Stream<Cursor<Vec<u8>>>>) -> BinData {
         let (tag_id, _, _, mut data) = stream.read_record::<LittleEndian>().unwrap();
         if tag_id != DocInfoRecord::HWPTAG_BIN_DATA as u32 {
-            // TODO: (@hahnlee) 에러
+            // TODO: (@hahnlee) 옵셔널
+            panic!("올바르지 않은 정보");
         }
 
         let properties = data.read_u16::<LittleEndian>().unwrap();

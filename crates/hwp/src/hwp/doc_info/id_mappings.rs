@@ -56,7 +56,8 @@ impl IDMappings {
     ) -> IDMappings {
         let (tag_id, _, size, mut data) = stream.read_record::<LittleEndian>().unwrap();
         if tag_id != DocInfoRecord::HWPTAG_ID_MAPPINGS as u32 {
-            // TODO: (@hahnlee) 에러
+            // TODO: (@hahnlee) 옵셔널
+            panic!("올바르지 않은 정보");
         }
 
         let memo_supported_version = Version::from_str("5.0.2.1");
@@ -64,16 +65,17 @@ impl IDMappings {
 
         let target_size: u32 = {
             if *version < memo_supported_version {
-                64
+                60
             } else if *version < tracking_supported_version {
-                68
+                64
             } else {
                 72
             }
         };
 
         if size != target_size {
-            // TODO: (@hahnlee) 에러주기
+            // TODO: (@hahnlee) 옵셔널
+            panic!("올바르지 않은 정보");
         }
 
         let binary_data = data.read_i32::<LittleEndian>().unwrap();

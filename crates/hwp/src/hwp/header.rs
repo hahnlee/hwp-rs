@@ -25,14 +25,16 @@ impl Header {
         let mut stream = cfb.open_stream("/FileHeader").unwrap();
 
         if stream.len() != 256 {
-            // TODO: (@hahnlee) 에러 주기
+            // TODO: (@hahnlee) 옵셔널
+            panic!("올바르지 않은 정보");
         }
 
         let mut signature = [0; 32];
         stream.read(&mut signature).unwrap();
 
         if String::from_utf8(signature[0..17].to_vec()).unwrap() != SIGNATURE_STR {
-            // TODO: (@hahnlee) 에러주기
+            // TODO: (@hahnlee) 옵셔널
+            panic!("올바르지 않은 정보");
         }
 
         let mut version = [0; 4];
