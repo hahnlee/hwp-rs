@@ -27,7 +27,7 @@ impl HWP {
 
         let header = Header::from_cfb(&mut cfb);
 
-        let doc_info = DocInfo::from_cfb(&mut cfb);
+        let doc_info = DocInfo::from_cfb(&mut cfb, &header.version);
 
         // TODO: (@hahnlee) 배포용문서
         let body = Body::from_cfb(&mut cfb);
