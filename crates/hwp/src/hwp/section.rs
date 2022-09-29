@@ -14,16 +14,17 @@ use flate2::read::DeflateDecoder;
 pub struct Section {}
 
 impl Section {
-    pub fn from_stream<T: Read>(stream: &mut T) -> Section {
-        let mut data = DeflateDecoder::new(stream);
-
-        // TODO: (@hahnlee) record 구현
+    pub fn from_deflate<T: Read>(data: &mut DeflateDecoder<T>) -> Section {
         data.read_record::<LittleEndian>().unwrap();
 
         Section {}
     }
 
-    // TODO: (@hahnlee) 통합방법 생각하기
+    pub fn from_stream<T: Read>(stream: &mut T) -> Section {
+        let mut data = DeflateDecoder::new(stream);
+        Section::from_deflate(&mut data)
+    }
+
     pub fn from_distributed<T: Read>(stream: &mut T) -> Section {
         let (tag_id, _, size, mut reader) = stream.read_record::<LittleEndian>().unwrap();
 
@@ -77,9 +78,6 @@ impl Section {
 
         let mut decoded = DeflateDecoder::new(cursor);
 
-        // TODO: (@hahnlee) record 구현
-        decoded.read_record::<LittleEndian>().unwrap();
-
-        Section {}
+        Section::from_deflate(&mut decoded)
     }
 }
