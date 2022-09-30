@@ -25,7 +25,7 @@ pub enum Char {
     CharCode(u16),
     CharControl(CharControls),
     InlineControl([u8; 12]),
-    // ExtendedControl(),
+    ExtendedControl(u16, [u8; 12]),
 }
 
 pub fn match_char_control(input: u16) -> Option<CharControls> {
@@ -64,6 +64,17 @@ pub fn read_char<T: Read>(reader: &mut T) -> Char {
     if code != other {
         // TODO: (@hahnlee) 파싱 수정하기
         panic!("잘못된 자료형입니다");
+    }
+
+    let ext = match code {
+        1 | 2 | 3 | 11 | 12 | 14 | 15 | 16 | 17 | 18 | 21 | 22 | 23 => {
+            Some(Char::ExtendedControl(code, buf))
+        }
+        _ => None,
+    };
+
+    if ext.is_some() {
+        return ext.unwrap();
     }
 
     // TODO: (@hahnlee) Inline - Extend 분리

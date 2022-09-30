@@ -8,6 +8,7 @@ edition = "2021"
 [dependencies]
 byteorder = "1"
 cfb = "0.7"
+hwp_macro = { path = "../macro" }
 flate2 = "1.0"
 num = "0.4"
 openssl = "0.10"
