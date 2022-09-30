@@ -1,8 +1,10 @@
 use crate::hwp::utils::random::SRand;
 
 use super::{
+    paragraph::Paragraph,
     record::{reader::RecordReader, tags::DocInfoRecord},
     utils::crypto::decrypt_aes_128_ecb,
+    version::Version,
 };
 
 use std::io::{Cursor, Read};
@@ -11,21 +13,26 @@ use byteorder::{LittleEndian, ReadBytesExt};
 use flate2::read::DeflateDecoder;
 
 #[derive(Debug)]
-pub struct Section {}
+pub struct Section {
+    pub paragraphs: Vec<Paragraph>,
+}
 
 impl Section {
-    pub fn from_deflate<T: Read>(data: &mut DeflateDecoder<T>) -> Section {
-        data.read_record::<LittleEndian>().unwrap();
+    pub fn from_deflate<T: Read>(data: &mut DeflateDecoder<T>, version: &Version) -> Section {
+        let paragraphs: Vec<Paragraph> = Vec::new();
 
-        Section {}
+        // TODO: (@hahnlee) 문단 수 만큼 반복
+        Paragraph::from_reader(data, version);
+
+        Section { paragraphs }
     }
 
-    pub fn from_stream<T: Read>(stream: &mut T) -> Section {
+    pub fn from_stream<T: Read>(stream: &mut T, version: &Version) -> Section {
         let mut data = DeflateDecoder::new(stream);
-        Section::from_deflate(&mut data)
+        Section::from_deflate(&mut data, version)
     }
 
-    pub fn from_distributed<T: Read>(stream: &mut T) -> Section {
+    pub fn from_distributed<T: Read>(stream: &mut T, version: &Version) -> Section {
         let (tag_id, _, size, mut reader) = stream.read_record::<LittleEndian>().unwrap();
 
         if tag_id != DocInfoRecord::HWPTAG_DISTRIBUTE_DOC_DATA as u32 || size != 256 {
@@ -78,6 +85,6 @@ impl Section {
 
         let mut decoded = DeflateDecoder::new(cursor);
 
-        Section::from_deflate(&mut decoded)
+        Section::from_deflate(&mut decoded, version)
     }
 }

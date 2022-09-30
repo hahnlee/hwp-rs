@@ -47,3 +47,16 @@ pub enum DocInfoRecord {
     /// 변경 추적 작성자
     HWPTAG_TRACK_CHANGE_AUTHOR = HWPTAG_BEGIN + 81,
 }
+
+#[repr(u32)]
+#[derive(PartialEq, Eq)]
+#[allow(non_camel_case_types, dead_code)]
+pub enum BodyTextRecord {
+    /// 문단 헤더
+    HWPTAG_PARA_HEADER = HWPTAG_BEGIN + 50,
+    HWPTAG_PARA_TEXT,
+    HWPTAG_PARA_CHAR_SHAPE,
+    HWPTAG_PARA_LINE_SEG,
+    HWPTAG_PARA_RANGE_TAG,
+    HWPTAG_CTRL_HEADER,
+}

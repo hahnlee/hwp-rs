@@ -1,6 +1,7 @@
 pub mod body;
 pub mod doc_info;
 pub mod header;
+pub mod paragraph;
 pub mod section;
 pub mod version;
 
@@ -30,9 +31,9 @@ impl HWP {
 
         let doc_info = DocInfo::from_cfb(&mut cfb, &header.version);
 
-        let body_texts = Body::from_cfb(&mut cfb);
+        let body_texts = Body::from_cfb(&mut cfb, &header.version);
         let view_texts = if header.flags.distributed {
-            Some(Body::from_distributed(&mut cfb))
+            Some(Body::from_distributed(&mut cfb, &header.version))
         } else {
             None
         };
