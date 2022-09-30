@@ -19,10 +19,10 @@ pub struct Section {
 
 impl Section {
     pub fn from_deflate<T: Read>(data: &mut DeflateDecoder<T>, version: &Version) -> Section {
-        let paragraphs: Vec<Paragraph> = Vec::new();
+        let mut paragraphs: Vec<Paragraph> = Vec::new();
 
         // TODO: (@hahnlee) 문단 수 만큼 반복
-        Paragraph::from_reader(data, version);
+        paragraphs.push(Paragraph::from_reader(data, version));
 
         Section { paragraphs }
     }
