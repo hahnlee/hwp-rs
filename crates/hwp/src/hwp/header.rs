@@ -3,7 +3,7 @@ use std::io::{Cursor, Read};
 use byteorder::{LittleEndian, ReadBytesExt};
 use cfb::CompoundFile;
 
-use super::{utils::bits::{get_flag, get_value}, version::Version};
+use super::{utils::bits::{get_flag, get_value_range}, version::Version};
 
 #[derive(Debug)]
 pub struct Header {
@@ -92,12 +92,13 @@ pub struct Flags {
     pub has_video_control: bool,
     pub has_order_field_control: bool,
     // TODO: (@hahnlee) to_bytes / to_u32 구현시 처리하기
+    #[allow(dead_code)]
     reserved: u32,
 }
 
 impl Flags {
     fn from_bits(bits: u32) -> Flags {
-        let reserved = get_value(bits, 14, 32);
+        let reserved = get_value_range(bits, 14, 32);
 
         Flags {
             compressed: get_flag(bits, 0),
@@ -131,12 +132,13 @@ pub struct License {
     pub replication_restrictions: bool,
     pub replication_alike: bool,
     // TODO: (@hahnlee) to_bytes / to_u32 구현시 처리하기
+    #[allow(dead_code)]
     reserved: u32,
 }
 
 impl License {
     fn from_bits(bits: u32) -> License {
-        let reserved = get_value(bits, 3, 32);
+        let reserved = get_value_range(bits, 3, 32);
 
         License {
             ccl: get_flag(bits, 0),

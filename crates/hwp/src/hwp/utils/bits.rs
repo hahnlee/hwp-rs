@@ -2,7 +2,7 @@ use std::ops::{AddAssign, BitAnd, Shl, ShlAssign, Shr};
 
 use num::{one, zero, Integer};
 
-pub fn get_value<T: Integer>(bits: T, start: T, end: T) -> T
+pub fn get_value_range<T: Integer>(bits: T, start: T, end: T) -> T
 where
     T: Shl<Output = T> + Shr<Output = T> + ShlAssign + AddAssign + BitAnd<Output = T> + Copy,
     std::ops::Range<T>: IntoIterator,
@@ -16,6 +16,16 @@ where
     }
 
     return target & mask;
+}
+
+// TODO: (@hahnlee) 사용처가 없다면 제거하기
+#[allow(dead_code)]
+pub fn get_value<T: Integer>(bits: T, start: T) -> T
+where
+    T: Shl<Output = T> + Shr<Output = T> + ShlAssign + AddAssign + BitAnd<Output = T> + Copy,
+    std::ops::Range<T>: IntoIterator,
+{
+    return get_value_range(bits, start, start);
 }
 
 pub fn get_flag<T: Integer>(bits: T, position: T) -> bool

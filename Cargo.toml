@@ -1,4 +1,5 @@
 [workspace]
 members = [
   "crates/hwp",
+  "crates/macro",
 ]

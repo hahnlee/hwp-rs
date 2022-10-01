@@ -96,9 +96,14 @@ dependencies = [
  "byteorder",
  "cfb",
  "flate2",
+ "hwp_macro",
  "num",
  "openssl",
 ]
+
+[[package]]
+name = "hwp_macro"
+version = "0.1.0"
 
 [[package]]
 name = "libc"

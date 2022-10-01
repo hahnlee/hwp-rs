@@ -4,7 +4,7 @@ use byteorder::{LittleEndian, ReadBytesExt};
 
 use crate::hwp::{
     record::{reader::RecordReader, tags::DocInfoRecord},
-    utils::bits::get_value,
+    utils::bits::get_value_range,
 };
 
 #[derive(Debug)]
@@ -89,9 +89,9 @@ impl BinDataProperties {
     pub fn from_bits(bits: u16) -> BinDataProperties {
         // TODO: (@hahnlee) 남는 비트정보 보존
         BinDataProperties {
-            data_type: get_value(bits, 0, 3),
-            compress_mode: get_value(bits, 4, 5),
-            status: get_value(bits, 8, 9),
+            data_type: get_value_range(bits, 0, 3),
+            compress_mode: get_value_range(bits, 4, 5),
+            status: get_value_range(bits, 8, 9),
         }
     }
 }

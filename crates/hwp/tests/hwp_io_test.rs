@@ -23,4 +23,5 @@ fn check_body_size() {
     assert_eq!(hwp.header.license.replication_restrictions, false);
 
     assert_eq!(hwp.body_texts.sections.len(), 1);
+    assert_eq!(hwp.body_texts.sections[0].paragraphs[0].to_string(), "Hello World!");
 }
