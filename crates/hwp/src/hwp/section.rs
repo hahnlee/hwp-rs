@@ -1,4 +1,4 @@
-use crate::hwp::utils::random::SRand;
+use crate::hwp::{record::reader::read_records, utils::random::SRand};
 
 use super::{
     paragraph::Paragraph,
@@ -11,7 +11,6 @@ use std::io::{Cursor, Read};
 
 use byteorder::{LittleEndian, ReadBytesExt};
 use flate2::read::DeflateDecoder;
-use num::ToPrimitive;
 
 #[derive(Debug)]
 pub struct Section {
@@ -20,17 +19,15 @@ pub struct Section {
 
 impl Section {
     pub fn from_deflate<T: Read>(decoder: &mut DeflateDecoder<T>, version: &Version) -> Section {
-        let mut paragraphs: Vec<Paragraph> = Vec::new();
-
         let mut data = Vec::new();
         decoder.read_to_end(&mut data).unwrap();
 
-        let mut reader = Cursor::new(data);
+        let records = read_records(data);
 
-        let size = reader.get_ref().len().to_u64().unwrap() - 1;
-        while reader.position() < size {
-            paragraphs.push(Paragraph::from_reader(&mut reader, version));
-        }
+        let paragraphs = records
+            .into_iter()
+            .map(|record| Paragraph::from_record(record, version))
+            .collect();
 
         Section { paragraphs }
     }

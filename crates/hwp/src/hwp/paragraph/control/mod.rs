@@ -1,16 +1,13 @@
 pub mod footnote_shape;
 pub mod page_definition;
 pub mod section;
-pub mod unknown;
-
-use std::io::{Read, Seek};
 
 use byteorder::{LittleEndian, ReadBytesExt};
 use hwp_macro::make_4chid;
 
-use crate::hwp::record::{reader::RecordReader, tags::BodyTextRecord};
+use crate::hwp::record::{tags::BodyTextRecord, Record};
 
-use self::{section::SectionControl, unknown::Unknown};
+use self::section::SectionControl;
 
 #[derive(Debug)]
 pub enum Control {
@@ -18,30 +15,22 @@ pub enum Control {
     Secd(SectionControl),
 
     // 지원 안하는 레코드
-    Unknown(Unknown),
+    Unknown(u32, Vec<Record>),
 }
 
-pub fn parse_control<T: Read + Seek>(reader: &mut T) -> Control {
-    let (tag_id, level, size) = reader.read_record_meta::<LittleEndian>().unwrap();
-    if tag_id != BodyTextRecord::HWPTAG_CTRL_HEADER as u32 {
+pub fn parse_control(record: Record) -> Control {
+    if record.tag_id != BodyTextRecord::HWPTAG_CTRL_HEADER as u32 {
         // TODO: (@hahnlee) Result로 바꾸기
-        panic!("잘못된 레코드 입니다 {tag_id}");
+        panic!("잘못된 레코드 입니다 {}", record.tag_id);
     }
 
+    let mut reader = record.get_data_reader();
     let ctrl_id = reader.read_u32::<LittleEndian>().unwrap();
-
-    let result = match ctrl_id {
-        make_4chid!('s', 'e', 'c', 'd') => {
-            Some(Control::Secd(SectionControl::from_reader(reader, size - 4)))
-        }
-        _ => None,
-    };
 
     // NOTE: (@hahnlee) 모르는 컨트롤을 만날 경우 하위에 레코드가 있을 수 있어 잘못 파싱할 수 있다.
     // TODO: (@hahnlee) 에러를 발생하는게 맞는지 검토
-    if result.is_none() {
-        return Control::Unknown(Unknown::from_reader(ctrl_id, reader, level, size - 4));
+    match ctrl_id {
+        make_4chid!('s', 'e', 'c', 'd') => Control::Secd(SectionControl::from_record(record)),
+        _ => Control::Unknown(ctrl_id, record.remain_children()),
     }
-
-    result.unwrap()
 }

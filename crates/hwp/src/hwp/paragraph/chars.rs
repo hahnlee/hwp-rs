@@ -1,21 +1,28 @@
-use std::io::Read;
+use std::io::Cursor;
 
-use super::char::{read_char, Char};
+use super::char::{read_char, Char, CharControls};
 
 #[derive(Debug)]
 pub struct Chars {
-    data: Vec<Char>,
+    chars: Vec<Char>,
 }
 
 impl Chars {
-    pub fn from_reader<T: Read>(reader: &mut T, count: usize) -> Chars {
-        let mut data = Vec::with_capacity(count as usize);
+    pub fn new() -> Chars {
+        let chars = vec![Char::CharControl(CharControls::ParaBreak)];
+        Self { chars }
+    }
+
+    pub fn from_data(data: Vec<u8>, count: usize) -> Chars {
+        let mut chars = Vec::with_capacity(count as usize);
+        let mut reader = Cursor::new(data);
+
         let mut i = 0;
         loop {
             if i >= count {
                 break;
             }
-            let char = read_char(reader);
+            let char = read_char(&mut reader);
             match char {
                 Char::CharCode(_) => {
                     i += 1;
@@ -24,15 +31,15 @@ impl Chars {
                     i += 8;
                 }
             };
-            data.push(char);
+            chars.push(char);
         }
 
-        Chars { data }
+        Chars { chars }
     }
 
     /// 컨트롤 개수를 반환
     pub fn extend_control_count(&self) -> usize {
-        self.data.iter().fold(0, |result, char| match char {
+        self.chars.iter().fold(0, |result, char| match char {
             Char::ExtendedControl(_, _) => result + 1,
             _ => result,
         })
@@ -42,7 +49,7 @@ impl Chars {
         // TODO: (@hahnlee) 테이블 어떻게 하는지 알아보기
         let mut buf: Vec<u16> = Vec::new();
 
-        for char in &self.data {
+        for char in &self.chars {
             // TODO: (@hahnlee) CharControl 확인하기
             if let Char::CharCode(char_code) = char {
                 buf.push(*char_code);
