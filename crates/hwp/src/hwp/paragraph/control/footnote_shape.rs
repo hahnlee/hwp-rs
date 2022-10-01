@@ -1,8 +1,6 @@
-use std::io::Read;
-
 use byteorder::{LittleEndian, ReadBytesExt};
 
-use crate::hwp::record::{reader::RecordReader, tags::BodyTextRecord};
+use crate::hwp::record::{tags::BodyTextRecord, Record};
 
 #[derive(Debug)]
 pub struct FootnoteShape {
@@ -22,41 +20,41 @@ pub struct FootnoteShape {
 }
 
 impl FootnoteShape {
-    pub fn from_reader<T: Read>(reader: &mut T) -> FootnoteShape {
-        let (tag_id, _, _, mut record) = reader.read_record::<LittleEndian>().unwrap();
-
-        if tag_id != BodyTextRecord::HWPTAG_FOOTNOTE_SHAPE as u32 {
+    pub fn from_record(record: Record) -> FootnoteShape {
+        if record.tag_id != BodyTextRecord::HWPTAG_FOOTNOTE_SHAPE as u32 {
             // TODO: (@hahnlee) Result 타입으로 바꾸는것 검토
-            panic!("다른 레코드 입니다");
+            panic!("다른 레코드 입니다 {}", record.tag_id);
         }
 
+        let mut reader = record.get_data_reader();
+
         // TODO: (@hahnlee) 속성
-        record.read_u32::<LittleEndian>().unwrap();
+        reader.read_u32::<LittleEndian>().unwrap();
 
-        let user_char = String::from_utf16(&[record.read_u16::<LittleEndian>().unwrap()]).unwrap();
+        let user_char = String::from_utf16(&[reader.read_u16::<LittleEndian>().unwrap()]).unwrap();
         let prefix_char =
-            String::from_utf16(&[record.read_u16::<LittleEndian>().unwrap()]).unwrap();
+            String::from_utf16(&[reader.read_u16::<LittleEndian>().unwrap()]).unwrap();
         let suffix_char =
-            String::from_utf16(&[record.read_u16::<LittleEndian>().unwrap()]).unwrap();
+            String::from_utf16(&[reader.read_u16::<LittleEndian>().unwrap()]).unwrap();
 
-        let start_number = record.read_u16::<LittleEndian>().unwrap();
+        let start_number = reader.read_u16::<LittleEndian>().unwrap();
 
-        let divide_line_length = record.read_u32::<LittleEndian>().unwrap();
+        let divide_line_length = reader.read_u32::<LittleEndian>().unwrap();
 
         // TODO: (@hahnlee) 구분선 위 여백
-        record.read_i16::<LittleEndian>().unwrap();
+        reader.read_i16::<LittleEndian>().unwrap();
         // TODO: (@hahnlee) 구분선 아래 여백
-        record.read_i16::<LittleEndian>().unwrap();
+        reader.read_i16::<LittleEndian>().unwrap();
         // TODO: (@hahnlee) 주석 사이 여백
-        record.read_i16::<LittleEndian>().unwrap();
+        reader.read_i16::<LittleEndian>().unwrap();
 
         // TODO: (@hahnlee) 구분선 종류
-        record.read_u8().unwrap();
+        reader.read_u8().unwrap();
         // TODO: (@hahnlee) 구분선 굵기
-        record.read_u8().unwrap();
+        reader.read_u8().unwrap();
 
         // TODO: (@hahnlee) 구분선 색상
-        record.read_u32::<LittleEndian>().unwrap();
+        reader.read_u32::<LittleEndian>().unwrap();
 
         FootnoteShape {
             user_char,
