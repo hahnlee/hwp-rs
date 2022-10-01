@@ -3,7 +3,7 @@ pub mod chars;
 pub mod control;
 pub mod header;
 
-use std::io::Read;
+use std::io::{Read, Seek};
 
 use byteorder::LittleEndian;
 
@@ -26,7 +26,7 @@ pub struct Paragraph {
 }
 
 impl Paragraph {
-    pub fn from_reader<T: Read>(reader: &mut T, version: &Version) -> Paragraph {
+    pub fn from_reader<T: Read + Seek>(reader: &mut T, version: &Version) -> Paragraph {
         let header = ParagraphHeader::from_reader(reader, version);
 
         // TODO: (@hahnlee) header.chars가 0이면 무시?

@@ -45,6 +45,24 @@ pub trait RecordReader: Read + ReadBytesExt {
 
         Ok(String::from_utf16(&buf).unwrap())
     }
+
+    #[inline]
+    fn read_record_with_bytes<T: ByteOrder>(&mut self) -> Result<(u32, u32, u32, i64)> {
+        let value = self.read_u32::<T>()?;
+        let mut bytes = 4;
+
+        let tag_id = value & 0x3FF;
+        let level = (value >> 10) & 0x3FF;
+        let mut size = (value >> 20) & 0xFFF;
+
+        if size == 0xFFF {
+            size = self.read_u32::<T>()?;
+            bytes += 4;
+        }
+
+        Ok((tag_id, level, size, bytes))
+    }
+
 }
 
 impl<R: Read + ?Sized> RecordReader for R {}

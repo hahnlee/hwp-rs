@@ -18,11 +18,16 @@ pub struct Section {
 }
 
 impl Section {
-    pub fn from_deflate<T: Read>(data: &mut DeflateDecoder<T>, version: &Version) -> Section {
+    pub fn from_deflate<T: Read>(decoder: &mut DeflateDecoder<T>, version: &Version) -> Section {
         let mut paragraphs: Vec<Paragraph> = Vec::new();
 
+        let mut data = Vec::new();
+        decoder.read_to_end(&mut data).unwrap();
+
+        let mut reader = Cursor::new(data);
+
         // TODO: (@hahnlee) 문단 수 만큼 반복
-        paragraphs.push(Paragraph::from_reader(data, version));
+        paragraphs.push(Paragraph::from_reader(&mut reader, version));
 
         Section { paragraphs }
     }
