@@ -21,8 +21,7 @@ use super::{
 #[derive(Debug)]
 pub struct Paragraph {
     pub header: ParagraphHeader,
-    // TODO: (@hahnlee) Option 제거
-    pub controls: Vec<Option<Control>>,
+    pub controls: Vec<Control>,
     chars: Chars,
 }
 
@@ -70,7 +69,7 @@ impl Paragraph {
         }
 
         let control_count = chars.extend_control_count();
-        let mut controls: Vec<Option<Control>> = Vec::with_capacity(control_count);
+        let mut controls: Vec<Control> = Vec::with_capacity(control_count);
         for _ in 0..control_count {
             controls.push(parse_control(reader));
         }

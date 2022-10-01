@@ -31,12 +31,12 @@ impl Font {
             panic!("올바르지 않은 정보");
         }
 
-        let property = data.read_u8().unwrap();
+        let properties = data.read_u8().unwrap();
         let name = data.read_string::<LittleEndian>().unwrap();
 
-        let has_alternative = get_flag(property, 7);
-        let has_panose = get_flag(property, 6);
-        let has_default_font = get_flag(property, 5);
+        let has_alternative = get_flag(properties, 7);
+        let has_panose = get_flag(properties, 6);
+        let has_default_font = get_flag(properties, 5);
 
         let alternative_type = if has_alternative {
             Some(data.read_u8().unwrap())
