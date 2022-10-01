@@ -40,8 +40,6 @@ pub fn parse_control<T: Read + Seek>(reader: &mut T) -> Control {
     // NOTE: (@hahnlee) 모르는 컨트롤을 만날 경우 하위에 레코드가 있을 수 있어 잘못 파싱할 수 있다.
     // TODO: (@hahnlee) 에러를 발생하는게 맞는지 검토
     if result.is_none() {
-        // TODO: (@hahnlee) 로거 변경
-        println!("해석할 수 없는 컨트롤입니다. {ctrl_id}");
         return Control::Unknown(Unknown::from_reader(ctrl_id, reader, level, size - 4));
     }
 

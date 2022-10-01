@@ -1,9 +1,6 @@
-use std::io::{Read, Seek, SeekFrom};
+use std::io::{Read, Seek};
 
-use byteorder::LittleEndian;
-use num::ToPrimitive;
-
-use crate::hwp::record::reader::RecordReader;
+use crate::hwp::record::reader::traverse_records;
 
 #[derive(Debug)]
 pub struct Unknown {
@@ -25,33 +22,10 @@ impl Unknown {
 
         let children = traverse_records(reader, level);
 
-        Unknown { ctrl_id, data, children }
-    }
-}
-
-fn traverse_records<T: Read + Seek>(reader: &mut T, current_level: u32) -> Vec<u8> {
-    let mut records = Vec::new();
-
-    loop {
-        let record = reader.read_record_with_bytes::<LittleEndian>();
-        if record.is_err() {
-            break;
+        Unknown {
+            ctrl_id,
+            data,
+            children,
         }
-
-        let (_, level, size, read_bytes) = record.unwrap();
-        reader.seek(SeekFrom::Current(-read_bytes)).unwrap();
-
-        if current_level >= level {
-            break;
-        }
-
-        let record_size: u64 = size.to_u64().unwrap() + read_bytes.to_u64().unwrap();
-        let mut take = reader.take(record_size);
-        let mut buf = Vec::new();
-        take.read_to_end(&mut buf).unwrap();
-
-        records.append(&mut buf);
     }
-
-    return records;
 }

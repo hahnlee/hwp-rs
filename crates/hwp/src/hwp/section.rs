@@ -11,6 +11,7 @@ use std::io::{Cursor, Read};
 
 use byteorder::{LittleEndian, ReadBytesExt};
 use flate2::read::DeflateDecoder;
+use num::ToPrimitive;
 
 #[derive(Debug)]
 pub struct Section {
@@ -26,8 +27,10 @@ impl Section {
 
         let mut reader = Cursor::new(data);
 
-        // TODO: (@hahnlee) 문단 수 만큼 반복
-        paragraphs.push(Paragraph::from_reader(&mut reader, version));
+        let size = reader.get_ref().len().to_u64().unwrap() - 1;
+        while reader.position() < size {
+            paragraphs.push(Paragraph::from_reader(&mut reader, version));
+        }
 
         Section { paragraphs }
     }

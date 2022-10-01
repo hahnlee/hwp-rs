@@ -10,11 +10,12 @@ use crate::hwp::{
 use super::footnote_shape::FootnoteShape;
 
 #[derive(Debug)]
-#[allow(dead_code)]
 pub struct SectionControl {
     pub page_definition: PageDefinition,
     pub footnote_shape: FootnoteShape,
     pub endnote_shape: FootnoteShape,
+    // TODO: (@hahnlee) 재구성시 처리
+    #[allow(dead_code)]
     unknown: Vec<u8>,
 }
 

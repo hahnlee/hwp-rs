@@ -1,6 +1,7 @@
-use std::io::{Read, Result, Take};
+use std::io::{Read, Result, Take, Seek, SeekFrom};
 
-use byteorder::{ByteOrder, ReadBytesExt};
+use byteorder::{ByteOrder, ReadBytesExt, LittleEndian};
+use num::ToPrimitive;
 
 pub trait RecordReader: Read + ReadBytesExt {
     #[inline]
@@ -66,3 +67,30 @@ pub trait RecordReader: Read + ReadBytesExt {
 }
 
 impl<R: Read + ?Sized> RecordReader for R {}
+
+pub fn traverse_records<T: Read + Seek>(reader: &mut T, current_level: u32) -> Vec<u8> {
+    let mut records = Vec::new();
+
+    loop {
+        let record = reader.read_record_with_bytes::<LittleEndian>();
+        if record.is_err() {
+            break;
+        }
+
+        let (_, level, size, read_bytes) = record.unwrap();
+        reader.seek(SeekFrom::Current(-read_bytes)).unwrap();
+
+        if current_level >= level {
+            break;
+        }
+
+        let record_size: u64 = size.to_u64().unwrap() + read_bytes.to_u64().unwrap();
+        let mut take = reader.take(record_size);
+        let mut buf = Vec::new();
+        take.read_to_end(&mut buf).unwrap();
+
+        records.append(&mut buf);
+    }
+
+    return records;
+}

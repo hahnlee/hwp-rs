@@ -92,6 +92,7 @@ pub struct Flags {
     pub has_video_control: bool,
     pub has_order_field_control: bool,
     // TODO: (@hahnlee) to_bytes / to_u32 구현시 처리하기
+    #[allow(dead_code)]
     reserved: u32,
 }
 
@@ -131,6 +132,7 @@ pub struct License {
     pub replication_restrictions: bool,
     pub replication_alike: bool,
     // TODO: (@hahnlee) to_bytes / to_u32 구현시 처리하기
+    #[allow(dead_code)]
     reserved: u32,
 }
 

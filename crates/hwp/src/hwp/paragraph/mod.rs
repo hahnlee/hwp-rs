@@ -14,7 +14,7 @@ use self::{
 };
 
 use super::{
-    record::{reader::RecordReader, tags::BodyTextRecord},
+    record::{reader::{RecordReader, traverse_records}, tags::BodyTextRecord},
     version::Version,
 };
 
@@ -23,6 +23,9 @@ pub struct Paragraph {
     pub header: ParagraphHeader,
     pub controls: Vec<Control>,
     chars: Chars,
+    // TODO: (@hahnlee) 재구성시 처리
+    #[allow(dead_code)]
+    unknown: Vec<u8>,
 }
 
 impl Paragraph {
@@ -74,10 +77,14 @@ impl Paragraph {
             controls.push(parse_control(reader));
         }
 
+        // TODO: (@hahnlee) 상태에 따른 파싱 추가
+        let unknown = traverse_records(reader, 0);
+
         Paragraph {
             header,
             chars,
             controls,
+            unknown,
         }
     }
 
