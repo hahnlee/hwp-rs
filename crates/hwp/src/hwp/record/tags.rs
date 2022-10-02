@@ -65,4 +65,6 @@ pub enum BodyTextRecord {
     HWPTAG_PAGE_BORDER_FILL,
     HWPTAG_SHAPE_COMPONENT,
     HWPTAG_TABLE,
+    /// 수식
+    HWPTAG_EQEDIT = HWPTAG_BEGIN + 72,
 }

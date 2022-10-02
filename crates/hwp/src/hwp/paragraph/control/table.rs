@@ -15,7 +15,7 @@ use super::common_properties::CommonProperties;
 pub struct TableControl {
     /// 개체 공통 속성
     pub common_properties: CommonProperties,
-    pub table_record: TableRecord,
+    pub record: TableRecord,
     pub cells: Vec<Cell>,
 }
 
@@ -45,7 +45,7 @@ impl TableControl {
 
         Self {
             common_properties,
-            table_record,
+            record: table_record,
             cells,
         }
     }
@@ -55,7 +55,6 @@ impl TableControl {
 pub struct TableRecord {
     pub rows: u16,
     pub cols: u16,
-    /// 특정 row에 존재하는 cell 수
     pub row_count: Vec<u16>,
 }
 
