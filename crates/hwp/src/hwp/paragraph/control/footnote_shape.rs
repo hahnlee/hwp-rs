@@ -2,6 +2,7 @@ use byteorder::{LittleEndian, ReadBytesExt};
 
 use crate::hwp::record::{tags::BodyTextRecord, Record};
 
+/// 각주 / 미주
 #[derive(Debug)]
 pub struct FootnoteShape {
     /// 사용자 기호

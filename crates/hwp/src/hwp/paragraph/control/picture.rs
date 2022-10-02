@@ -2,19 +2,21 @@ use crate::hwp::record::Record;
 
 use super::common_properties::CommonProperties;
 
-/// 표
+/// 그림
 #[derive(Debug)]
-pub struct Table {
+pub struct Picture {
     /// 개체 공통 속성
     pub common_properties: CommonProperties,
 }
 
-impl Table {
-    pub fn from_record(record: Record) -> Table {
+impl Picture {
+    pub fn from_record(record: Record) -> Self {
         let size = record.data.len();
         let mut reader = record.get_data_reader();
+
         let common_properties = CommonProperties::from_reader(&mut reader, size as u64);
 
-        Table { common_properties }
+        // TODO: (@hahnlee) 남은 데이터 파싱하기
+        Self { common_properties }
     }
 }

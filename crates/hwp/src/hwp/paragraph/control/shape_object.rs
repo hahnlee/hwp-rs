@@ -5,8 +5,10 @@ use crate::hwp::record::Record;
 
 use super::common_properties::CommonProperties;
 
+/// 그리기 객체
 #[derive(Debug)]
 pub struct GenShapeObject {
+    /// 개체 공통 속성
     pub common_properties: CommonProperties,
 }
 
@@ -29,8 +31,10 @@ impl GenShapeObject {
     }
 }
 
+/// 선
 #[derive(Debug)]
 pub struct ShapeLine {
+    /// 개체 공통 속성
     pub common_properties: CommonProperties,
 }
 
@@ -46,8 +50,10 @@ impl ShapeLine {
     }
 }
 
+/// 사각형
 #[derive(Debug)]
 pub struct ShapeRectangle {
+    /// 개체 공통 속성
     pub common_properties: CommonProperties,
 }
 
@@ -63,8 +69,10 @@ impl ShapeRectangle {
     }
 }
 
+/// 타원
 #[derive(Debug)]
 pub struct ShapeEllipse {
+    /// 개체 공통 속성
     pub common_properties: CommonProperties,
 }
 
@@ -80,8 +88,10 @@ impl ShapeEllipse {
     }
 }
 
+/// 호
 #[derive(Debug)]
 pub struct ShapeArc {
+    /// 개체 공통 속성
     pub common_properties: CommonProperties,
 }
 
@@ -97,8 +107,10 @@ impl ShapeArc {
     }
 }
 
+/// 다각형
 #[derive(Debug)]
 pub struct ShapePolygon {
+    /// 개체 공통 속성
     pub common_properties: CommonProperties,
 }
 
@@ -114,8 +126,10 @@ impl ShapePolygon {
     }
 }
 
+/// 곡선
 #[derive(Debug)]
 pub struct ShapeCurve {
+    /// 개체 공통 속성
     pub common_properties: CommonProperties,
 }
 
