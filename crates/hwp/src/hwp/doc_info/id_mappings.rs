@@ -59,9 +59,9 @@ impl IDMappings {
         let tracking_supported_version = Version::from_str("5.0.3.2");
 
         let target_size: u32 = {
-            if *version < memo_supported_version {
+            if version.lt(&memo_supported_version) {
                 60
-            } else if *version < tracking_supported_version {
+            } else if version.lt(&tracking_supported_version) {
                 64
             } else {
                 72
@@ -95,13 +95,13 @@ impl IDMappings {
             0
         };
 
-        let change_trackings = if *version >= tracking_supported_version {
+        let change_trackings = if version.ge(&tracking_supported_version) {
             data.read_i32::<LittleEndian>().unwrap()
         } else {
             0
         };
 
-        let change_tracking_users = if *version >= tracking_supported_version {
+        let change_tracking_users = if version.ge(&tracking_supported_version) {
             data.read_i32::<LittleEndian>().unwrap()
         } else {
             0

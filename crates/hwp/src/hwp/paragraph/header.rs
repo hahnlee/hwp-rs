@@ -46,7 +46,7 @@ impl ParagraphHeader {
         reader.read_u32::<LittleEndian>().unwrap();
 
         // 변경추적 병합 문단여부. (5.0.3.2 버전 이상)
-        if *version >= Version::from_str("5.0.3.2") {
+        if version.ge(&Version::from_str("5.0.3.2")) {
             reader.read_u16::<LittleEndian>().unwrap();
         }
 

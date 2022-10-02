@@ -1,8 +1,8 @@
-use std::io::{Read, Seek};
+use std::io::Seek;
 
 use byteorder::{LittleEndian, ReadBytesExt};
 
-use crate::hwp::record::reader::RecordReader;
+use crate::hwp::record::{reader::RecordReader, Record};
 
 /// 개체 공통 속성
 #[derive(Debug)]
@@ -12,7 +12,13 @@ pub struct CommonProperties {
 }
 
 impl CommonProperties {
-    pub fn from_reader<T: Read + Seek>(reader: &mut T, size: u64) -> Self {
+    pub fn from_reader(record: &mut Record) -> Self {
+        let size = record.data.len() as u64;
+        let mut reader = record.get_data_reader();
+
+        // ctrl_id
+        reader.read_u32::<LittleEndian>().unwrap();
+
         // 속성
         reader.read_u32::<LittleEndian>().unwrap();
 
@@ -42,11 +48,17 @@ impl CommonProperties {
         reader.read_i32::<LittleEndian>().unwrap();
 
         // NOTE: (@hahnlee) len이 0이 아니라 아예 값이 없을 수도 있다
-        let description = if reader.stream_position().unwrap() < size - 1 {
+        let description = if reader.stream_position().unwrap() < size {
             reader.read_string::<LittleEndian>().unwrap()
         } else {
             format!("")
         };
+
+        assert_eq!(
+            reader.stream_position().unwrap(),
+            size as u64,
+            "안읽은 바이트가 있습니다"
+        );
 
         Self { description }
     }

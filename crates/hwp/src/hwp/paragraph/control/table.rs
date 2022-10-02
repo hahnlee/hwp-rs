@@ -10,10 +10,8 @@ pub struct Table {
 }
 
 impl Table {
-    pub fn from_record(record: Record) -> Table {
-        let size = record.data.len();
-        let mut reader = record.get_data_reader();
-        let common_properties = CommonProperties::from_reader(&mut reader, size as u64);
+    pub fn from_record(mut record: Record) -> Table {
+        let common_properties = CommonProperties::from_reader(&mut record);
 
         Table { common_properties }
     }
