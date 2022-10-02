@@ -2,6 +2,7 @@ use std::io::Read;
 
 use byteorder::{LittleEndian, ReadBytesExt};
 
+// TODO: (@hahnlee) 제너릭으로 만드는것 검토
 #[derive(Debug)]
 pub struct ParagraphListHeader {
     pub count: i16,

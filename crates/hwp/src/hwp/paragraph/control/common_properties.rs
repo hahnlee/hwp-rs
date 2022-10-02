@@ -4,7 +4,8 @@ use byteorder::{LittleEndian, ReadBytesExt};
 
 use crate::hwp::{
     paragraph::Paragraph,
-    record::{reader::RecordReader, tags::BodyTextRecord, Record}, version::Version,
+    record::{reader::RecordReader, tags::BodyTextRecord, Record},
+    version::Version,
 };
 
 use super::paragraph_list_header::ParagraphListHeader;
@@ -18,7 +19,7 @@ pub struct CommonProperties {
 }
 
 impl CommonProperties {
-    pub fn from_reader(record: &mut Record, version: &Version) -> Self {
+    pub fn from_record(record: &mut Record, version: &Version) -> Self {
         let size = record.data.len() as u64;
         let mut reader = record.get_data_reader();
 

@@ -27,13 +27,13 @@ use self::{
     shape_object::{
         GenShapeObject, ShapeArc, ShapeCurve, ShapeEllipse, ShapeLine, ShapePolygon, ShapeRectangle,
     },
-    table::Table,
+    table::TableControl,
 };
 
 #[derive(Debug)]
 pub enum Control {
     // 개체 공통 속성 컨트롤
-    Table(Table),
+    Table(TableControl),
     GenShapeObject(GenShapeObject),
     ShapeLine(ShapeLine),
     ShapeRectangle(ShapeRectangle),
@@ -68,7 +68,7 @@ pub fn parse_control(record: Record, version: &Version) -> Control {
         make_4chid!('s', 'e', 'c', 'd') => Control::Secd(SectionControl::from_record(record)),
 
         // 개체 공통 속성 컨트롤
-        make_4chid!('t', 'b', 'l', ' ') => Control::Table(Table::from_record(record, version)),
+        make_4chid!('t', 'b', 'l', ' ') => Control::Table(TableControl::from_record(record, version)),
         make_4chid!('g', 's', 'o', ' ') => Control::GenShapeObject(GenShapeObject::from_record(record, version)),
         make_4chid!('$', 'l', 'i', 'n') => Control::ShapeLine(ShapeLine::from_record(record, version)),
         make_4chid!('$', 'r', 'e', 'c') => Control::ShapeRectangle(ShapeRectangle::from_record(record, version)),

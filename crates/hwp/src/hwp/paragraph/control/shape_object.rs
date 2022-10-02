@@ -11,7 +11,7 @@ pub struct GenShapeObject {
 
 impl GenShapeObject {
     pub fn from_record(mut record: Record, version: &Version) -> Self {
-        let common_properties = CommonProperties::from_reader(&mut record, version);
+        let common_properties = CommonProperties::from_record(&mut record, version);
 
         // TODO: (@hahnlee) children 파싱하기
         GenShapeObject { common_properties }
@@ -27,7 +27,7 @@ pub struct ShapeLine {
 
 impl ShapeLine {
     pub fn from_record(mut record: Record, version: &Version) -> Self {
-        let common_properties = CommonProperties::from_reader(&mut record, version);
+        let common_properties = CommonProperties::from_record(&mut record, version);
 
         // TODO: (@hahnlee) 남은 데이터 파싱하기
         Self { common_properties }
@@ -43,7 +43,7 @@ pub struct ShapeRectangle {
 
 impl ShapeRectangle {
     pub fn from_record(mut record: Record, version: &Version) -> Self {
-        let common_properties = CommonProperties::from_reader(&mut record, version);
+        let common_properties = CommonProperties::from_record(&mut record, version);
 
         // TODO: (@hahnlee) 남은 데이터 파싱하기
         Self { common_properties }
@@ -59,7 +59,7 @@ pub struct ShapeEllipse {
 
 impl ShapeEllipse {
     pub fn from_record(mut record: Record, version: &Version) -> Self {
-        let common_properties = CommonProperties::from_reader(&mut record, version);
+        let common_properties = CommonProperties::from_record(&mut record, version);
 
         // TODO: (@hahnlee) 남은 데이터 파싱하기
         Self { common_properties }
@@ -75,7 +75,7 @@ pub struct ShapeArc {
 
 impl ShapeArc {
     pub fn from_record(mut record: Record, version: &Version) -> Self {
-        let common_properties = CommonProperties::from_reader(&mut record, version);
+        let common_properties = CommonProperties::from_record(&mut record, version);
 
         // TODO: (@hahnlee) 남은 데이터 파싱하기
         Self { common_properties }
@@ -91,7 +91,7 @@ pub struct ShapePolygon {
 
 impl ShapePolygon {
     pub fn from_record(mut record: Record, version: &Version) -> Self {
-        let common_properties = CommonProperties::from_reader(&mut record, version);
+        let common_properties = CommonProperties::from_record(&mut record, version);
 
         // TODO: (@hahnlee) 남은 데이터 파싱하기
         Self { common_properties }
@@ -107,7 +107,7 @@ pub struct ShapeCurve {
 
 impl ShapeCurve {
     pub fn from_record(mut record: Record, version: &Version) -> Self {
-        let common_properties = CommonProperties::from_reader(&mut record, version);
+        let common_properties = CommonProperties::from_record(&mut record, version);
 
         // TODO: (@hahnlee) 남은 데이터 파싱하기
         Self { common_properties }
