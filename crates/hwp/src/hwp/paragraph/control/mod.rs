@@ -1,16 +1,35 @@
+pub mod common_properties;
 pub mod footnote_shape;
 pub mod page_definition;
 pub mod section;
+pub mod shape_object;
+pub mod table;
 
 use byteorder::{LittleEndian, ReadBytesExt};
 use hwp_macro::make_4chid;
 
 use crate::hwp::record::{tags::BodyTextRecord, Record};
 
-use self::section::SectionControl;
+use self::{
+    section::SectionControl,
+    shape_object::{
+        GenShapeObject, ShapeArc, ShapeCurve, ShapeEllipse, ShapeLine, ShapePolygon, ShapeRectangle,
+    },
+    table::Table,
+};
 
 #[derive(Debug)]
 pub enum Control {
+    // 개체 공통 속성 컨트롤
+    Table(Table),
+    GenShapeObject(GenShapeObject),
+    ShapeLine(ShapeLine),
+    ShapeRectangle(ShapeRectangle),
+    ShapeEllipse(ShapeEllipse),
+    ShapeArc(ShapeArc),
+    ShapePolygon(ShapePolygon),
+    ShapeCurve(ShapeCurve),
+
     // 개체 이외 컨트롤
     Secd(SectionControl),
 
@@ -27,21 +46,20 @@ pub fn parse_control(record: Record) -> Control {
     let mut reader = record.get_data_reader();
     let ctrl_id = reader.read_u32::<LittleEndian>().unwrap();
 
-    // NOTE: (@hahnlee) 모르는 컨트롤을 만날 경우 하위에 레코드가 있을 수 있어 잘못 파싱할 수 있다.
-    // TODO: (@hahnlee) 에러를 발생하는게 맞는지 검토
+    // NOTE: (@hahnlee) 한글 표준 문서에는 누락된 컨트롤이 있다
+    // https://www.hancom.com/board/devmanualList.do
     match ctrl_id {
         make_4chid!('s', 'e', 'c', 'd') => Control::Secd(SectionControl::from_record(record)),
 
         // 개체 공통 속성 컨트롤
-        make_4chid!('t', 'b', 'l', ' ') |
-        // NOTE: (@hahnlee) 표준문서에는 없고, 웹한글 기안기 API 문서에 설명 되어있다.
-        make_4chid!('g', 's', 'o', ' ') |
-        make_4chid!('$', 'l', 'i', 'n') |
-        make_4chid!('$', 'r', 'e', 'c') |
-        make_4chid!('$', 'e', 'l', 'l') |
-        make_4chid!('$', 'a', 'r', 'c') |
-        make_4chid!('$', 'p', 'o', 'l') |
-        make_4chid!('$', 'c', 'u', 'r') |
+        make_4chid!('t', 'b', 'l', ' ') => Control::Table(Table::from_record(record)),
+        make_4chid!('g', 's', 'o', ' ') => Control::GenShapeObject(GenShapeObject::from_record(record)),
+        make_4chid!('$', 'l', 'i', 'n') => Control::ShapeLine(ShapeLine::from_record(record)),
+        make_4chid!('$', 'r', 'e', 'c') => Control::ShapeRectangle(ShapeRectangle::from_record(record)),
+        make_4chid!('$', 'e', 'l', 'l') => Control::ShapeEllipse(ShapeEllipse::from_record(record)),
+        make_4chid!('$', 'a', 'r', 'c') => Control::ShapeArc(ShapeArc::from_record(record)),
+        make_4chid!('$', 'p', 'o', 'l') => Control::ShapePolygon(ShapePolygon::from_record(record)),
+        make_4chid!('$', 'c', 'u', 'r') => Control::ShapeCurve(ShapeCurve::from_record(record)),
         make_4chid!('e', 'q', 'e', 'd') |
         make_4chid!('$', 'p', 'i', 'c') |
         make_4chid!('$', 'o', 'l', 'e') |
@@ -61,9 +79,9 @@ pub fn parse_control(record: Record) -> Control {
         // 개체 이외 컨트롤 + 문단리스트
         make_4chid!('h', 'e', 'a', 'd') |
         make_4chid!('f', 'o', 'o', 't') |
-        make_4chid!('f', 'n', ' ', ' ')  |
-        make_4chid!('e', 'n', ' ', ' ')  |
-        make_4chid!('t', 'c', 'm', 't')  |
+        make_4chid!('f', 'n', ' ', ' ') |
+        make_4chid!('e', 'n', ' ', ' ') |
+        make_4chid!('t', 'c', 'm', 't') |
         make_4chid!('c', 'o', 'l', 'd') |
 
         // 필드 컨트롤

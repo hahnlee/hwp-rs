@@ -50,10 +50,16 @@ impl Chars {
         let mut buf: Vec<u16> = Vec::new();
 
         for char in &self.chars {
-            // TODO: (@hahnlee) CharControl 확인하기
-            if let Char::CharCode(char_code) = char {
-                buf.push(*char_code);
-            }
+            match char {
+                Char::CharCode(code) => {
+                    buf.push(*code);
+                },
+                Char::CharControl(CharControls::LineBreak) => {
+                    // new line
+                    buf.push(10);
+                },
+                _ => {}
+            };
         }
 
         String::from_utf16(&buf).unwrap()
