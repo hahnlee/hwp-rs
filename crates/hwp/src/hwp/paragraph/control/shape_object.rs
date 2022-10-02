@@ -1,6 +1,3 @@
-use byteorder::{LittleEndian, ReadBytesExt};
-use hwp_macro::make_4chid;
-
 use crate::hwp::record::Record;
 
 use super::common_properties::CommonProperties;
@@ -13,18 +10,8 @@ pub struct GenShapeObject {
 }
 
 impl GenShapeObject {
-    pub fn from_record(record: Record) -> Self {
-        let size = record.data.len();
-        let mut reader = record.get_data_reader();
-
-        let ctrl_id = reader.read_u32::<LittleEndian>().unwrap();
-        assert_eq!(
-            ctrl_id,
-            make_4chid!('g', 's', 'o', ' '),
-            "GenShapeObject일 경우 ctrl_id가 두 번 기록되어야 합니다"
-        );
-
-        let common_properties = CommonProperties::from_reader(&mut reader, size as u64);
+    pub fn from_record(mut record: Record) -> Self {
+        let common_properties = CommonProperties::from_reader(&mut record);
 
         // TODO: (@hahnlee) children 파싱하기
         GenShapeObject { common_properties }
@@ -39,11 +26,8 @@ pub struct ShapeLine {
 }
 
 impl ShapeLine {
-    pub fn from_record(record: Record) -> Self {
-        let size = record.data.len();
-        let mut reader = record.get_data_reader();
-
-        let common_properties = CommonProperties::from_reader(&mut reader, size as u64);
+    pub fn from_record(mut record: Record) -> Self {
+        let common_properties = CommonProperties::from_reader(&mut record);
 
         // TODO: (@hahnlee) 남은 데이터 파싱하기
         Self { common_properties }
@@ -58,11 +42,8 @@ pub struct ShapeRectangle {
 }
 
 impl ShapeRectangle {
-    pub fn from_record(record: Record) -> Self {
-        let size = record.data.len();
-        let mut reader = record.get_data_reader();
-
-        let common_properties = CommonProperties::from_reader(&mut reader, size as u64);
+    pub fn from_record(mut record: Record) -> Self {
+        let common_properties = CommonProperties::from_reader(&mut record);
 
         // TODO: (@hahnlee) 남은 데이터 파싱하기
         Self { common_properties }
@@ -77,11 +58,8 @@ pub struct ShapeEllipse {
 }
 
 impl ShapeEllipse {
-    pub fn from_record(record: Record) -> Self {
-        let size = record.data.len();
-        let mut reader = record.get_data_reader();
-
-        let common_properties = CommonProperties::from_reader(&mut reader, size as u64);
+    pub fn from_record(mut record: Record) -> Self {
+        let common_properties = CommonProperties::from_reader(&mut record);
 
         // TODO: (@hahnlee) 남은 데이터 파싱하기
         Self { common_properties }
@@ -96,11 +74,8 @@ pub struct ShapeArc {
 }
 
 impl ShapeArc {
-    pub fn from_record(record: Record) -> Self {
-        let size = record.data.len();
-        let mut reader = record.get_data_reader();
-
-        let common_properties = CommonProperties::from_reader(&mut reader, size as u64);
+    pub fn from_record(mut record: Record) -> Self {
+        let common_properties = CommonProperties::from_reader(&mut record);
 
         // TODO: (@hahnlee) 남은 데이터 파싱하기
         Self { common_properties }
@@ -115,11 +90,8 @@ pub struct ShapePolygon {
 }
 
 impl ShapePolygon {
-    pub fn from_record(record: Record) -> Self {
-        let size = record.data.len();
-        let mut reader = record.get_data_reader();
-
-        let common_properties = CommonProperties::from_reader(&mut reader, size as u64);
+    pub fn from_record(mut record: Record) -> Self {
+        let common_properties = CommonProperties::from_reader(&mut record);
 
         // TODO: (@hahnlee) 남은 데이터 파싱하기
         Self { common_properties }
@@ -134,11 +106,8 @@ pub struct ShapeCurve {
 }
 
 impl ShapeCurve {
-    pub fn from_record(record: Record) -> Self {
-        let size = record.data.len();
-        let mut reader = record.get_data_reader();
-
-        let common_properties = CommonProperties::from_reader(&mut reader, size as u64);
+    pub fn from_record(mut record: Record) -> Self {
+        let common_properties = CommonProperties::from_reader(&mut record);
 
         // TODO: (@hahnlee) 남은 데이터 파싱하기
         Self { common_properties }

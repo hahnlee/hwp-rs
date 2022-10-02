@@ -10,11 +10,8 @@ pub struct Equation {
 }
 
 impl Equation {
-    pub fn from_record(record: Record) -> Self {
-        let size = record.data.len();
-        let mut reader = record.get_data_reader();
-
-        let common_properties = CommonProperties::from_reader(&mut reader, size as u64);
+    pub fn from_record(mut record: Record) -> Self {
+        let common_properties = CommonProperties::from_reader(&mut record);
 
         // TODO: (@hahnlee) 남은 데이터 파싱하기
         Self { common_properties }
