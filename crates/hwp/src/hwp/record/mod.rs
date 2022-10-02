@@ -3,7 +3,7 @@ use std::io::Cursor;
 pub mod reader;
 pub mod tags;
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct Record {
     pub tag_id: u32,
     pub level: u32,
@@ -50,11 +50,12 @@ impl Record {
         self.children.pop().unwrap()
     }
 
-    pub fn remain_children(mut self) -> Vec<Record> {
+    pub fn remain_children(&self) -> Vec<Record> {
         // @NOTE: (@hahnlee): 순서를 반대로 저장했으므로 반환전 순서를 돌린다
         // 파서의 커버리지가 높을수록 모르는 바이트가 적어지기 때문에 성능에 큰 문제가 없을것으로 생각
-        self.children.reverse();
+        let mut out = self.children.clone();
+        out.reverse();
 
-        self.children
+        out
     }
 }

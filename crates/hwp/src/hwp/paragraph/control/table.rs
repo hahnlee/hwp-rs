@@ -1,4 +1,4 @@
-use crate::hwp::record::Record;
+use crate::hwp::{record::Record, version::Version};
 
 use super::common_properties::CommonProperties;
 
@@ -10,8 +10,8 @@ pub struct Table {
 }
 
 impl Table {
-    pub fn from_record(mut record: Record) -> Table {
-        let common_properties = CommonProperties::from_reader(&mut record);
+    pub fn from_record(mut record: Record, version: &Version) -> Table {
+        let common_properties = CommonProperties::from_reader(&mut record, version);
 
         Table { common_properties }
     }

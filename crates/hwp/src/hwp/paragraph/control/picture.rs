@@ -1,4 +1,4 @@
-use crate::hwp::record::Record;
+use crate::hwp::{record::Record, version::Version};
 
 use super::common_properties::CommonProperties;
 
@@ -10,8 +10,8 @@ pub struct Picture {
 }
 
 impl Picture {
-    pub fn from_record(mut record: Record) -> Self {
-        let common_properties = CommonProperties::from_reader(&mut record);
+    pub fn from_record(mut record: Record, version: &Version) -> Self {
+        let common_properties = CommonProperties::from_reader(&mut record, version);
 
         // TODO: (@hahnlee) 남은 데이터 파싱하기
         Self { common_properties }
