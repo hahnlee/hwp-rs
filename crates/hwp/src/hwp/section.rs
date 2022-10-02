@@ -26,7 +26,7 @@ impl Section {
 
         let paragraphs = records
             .into_iter()
-            .map(|record| Paragraph::from_record(record, version))
+            .map(|mut record| Paragraph::from_record(&mut record, version))
             .collect();
 
         Section { paragraphs }

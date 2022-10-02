@@ -4,6 +4,7 @@ pub mod equation;
 pub mod footnote_shape;
 pub mod ole;
 pub mod page_definition;
+pub mod paragraph_list_header;
 pub mod picture;
 pub mod section;
 pub mod shape_object;
@@ -12,14 +13,21 @@ pub mod table;
 use byteorder::{LittleEndian, ReadBytesExt};
 use hwp_macro::make_4chid;
 
-use crate::hwp::record::{tags::BodyTextRecord, Record};
+use crate::hwp::{
+    record::{tags::BodyTextRecord, Record},
+    version::Version,
+};
 
 use self::{
+    container::Container,
+    equation::Equation,
+    ole::Ole,
+    picture::Picture,
     section::SectionControl,
     shape_object::{
         GenShapeObject, ShapeArc, ShapeCurve, ShapeEllipse, ShapeLine, ShapePolygon, ShapeRectangle,
     },
-    table::Table, equation::Equation, picture::Picture, ole::Ole, container::Container,
+    table::Table,
 };
 
 #[derive(Debug)]
@@ -45,7 +53,7 @@ pub enum Control {
     Unknown(u32, Vec<Record>),
 }
 
-pub fn parse_control(record: Record) -> Control {
+pub fn parse_control(record: Record, version: &Version) -> Control {
     if record.tag_id != BodyTextRecord::HWPTAG_CTRL_HEADER as u32 {
         // TODO: (@hahnlee) Result로 바꾸기
         panic!("잘못된 레코드 입니다 {}", record.tag_id);
@@ -60,18 +68,18 @@ pub fn parse_control(record: Record) -> Control {
         make_4chid!('s', 'e', 'c', 'd') => Control::Secd(SectionControl::from_record(record)),
 
         // 개체 공통 속성 컨트롤
-        make_4chid!('t', 'b', 'l', ' ') => Control::Table(Table::from_record(record)),
-        make_4chid!('g', 's', 'o', ' ') => Control::GenShapeObject(GenShapeObject::from_record(record)),
-        make_4chid!('$', 'l', 'i', 'n') => Control::ShapeLine(ShapeLine::from_record(record)),
-        make_4chid!('$', 'r', 'e', 'c') => Control::ShapeRectangle(ShapeRectangle::from_record(record)),
-        make_4chid!('$', 'e', 'l', 'l') => Control::ShapeEllipse(ShapeEllipse::from_record(record)),
-        make_4chid!('$', 'a', 'r', 'c') => Control::ShapeArc(ShapeArc::from_record(record)),
-        make_4chid!('$', 'p', 'o', 'l') => Control::ShapePolygon(ShapePolygon::from_record(record)),
-        make_4chid!('$', 'c', 'u', 'r') => Control::ShapeCurve(ShapeCurve::from_record(record)),
-        make_4chid!('e', 'q', 'e', 'd') => Control::Equation(Equation::from_record(record)),
-        make_4chid!('$', 'p', 'i', 'c') => Control::Picture(Picture::from_record(record)),
-        make_4chid!('$', 'o', 'l', 'e') => Control::Ole(Ole::from_record(record)),
-        make_4chid!('$', 'c', 'o', 'n') => Control::Container(Container::from_record(record)),
+        make_4chid!('t', 'b', 'l', ' ') => Control::Table(Table::from_record(record, version)),
+        make_4chid!('g', 's', 'o', ' ') => Control::GenShapeObject(GenShapeObject::from_record(record, version)),
+        make_4chid!('$', 'l', 'i', 'n') => Control::ShapeLine(ShapeLine::from_record(record, version)),
+        make_4chid!('$', 'r', 'e', 'c') => Control::ShapeRectangle(ShapeRectangle::from_record(record, version)),
+        make_4chid!('$', 'e', 'l', 'l') => Control::ShapeEllipse(ShapeEllipse::from_record(record, version)),
+        make_4chid!('$', 'a', 'r', 'c') => Control::ShapeArc(ShapeArc::from_record(record, version)),
+        make_4chid!('$', 'p', 'o', 'l') => Control::ShapePolygon(ShapePolygon::from_record(record, version)),
+        make_4chid!('$', 'c', 'u', 'r') => Control::ShapeCurve(ShapeCurve::from_record(record, version)),
+        make_4chid!('e', 'q', 'e', 'd') => Control::Equation(Equation::from_record(record, version)),
+        make_4chid!('$', 'p', 'i', 'c') => Control::Picture(Picture::from_record(record, version)),
+        make_4chid!('$', 'o', 'l', 'e') => Control::Ole(Ole::from_record(record, version)),
+        make_4chid!('$', 'c', 'o', 'n') => Control::Container(Container::from_record(record, version)),
 
         // // 개체 이외 컨트롤
         make_4chid!('a', 't', 'n', 'o') |

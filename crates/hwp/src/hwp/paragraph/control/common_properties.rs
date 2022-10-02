@@ -2,17 +2,23 @@ use std::io::Seek;
 
 use byteorder::{LittleEndian, ReadBytesExt};
 
-use crate::hwp::record::{reader::RecordReader, Record};
+use crate::hwp::{
+    paragraph::Paragraph,
+    record::{reader::RecordReader, tags::BodyTextRecord, Record}, version::Version,
+};
+
+use super::paragraph_list_header::ParagraphListHeader;
 
 /// 개체 공통 속성
 #[derive(Debug)]
 pub struct CommonProperties {
     /// 개체 설명문
     pub description: String,
+    pub caption: Option<Caption>,
 }
 
 impl CommonProperties {
-    pub fn from_reader(record: &mut Record) -> Self {
+    pub fn from_reader(record: &mut Record, version: &Version) -> Self {
         let size = record.data.len() as u64;
         let mut reader = record.get_data_reader();
 
@@ -60,6 +66,59 @@ impl CommonProperties {
             "안읽은 바이트가 있습니다"
         );
 
-        Self { description }
+        let caption = if record.is_next_child_id(BodyTextRecord::HWPTAG_LIST_HEADER as u32) {
+            Some(Caption::from_record(
+                &mut record.next_child(),
+                &mut record.next_child(),
+                version,
+            ))
+        } else {
+            None
+        };
+
+        Self {
+            description,
+            caption,
+        }
+    }
+}
+
+#[derive(Debug)]
+pub struct Caption {
+    pub paragraph_list_header: ParagraphListHeader,
+    pub paragraph: Paragraph,
+}
+
+impl Caption {
+    pub fn from_record(meta: &mut Record, content: &mut Record, version: &Version) -> Self {
+        assert_eq!(
+            meta.tag_id,
+            BodyTextRecord::HWPTAG_LIST_HEADER as u32,
+            "다른 레코드 입니다"
+        );
+
+        let mut reader = meta.get_data_reader();
+
+        let paragraph_list_header = ParagraphListHeader::from_reader(&mut reader);
+
+        // TODO: (@hahnlee) 속성을 파싱해야한다. 문서와 크기가 매우 다르고, 없는 경우도 있어 파악이 필요하다
+
+        assert_eq!(
+            paragraph_list_header.count, 1,
+            "캡션은 하나의 문단만 있어야 합니다"
+        );
+
+        assert_eq!(
+            content.tag_id,
+            BodyTextRecord::HWPTAG_PARA_HEADER as u32,
+            "문단이 아닙니다"
+        );
+
+        let paragraph = Paragraph::from_record(content, version);
+
+        Self {
+            paragraph_list_header,
+            paragraph,
+        }
     }
 }
