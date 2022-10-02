@@ -1,6 +1,10 @@
 pub mod common_properties;
+pub mod container;
+pub mod equation;
 pub mod footnote_shape;
+pub mod ole;
 pub mod page_definition;
+pub mod picture;
 pub mod section;
 pub mod shape_object;
 pub mod table;
@@ -15,7 +19,7 @@ use self::{
     shape_object::{
         GenShapeObject, ShapeArc, ShapeCurve, ShapeEllipse, ShapeLine, ShapePolygon, ShapeRectangle,
     },
-    table::Table,
+    table::Table, equation::Equation, picture::Picture, ole::Ole, container::Container,
 };
 
 #[derive(Debug)]
@@ -29,6 +33,10 @@ pub enum Control {
     ShapeArc(ShapeArc),
     ShapePolygon(ShapePolygon),
     ShapeCurve(ShapeCurve),
+    Equation(Equation),
+    Picture(Picture),
+    Ole(Ole),
+    Container(Container),
 
     // 개체 이외 컨트롤
     Secd(SectionControl),
@@ -60,10 +68,10 @@ pub fn parse_control(record: Record) -> Control {
         make_4chid!('$', 'a', 'r', 'c') => Control::ShapeArc(ShapeArc::from_record(record)),
         make_4chid!('$', 'p', 'o', 'l') => Control::ShapePolygon(ShapePolygon::from_record(record)),
         make_4chid!('$', 'c', 'u', 'r') => Control::ShapeCurve(ShapeCurve::from_record(record)),
-        make_4chid!('e', 'q', 'e', 'd') |
-        make_4chid!('$', 'p', 'i', 'c') |
-        make_4chid!('$', 'o', 'l', 'e') |
-        make_4chid!('$', 'c', 'o', 'n') |
+        make_4chid!('e', 'q', 'e', 'd') => Control::Equation(Equation::from_record(record)),
+        make_4chid!('$', 'p', 'i', 'c') => Control::Picture(Picture::from_record(record)),
+        make_4chid!('$', 'o', 'l', 'e') => Control::Ole(Ole::from_record(record)),
+        make_4chid!('$', 'c', 'o', 'n') => Control::Container(Container::from_record(record)),
 
         // // 개체 이외 컨트롤
         make_4chid!('a', 't', 'n', 'o') |

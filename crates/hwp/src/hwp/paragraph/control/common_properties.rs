@@ -4,6 +4,7 @@ use byteorder::{LittleEndian, ReadBytesExt};
 
 use crate::hwp::record::reader::RecordReader;
 
+/// 개체 공통 속성
 #[derive(Debug)]
 pub struct CommonProperties {
     /// 개체 설명문

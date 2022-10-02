@@ -2,6 +2,7 @@ use byteorder::{LittleEndian, ReadBytesExt};
 
 use crate::hwp::record::{tags::BodyTextRecord, Record};
 
+/// 페이지 정의
 #[derive(Debug)]
 pub struct PageDefinition {}
 
