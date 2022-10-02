@@ -11,7 +11,7 @@ pub struct Picture {
 
 impl Picture {
     pub fn from_record(mut record: Record, version: &Version) -> Self {
-        let common_properties = CommonProperties::from_reader(&mut record, version);
+        let common_properties = CommonProperties::from_record(&mut record, version);
 
         // TODO: (@hahnlee) 남은 데이터 파싱하기
         Self { common_properties }
