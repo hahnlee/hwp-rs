@@ -1,31 +1,32 @@
 pub mod char;
-pub mod chars;
+pub mod char_list;
+pub mod char_shape;
 pub mod control;
 pub mod header;
 pub mod line_segment;
-
-use std::io::Read;
-
-use byteorder::LittleEndian;
+pub mod range_tag;
 
 use self::{
-    chars::Chars,
+    char_list::CharList,
+    char_shape::CharShape,
     control::{parse_control, Control},
     header::ParagraphHeader,
-    line_segment::LineSegment,
+    line_segment::LineSegment, range_tag::RangeTag,
 };
 
 use super::{
-    record::{reader::RecordReader, tags::BodyTextRecord, Record},
+    record::{tags::BodyTextRecord, Record},
     version::Version,
 };
 
 #[derive(Debug)]
 pub struct Paragraph {
     pub header: ParagraphHeader,
+    pub char_list: CharList,
+    pub char_shapes: Vec<CharShape>,
     pub line_segments: Vec<LineSegment>,
+    pub range_tags: Vec<RangeTag>,
     pub controls: Vec<Control>,
-    chars: Chars,
     // TODO: (@hahnlee) 재구성시 처리
     #[allow(dead_code)]
     unknown: Vec<Record>,
@@ -36,19 +37,26 @@ impl Paragraph {
         let header = ParagraphHeader::from_reader(&mut record.get_data_reader(), version);
 
         // NOTE: (@hahnlee) 문서와 달리 header.chars가 0이 아니어도 없을 수 있다.
-        let chars = if record.is_next_child_id(BodyTextRecord::HWPTAG_PARA_TEXT as u32) {
+        let char_list = if record.is_next_child_id(BodyTextRecord::HWPTAG_PARA_TEXT as u32) {
             let data = record.next_child().data;
-            Chars::from_data(data, header.chars as usize)
+            CharList::from_data(data, header.chars as usize)
         } else {
-            Chars::new()
+            CharList::new()
         };
 
-        if record.is_next_child_id(BodyTextRecord::HWPTAG_PARA_CHAR_SHAPE as u32) {
+        let mut char_shapes = Vec::new();
+        if header.char_shapes > 0 {
+            assert!(
+                record.is_next_child_id(BodyTextRecord::HWPTAG_PARA_CHAR_SHAPE as u32),
+                "잘못된 레코드 입니다"
+            );
             let child = record.next_child();
             let mut record = child.get_data_reader();
-            // TODO: (@hahnlee) header.char_shapes 수만큼 읽기
-            let mut buf = Vec::new();
-            record.read_to_end(&mut buf).unwrap();
+
+            for _ in 0..header.char_shapes {
+                let char_shape = CharShape::from_reader(&mut record);
+                char_shapes.push(char_shape);
+            }
         }
 
         let mut line_segments = Vec::new();
@@ -65,19 +73,21 @@ impl Paragraph {
             }
         }
 
-        for _ in 0..header.ranges {
+        let mut range_tags = Vec::new();
+        if header.ranges > 0 {
+            assert!(
+                record.is_next_child_id(BodyTextRecord::HWPTAG_PARA_RANGE_TAG as u32),
+                "잘못된 레코드 입니다"
+            );
             let child = record.next_child();
             let mut reader = child.get_data_reader();
-            let (tag_id, _, _, mut record) = reader.read_record::<LittleEndian>().unwrap();
-            if tag_id != BodyTextRecord::HWPTAG_PARA_RANGE_TAG as u32 {
-                // TODO: (@hahnlee) 옵셔널로 바꾸기
-                panic!("잘못된 정보입니다");
+            for _ in 0..header.ranges {
+                let range_tag = RangeTag::from_reader(&mut reader);
+                range_tags.push(range_tag);
             }
-            let mut buf = Vec::new();
-            record.read_to_end(&mut buf).unwrap();
         }
 
-        let control_count = chars.extend_control_count();
+        let control_count = char_list.extend_control_count();
         let mut controls: Vec<Control> = Vec::with_capacity(control_count);
         for _ in 0..control_count {
             let child = record.next_child();
@@ -88,14 +98,16 @@ impl Paragraph {
 
         Paragraph {
             header,
+            char_list,
+            char_shapes,
             line_segments,
-            chars,
+            range_tags,
             controls,
             unknown,
         }
     }
 
     pub fn to_string(&self) -> String {
-        self.chars.to_string()
+        self.char_list.to_string()
     }
 }

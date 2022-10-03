@@ -3,17 +3,17 @@ use std::io::Cursor;
 use super::char::{read_char, Char, CharControls};
 
 #[derive(Debug)]
-pub struct Chars {
+pub struct CharList {
     chars: Vec<Char>,
 }
 
-impl Chars {
-    pub fn new() -> Chars {
+impl CharList {
+    pub fn new() -> Self {
         let chars = vec![Char::CharControl(CharControls::ParaBreak)];
         Self { chars }
     }
 
-    pub fn from_data(data: Vec<u8>, count: usize) -> Chars {
+    pub fn from_data(data: Vec<u8>, count: usize) -> Self {
         let mut chars = Vec::with_capacity(count as usize);
         let mut reader = Cursor::new(data);
 
@@ -34,7 +34,7 @@ impl Chars {
             chars.push(char);
         }
 
-        Chars { chars }
+        Self { chars }
     }
 
     /// 컨트롤 개수를 반환
