@@ -18,8 +18,6 @@ where
     return target & mask;
 }
 
-// TODO: (@hahnlee) 사용처가 없다면 제거하기
-#[allow(dead_code)]
 pub fn get_value<T: Integer>(bits: T, start: T) -> T
 where
     T: Shl<Output = T> + Shr<Output = T> + ShlAssign + AddAssign + BitAnd<Output = T> + Copy,

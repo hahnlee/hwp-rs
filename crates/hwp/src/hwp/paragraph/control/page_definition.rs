@@ -1,10 +1,22 @@
 use byteorder::{LittleEndian, ReadBytesExt};
 
-use crate::hwp::record::{tags::BodyTextRecord, Record};
+use crate::hwp::{record::{tags::BodyTextRecord, Record}, utils::bits::{get_value, get_value_range}};
 
 /// 페이지 정의
 #[derive(Debug)]
-pub struct PageDefinition {}
+pub struct PageDefinition {
+    /// 용지 가로 크기
+    pub width: u32,
+    /// 용지 세로 크기
+    pub height: u32,
+    /// 여백
+    pub padding: Padding,
+    // TODO: (@hahnlee) enum
+    /// 용지방향
+    pub direction: u32,
+    /// 제책 방법
+    pub binding_method: u32,
+}
 
 impl PageDefinition {
     pub fn from_record(record: Record) -> PageDefinition {
@@ -16,27 +28,42 @@ impl PageDefinition {
 
         let mut reader = record.get_data_reader();
 
-        // 용지 가로 크기
-        reader.read_u32::<LittleEndian>().unwrap();
-        // 용지 세로 크기
-        reader.read_u32::<LittleEndian>().unwrap();
-        // 용지 왼쪽 여백
-        reader.read_u32::<LittleEndian>().unwrap();
-        // 오른쪽 여백
-        reader.read_u32::<LittleEndian>().unwrap();
-        // 위 여백
-        reader.read_u32::<LittleEndian>().unwrap();
-        // 아래 여백
-        reader.read_u32::<LittleEndian>().unwrap();
-        // 머리말 여백
-        reader.read_u32::<LittleEndian>().unwrap();
-        // 꼬리말 여백
-        reader.read_u32::<LittleEndian>().unwrap();
-        // 제본 여백
-        reader.read_u32::<LittleEndian>().unwrap();
-        // 속성(표 132 참조)
-        reader.read_u32::<LittleEndian>().unwrap();
+        let width = reader.read_u32::<LittleEndian>().unwrap();
+        let height = reader.read_u32::<LittleEndian>().unwrap();
+        let padding = Padding {
+            left: reader.read_u32::<LittleEndian>().unwrap(),
+            right: reader.read_u32::<LittleEndian>().unwrap(),
+            top: reader.read_u32::<LittleEndian>().unwrap(),
+            bottom: reader.read_u32::<LittleEndian>().unwrap(),
+            header: reader.read_u32::<LittleEndian>().unwrap(),
+            footer: reader.read_u32::<LittleEndian>().unwrap(),
+            binding: reader.read_u32::<LittleEndian>().unwrap(),
+        };
 
-        PageDefinition {}
+        let properties = reader.read_u32::<LittleEndian>().unwrap();
+        let direction = get_value(properties, 0);
+        let binding_method = get_value_range(properties, 1, 2);
+
+        PageDefinition {
+            width,
+            height,
+            padding,
+            direction,
+            binding_method,
+        }
     }
+}
+
+#[derive(Debug)]
+pub struct Padding {
+    pub left: u32,
+    pub right: u32,
+    pub top: u32,
+    pub bottom: u32,
+    /// 머리말 여백
+    pub header: u32,
+    /// 꼬리말 여백
+    pub footer: u32,
+    /// 제본 여백
+    pub binding: u32,
 }
