@@ -10,7 +10,7 @@ where
     let target = bits >> start;
 
     let mut mask = zero::<T>();
-    for _ in start..(end - start) {
+    for _ in start..(end + num::one()) {
         mask <<= one::<T>();
         mask += one::<T>();
     }
