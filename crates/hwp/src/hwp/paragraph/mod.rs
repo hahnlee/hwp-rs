@@ -2,6 +2,7 @@ pub mod char;
 pub mod chars;
 pub mod control;
 pub mod header;
+pub mod line_segment;
 
 use std::io::Read;
 
@@ -11,6 +12,7 @@ use self::{
     chars::Chars,
     control::{parse_control, Control},
     header::ParagraphHeader,
+    line_segment::LineSegment,
 };
 
 use super::{
@@ -21,6 +23,7 @@ use super::{
 #[derive(Debug)]
 pub struct Paragraph {
     pub header: ParagraphHeader,
+    pub line_segments: Vec<LineSegment>,
     pub controls: Vec<Control>,
     chars: Chars,
     // TODO: (@hahnlee) 재구성시 처리
@@ -40,7 +43,6 @@ impl Paragraph {
             Chars::new()
         };
 
-        // NOTE(@hahnlee): 문서와 달리 header.char_shapes가 1이상 이어도 없을 수 있다.
         if record.is_next_child_id(BodyTextRecord::HWPTAG_PARA_CHAR_SHAPE as u32) {
             let child = record.next_child();
             let mut record = child.get_data_reader();
@@ -49,12 +51,18 @@ impl Paragraph {
             record.read_to_end(&mut buf).unwrap();
         }
 
-        // NOTE: (@hahnlee) 문서와 달리 header.aligns 개수 보다 적을 수 있다.
-        while record.is_next_child_id(BodyTextRecord::HWPTAG_PARA_LINE_SEG as u32) {
+        let mut line_segments = Vec::new();
+        if header.aligns > 0 {
+            assert!(
+                record.is_next_child_id(BodyTextRecord::HWPTAG_PARA_LINE_SEG as u32),
+                "잘못된 레코드 입니다"
+            );
             let child = record.next_child();
-            let mut record = child.get_data_reader();
-            let mut buf = Vec::new();
-            record.read_to_end(&mut buf).unwrap();
+            let mut reader = child.get_data_reader();
+            for _ in 0..header.aligns {
+                let line_segment = LineSegment::from_reader(&mut reader);
+                line_segments.push(line_segment);
+            }
         }
 
         for _ in 0..header.ranges {
@@ -80,6 +88,7 @@ impl Paragraph {
 
         Paragraph {
             header,
+            line_segments,
             chars,
             controls,
             unknown,
