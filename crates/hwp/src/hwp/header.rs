@@ -3,7 +3,10 @@ use std::io::{Cursor, Read};
 use byteorder::{LittleEndian, ReadBytesExt};
 use cfb::CompoundFile;
 
-use super::{utils::bits::{get_flag, get_value_range}, version::Version};
+use super::{
+    utils::bits::{get_flag, get_value_range},
+    version::Version,
+};
 
 #[derive(Debug)]
 pub struct Header {
@@ -122,8 +125,6 @@ impl Flags {
             reserved,
         }
     }
-
-    pub fn to_u32() {}
 }
 
 #[derive(Debug)]
