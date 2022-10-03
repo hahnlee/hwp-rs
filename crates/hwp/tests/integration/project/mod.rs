@@ -1,16 +1,11 @@
 use hwp::HWP;
-use std::{fs, path::PathBuf};
+use std::fs;
 
-fn get_tests_path(sub_path: &str) -> PathBuf {
-    let mut path = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
-    path.push("tests");
-    path.push(&sub_path);
-    path
-}
+use crate::utils::get_tests_path;
 
 #[test]
-fn check_body_size() {
-    let path = get_tests_path("files/hello_world.hwp");
+fn check_hello_world() {
+    let path = get_tests_path("integration/project/files/hello_world.hwp");
     let file = fs::read(path).unwrap();
 
     let hwp = HWP::from_bytes(file);
@@ -23,5 +18,8 @@ fn check_body_size() {
     assert_eq!(hwp.header.license.replication_restrictions, false);
 
     assert_eq!(hwp.body_texts.sections.len(), 1);
-    assert_eq!(hwp.body_texts.sections[0].paragraphs[0].to_string(), "Hello World!");
+    assert_eq!(
+        hwp.body_texts.sections[0].paragraphs[0].to_string(),
+        "Hello World!"
+    );
 }
