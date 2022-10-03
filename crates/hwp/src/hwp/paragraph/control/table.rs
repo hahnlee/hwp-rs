@@ -114,22 +114,22 @@ impl TableRecord {
 
 #[derive(Debug)]
 pub struct Cell {
-    pub paragraph_list_header: ParagraphListHeader,
+    pub header: ParagraphListHeader,
     pub paragraphs: Vec<Paragraph>,
 }
 
 impl Cell {
     pub fn from_record(meta: &mut Record, content: &mut Record, version: &Version) -> Self {
         let mut reader = meta.get_data_reader();
-        let paragraph_list_header = ParagraphListHeader::from_reader(&mut reader);
+        let header = ParagraphListHeader::from_reader(&mut reader);
 
-        let mut paragraphs = Vec::with_capacity(paragraph_list_header.count as usize);
-        for _ in 0..paragraph_list_header.count {
+        let mut paragraphs = Vec::with_capacity(header.count as usize);
+        for _ in 0..header.count {
             paragraphs.push(Paragraph::from_record(&mut content.next_child(), version));
         }
 
         Self {
-            paragraph_list_header,
+            header,
             paragraphs,
         }
     }

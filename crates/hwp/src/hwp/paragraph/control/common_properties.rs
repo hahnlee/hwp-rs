@@ -86,8 +86,8 @@ impl CommonProperties {
 
 #[derive(Debug)]
 pub struct Caption {
-    pub paragraph_list_header: ParagraphListHeader,
-    pub paragraph: Paragraph,
+    pub header: ParagraphListHeader,
+    pub paragraphs: Vec<Paragraph>,
 }
 
 impl Caption {
@@ -100,26 +100,16 @@ impl Caption {
 
         let mut reader = meta.get_data_reader();
 
-        let paragraph_list_header = ParagraphListHeader::from_reader(&mut reader);
+        let header = ParagraphListHeader::from_reader(&mut reader);
 
         // TODO: (@hahnlee) 속성을 파싱해야한다. 문서와 크기가 매우 다르고, 없는 경우도 있어 파악이 필요하다
 
-        assert_eq!(
-            paragraph_list_header.count, 1,
-            "캡션은 하나의 문단만 있어야 합니다"
-        );
-
-        assert_eq!(
-            content.tag_id,
-            BodyTextRecord::HWPTAG_PARA_HEADER as u32,
-            "문단이 아닙니다"
-        );
-
-        let paragraph = Paragraph::from_record(content, version);
-
-        Self {
-            paragraph_list_header,
-            paragraph,
+        let mut paragraphs = Vec::new();
+        for _ in 0..header.count {
+            let paragraph = Paragraph::from_record(content, version);
+            paragraphs.push(paragraph);
         }
+
+        Self { header, paragraphs }
     }
 }
