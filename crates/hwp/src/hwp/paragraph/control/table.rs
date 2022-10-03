@@ -1,11 +1,13 @@
 use std::io::Read;
 
 use byteorder::{LittleEndian, ReadBytesExt};
+use num::FromPrimitive;
+use num_derive::FromPrimitive;
 
 use crate::hwp::{
     paragraph::{control::paragraph_list_header::ParagraphListHeader, Paragraph},
     record::{tags::BodyTextRecord, Record},
-    version::Version,
+    version::Version, utils::bits::{get_value_range, get_flag},
 };
 
 use super::common_properties::CommonProperties;
@@ -53,9 +55,27 @@ impl TableControl {
 
 #[derive(Debug)]
 pub struct TableRecord {
+    pub page_break: PageBreak,
+    pub repeat_header: bool,
     pub rows: u16,
     pub cols: u16,
+    pub cell_spacing: i16,
+    pub padding: [i16; 4],
+    /// row에 몇개의 column이 있는지 기록 (표준문서의 Row Size)
     pub row_count: Vec<u16>,
+    pub border_fill_id: u16,
+}
+
+
+#[repr(u32)]
+#[derive(Debug, FromPrimitive)]
+pub enum PageBreak {
+    /// 나누지 않음
+    None,
+    /// 셀 단위로 나눔
+    Cell,
+    /// 나눔 - NOTE: (@hahnlee) 문서에는 나누지 않음으로 되어있으나 나눔이 맞다
+    Table,
 }
 
 impl TableRecord {
@@ -68,28 +88,28 @@ impl TableRecord {
 
         let mut reader = record.get_data_reader();
 
-        // TODO: (@hahnlee) 속성
-        reader.read_u32::<LittleEndian>().unwrap();
+        let properties = reader.read_u32::<LittleEndian>().unwrap();
+        let page_break = PageBreak::from_u32(get_value_range(properties, 0, 1)).unwrap();
+        let repeat_header = get_flag(properties, 2);
 
         let rows = reader.read_u16::<LittleEndian>().unwrap();
         let cols = reader.read_u16::<LittleEndian>().unwrap();
 
-        // TODO: (@hahnlee) CellSpacing
-        reader.read_i16::<LittleEndian>().unwrap();
+        let cell_spacing = reader.read_i16::<LittleEndian>().unwrap();
 
-        // TODO: (@hahnlee) 안쪽 여백 정보
-        reader.read_i16::<LittleEndian>().unwrap();
-        reader.read_i16::<LittleEndian>().unwrap();
-        reader.read_i16::<LittleEndian>().unwrap();
-        reader.read_i16::<LittleEndian>().unwrap();
+        let padding = [
+            reader.read_i16::<LittleEndian>().unwrap(),
+            reader.read_i16::<LittleEndian>().unwrap(),
+            reader.read_i16::<LittleEndian>().unwrap(),
+            reader.read_i16::<LittleEndian>().unwrap(),
+        ];
 
         let mut row_count: Vec<u16> = Vec::with_capacity(rows as usize);
         for _ in 0..(rows as usize) {
             row_count.push(reader.read_u16::<LittleEndian>().unwrap());
         }
 
-        // TODO: (@hahnlee) Border Fill ID
-        reader.read_u16::<LittleEndian>().unwrap();
+        let border_fill_id = reader.read_u16::<LittleEndian>().unwrap();
 
         // TODO: (@hahnlee) 영역 속성
         if version.ge(&Version::from_str("5.0.1.0")) {
@@ -101,9 +121,14 @@ impl TableRecord {
         }
 
         Self {
+            page_break,
+            repeat_header,
             rows,
             cols,
+            cell_spacing,
+            padding,
             row_count,
+            border_fill_id,
         }
     }
 
@@ -116,12 +141,48 @@ impl TableRecord {
 pub struct Cell {
     pub header: ParagraphListHeader,
     pub paragraphs: Vec<Paragraph>,
+    /// 열 주소
+    ///
+    /// 0 부터 시작, 왼쪽으로 갈수록 커진다
+    pub column: u16,
+    /// 행 주소
+    ///
+    /// 0 부터 시작, 왼쪽으로 갈수록 커진다
+    pub row: u16,
+    /// 열의 병합 개수
+    pub col_span: u16,
+    /// 행의 병합 개수
+    pub row_span: u16,
+    /// 너비
+    pub width: u32,
+    /// 높이
+    pub height: u32,
+    pub padding: [u16; 4],
+    pub border_fill_id: u16,
 }
 
 impl Cell {
     pub fn from_record(meta: &mut Record, content: &mut Record, version: &Version) -> Self {
         let mut reader = meta.get_data_reader();
         let header = ParagraphListHeader::from_reader(&mut reader);
+
+        let column = reader.read_u16::<LittleEndian>().unwrap();
+        let row = reader.read_u16::<LittleEndian>().unwrap();
+
+        let col_span = reader.read_u16::<LittleEndian>().unwrap();
+        let row_span = reader.read_u16::<LittleEndian>().unwrap();
+
+        let width = reader.read_u32::<LittleEndian>().unwrap();
+        let height = reader.read_u32::<LittleEndian>().unwrap();
+
+        let padding = [
+            reader.read_u16::<LittleEndian>().unwrap(),
+            reader.read_u16::<LittleEndian>().unwrap(),
+            reader.read_u16::<LittleEndian>().unwrap(),
+            reader.read_u16::<LittleEndian>().unwrap(),
+        ];
+
+        let border_fill_id = reader.read_u16::<LittleEndian>().unwrap();
 
         let mut paragraphs = Vec::with_capacity(header.count as usize);
         for _ in 0..header.count {
@@ -131,6 +192,14 @@ impl Cell {
         Self {
             header,
             paragraphs,
+            column,
+            row,
+            col_span,
+            row_span,
+            width,
+            height,
+            padding,
+            border_fill_id,
         }
     }
 }
