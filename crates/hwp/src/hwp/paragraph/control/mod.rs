@@ -2,6 +2,7 @@ pub mod common_properties;
 pub mod container;
 pub mod equation;
 pub mod footnote_shape;
+pub mod header_footer;
 pub mod ole;
 pub mod page_definition;
 pub mod paragraph_list_header;
@@ -27,7 +28,7 @@ use self::{
     shape_object::{
         GenShapeObject, ShapeArc, ShapeCurve, ShapeEllipse, ShapeLine, ShapePolygon, ShapeRectangle,
     },
-    table::TableControl,
+    table::TableControl, header_footer::HeaderFooter,
 };
 
 #[derive(Debug)]
@@ -48,6 +49,10 @@ pub enum Control {
 
     // 개체 이외 컨트롤
     Secd(SectionControl),
+
+    // 개체 이외 컨트롤 + 문단리스트
+    Head(HeaderFooter),
+    Foot(HeaderFooter),
 
     // 지원 안하는 레코드
     Unknown(u32, Vec<Record>),
@@ -81,7 +86,8 @@ pub fn parse_control(record: Record, version: &Version) -> Control {
         make_4chid!('$', 'o', 'l', 'e') => Control::Ole(Ole::from_record(record, version)),
         make_4chid!('$', 'c', 'o', 'n') => Control::Container(Container::from_record(record, version)),
 
-        // // 개체 이외 컨트롤
+        // TODO: (@hahnlee) 파싱하기
+        // 개체 이외 컨트롤
         make_4chid!('a', 't', 'n', 'o') |
         make_4chid!('n', 'w', 'n', 'o') |
         make_4chid!('p', 'g', 'h', 'd') |
@@ -90,11 +96,11 @@ pub fn parse_control(record: Record, version: &Version) -> Control {
         make_4chid!('i', 'd', 'x', 'm') |
         make_4chid!('b', 'o', 'k', 'm') |
         make_4chid!('t', 'c', 'p', 's') |
-        make_4chid!('t', 'd', 'u', 't') |
+        make_4chid!('t', 'd', 'u', 't') => Control::Unknown(ctrl_id, record.remain_children()),
 
         // 개체 이외 컨트롤 + 문단리스트
-        make_4chid!('h', 'e', 'a', 'd') |
-        make_4chid!('f', 'o', 'o', 't') |
+        make_4chid!('h', 'e', 'a', 'd') => Control::Head(HeaderFooter::from_record(record, version)),
+        make_4chid!('f', 'o', 'o', 't') => Control::Foot(HeaderFooter::from_record(record, version)),
         make_4chid!('f', 'n', ' ', ' ') |
         make_4chid!('e', 'n', ' ', ' ') |
         make_4chid!('t', 'c', 'm', 't') |
