@@ -8,7 +8,7 @@ use crate::hwp::{
 use super::common_properties::CommonProperties;
 
 /// 한글 97 수식
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct Equation {
     /// 개체 공통 속성
     pub common_properties: CommonProperties,
@@ -34,7 +34,7 @@ impl Equation {
 }
 
 // TODO: (@hahnlee) 합치는게 낫지 않을까?
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct EquationRecord {
     pub script: String,
     pub font: String,

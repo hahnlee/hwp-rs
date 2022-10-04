@@ -2,9 +2,9 @@ use std::io::Cursor;
 
 use super::char::{read_char, Char, CharControls};
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct CharList {
-    chars: Vec<Char>,
+    pub chars: Vec<Char>,
 }
 
 impl CharList {

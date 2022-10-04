@@ -11,7 +11,7 @@ use crate::hwp::{
 use super::paragraph_list_header::ParagraphListHeader;
 
 /// 개체 공통 속성
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct CommonProperties {
     /// 컨트롤 ID
     pub ctrl_id: u32,
@@ -98,13 +98,13 @@ impl CommonProperties {
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct Offset {
     pub vertical: u32,
     pub horizontal: u32,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct Caption {
     pub header: ParagraphListHeader,
     pub paragraphs: Vec<Paragraph>,

@@ -5,7 +5,7 @@ use crate::hwp::{
 };
 
 /// 머리말 / 꼬리말
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct HeaderFooter {
     pub record: HeaderFooterRecord,
 }
@@ -20,7 +20,7 @@ impl HeaderFooter {
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct HeaderFooterRecord {
     pub header: ParagraphListHeader,
     pub paragraphs: Vec<Paragraph>,

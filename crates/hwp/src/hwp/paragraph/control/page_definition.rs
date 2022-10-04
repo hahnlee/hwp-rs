@@ -3,7 +3,7 @@ use byteorder::{LittleEndian, ReadBytesExt};
 use crate::hwp::{record::{tags::BodyTextRecord, Record}, utils::bits::{get_value, get_value_range}};
 
 /// 페이지 정의
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct PageDefinition {
     /// 용지 가로 크기
     pub width: u32,
@@ -54,7 +54,7 @@ impl PageDefinition {
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct Padding {
     pub left: u32,
     pub right: u32,
