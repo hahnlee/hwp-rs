@@ -24,7 +24,7 @@ pub enum CharControls {
 pub enum Char {
     CharCode(u16),
     CharControl(CharControls),
-    InlineControl([u8; 12]),
+    InlineControl(u16, [u8; 12]),
     ExtendedControl(u16, [u8; 12]),
 }
 
@@ -77,6 +77,5 @@ pub fn read_char<T: Read>(reader: &mut T) -> Char {
         return ext.unwrap();
     }
 
-    // TODO: (@hahnlee) Inline - Extend 분리
-    return Char::InlineControl(buf);
+    return Char::InlineControl(code, buf);
 }

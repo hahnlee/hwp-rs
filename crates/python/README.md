@@ -22,7 +22,25 @@ else:
             print(paragraph)
 ```
 
-## Develop
+## paragraph.to_string 직접 구현하기
+```python
+def paragraph_to_string(chars):
+    result = []
+
+    for char in chars:
+        if char.kind == 'char_code':
+            result.append(chr(char.code))
+        if char.kind == 'char_control' and char.code == 10:
+            result.append('\n')
+        # 표 안의 내용을 읽고 싶다면 추가로 수정해야한다.
+    return ''.join(result)
+
+for section in hwp.body_texts.sections:
+    for paragraph in section.paragraphs:
+        print(paragraph_to_string(paragraph.chars()))
+```
+
+# Develop
 ```
 pip install maturin
 maturin develop
