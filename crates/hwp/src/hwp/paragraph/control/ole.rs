@@ -3,7 +3,7 @@ use crate::hwp::{record::Record, version::Version};
 use super::common_properties::CommonProperties;
 
 /// OLE
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct Ole {
     /// 개체 공통 속성
     pub common_properties: CommonProperties,

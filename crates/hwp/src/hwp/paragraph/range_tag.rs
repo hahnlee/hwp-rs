@@ -2,7 +2,7 @@ use std::io::Read;
 
 use byteorder::{LittleEndian, ReadBytesExt};
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct RangeTag {
     /// 영역 시작
     pub start_position: u32,

@@ -31,7 +31,7 @@ use self::{
     table::TableControl, header_footer::HeaderFooter,
 };
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub enum Control {
     // 개체 공통 속성 컨트롤
     Table(TableControl),

@@ -4,7 +4,7 @@ use byteorder::{LittleEndian, ReadBytesExt};
 
 use crate::hwp::utils::bits::get_flag;
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct LineSegment {
     /// 텍스트 시작 위치
     pub start_position: u32,

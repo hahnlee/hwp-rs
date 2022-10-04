@@ -1,6 +1,6 @@
 use std::cmp::Ordering;
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, Clone, PartialEq)]
 pub struct Version {
     pub major: u8,
     pub minor: u8,

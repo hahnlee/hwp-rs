@@ -4,7 +4,7 @@ use byteorder::{LittleEndian, ReadBytesExt};
 
 use crate::hwp::version::Version;
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct ParagraphHeader {
     /// 글자수
     pub chars: u32,

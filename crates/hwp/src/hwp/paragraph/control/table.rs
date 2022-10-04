@@ -13,7 +13,7 @@ use crate::hwp::{
 use super::common_properties::CommonProperties;
 
 /// 표 컨트롤
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct TableControl {
     /// 개체 공통 속성
     pub common_properties: CommonProperties,
@@ -53,7 +53,7 @@ impl TableControl {
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct TableRecord {
     pub page_break: PageBreak,
     pub repeat_header: bool,
@@ -68,7 +68,7 @@ pub struct TableRecord {
 
 
 #[repr(u32)]
-#[derive(Debug, FromPrimitive)]
+#[derive(Debug, Clone, FromPrimitive)]
 pub enum PageBreak {
     /// 나누지 않음
     None,
@@ -137,7 +137,7 @@ impl TableRecord {
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct Cell {
     pub header: ParagraphListHeader,
     pub paragraphs: Vec<Paragraph>,

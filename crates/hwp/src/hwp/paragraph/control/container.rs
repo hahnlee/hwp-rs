@@ -3,7 +3,7 @@ use crate::hwp::{record::Record, version::Version};
 use super::common_properties::CommonProperties;
 
 /// 묶음 개체
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct Container {
     /// 개체 공통 속성
     pub common_properties: CommonProperties,

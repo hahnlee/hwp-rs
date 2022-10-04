@@ -1,4 +1,4 @@
-mod hwp;
+pub mod hwp;
 mod hwpx;
 
 pub use crate::hwp::HWP;

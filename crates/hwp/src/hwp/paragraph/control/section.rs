@@ -9,7 +9,7 @@ use crate::hwp::{
 
 use super::footnote_shape::FootnoteShape;
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct SectionControl {
     pub page_definition: PageDefinition,
     pub footnote_shape: FootnoteShape,

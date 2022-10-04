@@ -19,7 +19,7 @@ use super::{
     version::Version,
 };
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct Paragraph {
     pub header: ParagraphHeader,
     pub char_list: CharList,

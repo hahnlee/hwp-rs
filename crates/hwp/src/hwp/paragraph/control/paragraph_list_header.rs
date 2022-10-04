@@ -7,7 +7,7 @@ use num_derive::FromPrimitive;
 use crate::hwp::utils::bits::get_value_range;
 
 // TODO: (@hahnlee) 제너릭으로 만드는것 검토
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct ParagraphListHeader {
     /// 문단 수
     pub count: u32,
@@ -31,7 +31,7 @@ impl ParagraphListHeader {
 }
 
 #[repr(u32)]
-#[derive(Debug, FromPrimitive)]
+#[derive(Debug, Clone, FromPrimitive)]
 pub enum Direction {
     Horizontal,
     Vertical,

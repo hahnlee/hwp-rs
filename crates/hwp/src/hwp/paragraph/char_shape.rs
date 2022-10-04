@@ -2,7 +2,7 @@ use std::io::Read;
 
 use byteorder::{LittleEndian, ReadBytesExt};
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct CharShape {
     /// 글자 모양이 바뀌는 시작 위치
     pub start_position: u32,

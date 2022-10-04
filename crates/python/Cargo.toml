@@ -1,0 +1,13 @@
+[package]
+name = "hwp_python"
+version = "0.1.0"
+edition = "2021"
+publish = false
+
+[lib]
+name = "hwppy"
+crate-type = ["cdylib"]
+
+[dependencies]
+hwp = { path = "../hwp" }
+pyo3 = { version = "0.17", features = ["extension-module"] }
