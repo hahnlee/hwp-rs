@@ -8,7 +8,7 @@ fn check_hwp_document_format() {
     let path = get_tests_path("integration/hancom/files/한글문서파일형식_5.0_revision1.3.hwp");
     let file = fs::read(path).unwrap();
 
-    let hwp = HWP::from_bytes(file);
+    let hwp = HWP::from_bytes(&file);
 
     assert_eq!(hwp.header.version.to_string(), "5.1.0.1");
     assert_eq!(hwp.header.flags.compressed, true);
@@ -29,7 +29,7 @@ fn check_hwp_equation_format() {
     let path = get_tests_path("integration/hancom/files/한글문서파일형식_수식_revision1.3.hwp");
     let file = fs::read(path).unwrap();
 
-    let hwp = HWP::from_bytes(file);
+    let hwp = HWP::from_bytes(&file);
 
     assert_eq!(hwp.header.version.to_string(), "5.1.0.1");
     assert_eq!(hwp.header.flags.compressed, true);

@@ -23,7 +23,7 @@ pub struct HWP {
 }
 
 impl HWP {
-    pub fn from_bytes(bytes: Vec<u8>) -> HWP {
+    pub fn from_bytes(bytes: &[u8]) -> HWP {
         let cursor = Cursor::new(bytes);
         let mut cfb = CompoundFile::open(cursor).unwrap();
 

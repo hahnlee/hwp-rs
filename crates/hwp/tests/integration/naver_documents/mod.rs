@@ -8,7 +8,7 @@ fn check_annual_report() {
     let path = get_tests_path("integration/naver_documents/files/annual_report.hwp");
     let file = fs::read(path).unwrap();
 
-    let hwp = HWP::from_bytes(file);
+    let hwp = HWP::from_bytes(&file);
 
     assert_eq!(hwp.header.version.to_string(), "5.0.2.2");
     assert_eq!(hwp.header.flags.compressed, true);
@@ -27,7 +27,7 @@ fn check_work_report() {
     let path = get_tests_path("integration/naver_documents/files/work_report.hwp");
     let file = fs::read(path).unwrap();
 
-    let hwp = HWP::from_bytes(file);
+    let hwp = HWP::from_bytes(&file);
 
     assert_eq!(hwp.header.version.to_string(), "5.0.2.4");
     assert_eq!(hwp.header.flags.compressed, true);

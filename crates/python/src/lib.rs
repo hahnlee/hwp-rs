@@ -27,7 +27,7 @@ impl PyHWP {
     fn new(path: String) -> PyResult<Self> {
         // TODO: (@hahnlee) 메모리에 있는 파일 읽기 등 더 좋은 방법 필요
         let file = fs::read(path)?;
-        let hwp = HWP::from_bytes(file);
+        let hwp = HWP::from_bytes(&file);
 
         let view_texts = if let Some(view_texts) = hwp.view_texts {
             Some(to_py_body(&view_texts))
