@@ -8,7 +8,7 @@ fn check_hello_world() {
     let path = get_tests_path("integration/project/files/hello_world.hwp");
     let file = fs::read(path).unwrap();
 
-    let hwp = HWP::from_bytes(file);
+    let hwp = HWP::from_bytes(&file);
 
     assert_eq!(hwp.header.version.to_string(), "5.1.0.1");
     assert_eq!(hwp.header.flags.compressed, true);
@@ -29,7 +29,7 @@ fn check_range_tags() {
     let path = get_tests_path("integration/project/files/range.hwp");
     let file = fs::read(path).unwrap();
 
-    let hwp = HWP::from_bytes(file);
+    let hwp = HWP::from_bytes(&file);
 
     assert_eq!(hwp.header.version.to_string(), "5.1.0.1");
     assert_eq!(hwp.header.flags.compressed, true);
