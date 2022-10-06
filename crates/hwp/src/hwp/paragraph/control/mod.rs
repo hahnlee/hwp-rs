@@ -1,9 +1,9 @@
-pub mod auto_number;
 pub mod common_properties;
 pub mod container;
 pub mod equation;
 pub mod footnote_shape;
 pub mod header_footer;
+pub mod number;
 pub mod ole;
 pub mod page_definition;
 pub mod paragraph_list_header;
@@ -30,7 +30,7 @@ use self::{
     shape_object::{
         GenShapeObject, ShapeArc, ShapeCurve, ShapeEllipse, ShapeLine, ShapePolygon, ShapeRectangle,
     },
-    table::TableControl, auto_number::AutoNumber,
+    table::TableControl, number::AutoNumber, number::NewNumber,
 };
 
 #[derive(Debug, Clone)]
@@ -51,6 +51,7 @@ pub enum Control {
 
     // 개체 이외 컨트롤
     AutoNumber(AutoNumber),
+    NewNumber(NewNumber),
 
     // 개체 이외 컨트롤 + 문단리스트
     Secd(SectionControl),
@@ -92,7 +93,7 @@ pub fn parse_control(record: Record, version: &Version) -> Control {
         // TODO: (@hahnlee) 파싱하기
         // 개체 이외 컨트롤
         make_4chid!('a', 't', 'n', 'o') => Control::AutoNumber(AutoNumber::from_record(record)),
-        make_4chid!('n', 'w', 'n', 'o') |
+        make_4chid!('n', 'w', 'n', 'o') => Control::NewNumber(NewNumber::from_record(record)),
         make_4chid!('p', 'g', 'h', 'd') |
         make_4chid!('p', 'g', 'c', 't') |
         make_4chid!('p', 'g', 'n', 'p') |
