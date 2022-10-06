@@ -5,12 +5,12 @@ use num::FromPrimitive;
 use num_derive::FromPrimitive;
 
 use crate::hwp::{
-    paragraph::{control::paragraph_list_header::ParagraphListHeader, Paragraph},
     record::{tags::BodyTextRecord, Record},
-    version::Version, utils::bits::{get_value_range, get_flag},
+    utils::bits::{get_flag, get_value_range},
+    version::Version,
 };
 
-use super::common_properties::CommonProperties;
+use super::{common_properties::CommonProperties, paragraph_list::ParagraphList};
 
 /// 표 컨트롤
 #[derive(Debug, Clone)]
@@ -33,11 +33,7 @@ impl TableControl {
         let table_record = TableRecord::from_record(&mut record.next_child(), version);
         let mut cells = Vec::new();
         while record.is_next_child_id(BodyTextRecord::HWPTAG_LIST_HEADER as u32) {
-            cells.push(Cell::from_record(
-                &mut record.next_child(),
-                &mut record,
-                version,
-            ));
+            cells.push(Cell::from_record(&mut record, version));
         }
 
         assert!(
@@ -65,7 +61,6 @@ pub struct TableRecord {
     pub row_count: Vec<u16>,
     pub border_fill_id: u16,
 }
-
 
 #[repr(u32)]
 #[derive(Debug, Clone, FromPrimitive)]
@@ -139,8 +134,8 @@ impl TableRecord {
 
 #[derive(Debug, Clone)]
 pub struct Cell {
-    pub header: ParagraphListHeader,
-    pub paragraphs: Vec<Paragraph>,
+    /// 문단 리스트
+    pub paragraph_list: ParagraphList,
     /// 열 주소
     ///
     /// 0 부터 시작, 왼쪽으로 갈수록 커진다
@@ -162,9 +157,10 @@ pub struct Cell {
 }
 
 impl Cell {
-    pub fn from_record(meta: &mut Record, content: &mut Record, version: &Version) -> Self {
+    pub fn from_record(record: &mut Record, version: &Version) -> Self {
+        let meta = record.next_child();
         let mut reader = meta.get_data_reader();
-        let header = ParagraphListHeader::from_reader(&mut reader);
+        let paragraph_list = ParagraphList::from_record(&mut reader, record, version);
 
         let column = reader.read_u16::<LittleEndian>().unwrap();
         let row = reader.read_u16::<LittleEndian>().unwrap();
@@ -184,14 +180,8 @@ impl Cell {
 
         let border_fill_id = reader.read_u16::<LittleEndian>().unwrap();
 
-        let mut paragraphs = Vec::with_capacity(header.count as usize);
-        for _ in 0..header.count {
-            paragraphs.push(Paragraph::from_record(&mut content.next_child(), version));
-        }
-
         Self {
-            header,
-            paragraphs,
+            paragraph_list,
             column,
             row,
             col_span,

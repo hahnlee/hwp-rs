@@ -3,12 +3,11 @@ use std::io::Seek;
 use byteorder::{LittleEndian, ReadBytesExt};
 
 use crate::hwp::{
-    paragraph::Paragraph,
     record::{reader::RecordReader, tags::BodyTextRecord, Record},
     version::Version,
 };
 
-use super::paragraph_list_header::ParagraphListHeader;
+use super::paragraph_list::ParagraphList;
 
 /// 개체 공통 속성
 #[derive(Debug, Clone)]
@@ -76,11 +75,7 @@ impl CommonProperties {
         );
 
         let caption = if record.is_next_child_id(BodyTextRecord::HWPTAG_LIST_HEADER as u32) {
-            Some(Caption::from_record(
-                &mut record.next_child(),
-                &mut record.next_child(),
-                version,
-            ))
+            Some(Caption::from_record(record, version))
         } else {
             None
         };
@@ -106,12 +101,14 @@ pub struct Offset {
 
 #[derive(Debug, Clone)]
 pub struct Caption {
-    pub header: ParagraphListHeader,
-    pub paragraphs: Vec<Paragraph>,
+    /// 문단 리스트
+    pub paragraph_list: ParagraphList,
 }
 
 impl Caption {
-    pub fn from_record(meta: &mut Record, content: &mut Record, version: &Version) -> Self {
+    pub fn from_record(record: &mut Record, version: &Version) -> Self {
+        let meta = record.next_child();
+
         assert_eq!(
             meta.tag_id,
             BodyTextRecord::HWPTAG_LIST_HEADER as u32,
@@ -120,15 +117,9 @@ impl Caption {
 
         let mut reader = meta.get_data_reader();
 
-        let header = ParagraphListHeader::from_reader(&mut reader);
+        let paragraph_list = ParagraphList::from_record(&mut reader, record, version);
 
-        // NOTE: 나머지 속성은 사용처에서 파싱해야함
-        let mut paragraphs = Vec::new();
-        for _ in 0..header.count {
-            let paragraph = Paragraph::from_record(content, version);
-            paragraphs.push(paragraph);
-        }
-
-        Self { header, paragraphs }
+        // TODO: (@hahnlee) 더 많은 정보 얻기
+        Self { paragraph_list }
     }
 }

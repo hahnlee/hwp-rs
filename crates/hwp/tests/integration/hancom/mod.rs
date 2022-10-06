@@ -23,7 +23,6 @@ fn check_hwp_document_format() {
     // TODO: (@hahnlee) 정보 채우기
 }
 
-
 #[test]
 fn check_hwp_equation_format() {
     let path = get_tests_path("integration/hancom/files/한글문서파일형식_수식_revision1.3.hwp");
