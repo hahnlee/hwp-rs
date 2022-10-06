@@ -1,8 +1,10 @@
+pub mod column;
 pub mod common_properties;
 pub mod container;
 pub mod equation;
 pub mod footnote_endnote;
 pub mod header_footer;
+pub mod hidden_comment;
 pub mod number;
 pub mod ole;
 pub mod page_definition;
@@ -34,7 +36,7 @@ use self::{
         GenShapeObject, ShapeArc, ShapeCurve, ShapeEllipse, ShapeLine, ShapePolygon, ShapeRectangle,
     },
     table::TableControl,
-    unknown::UnknownControl, footnote_endnote::FootnoteEndnote,
+    unknown::UnknownControl, footnote_endnote::FootnoteEndnote, hidden_comment::HiddenComment, column::ColumnControl,
 };
 
 #[derive(Debug, Clone)]
@@ -63,6 +65,8 @@ pub enum Control {
     Footer(HeaderFooter),
     Footnote(FootnoteEndnote),
     Endnote(FootnoteEndnote),
+    HiddenComment(HiddenComment),
+    Column(ColumnControl),
 
     // 지원 안하는 레코드
     Unknown(UnknownControl),
@@ -98,6 +102,7 @@ pub fn parse_control(record: Record, version: &Version) -> Control {
 
         // TODO: (@hahnlee) 파싱하기
         // 개체 이외 컨트롤
+        make_4chid!('c', 'o', 'l', 'd') => Control::Column(ColumnControl::from_record(record)),
         make_4chid!('a', 't', 'n', 'o') => Control::AutoNumber(AutoNumber::from_record(record)),
         make_4chid!('n', 'w', 'n', 'o') => Control::NewNumber(NewNumber::from_record(record)),
         make_4chid!('p', 'g', 'h', 'd') |
@@ -114,8 +119,7 @@ pub fn parse_control(record: Record, version: &Version) -> Control {
         make_4chid!('f', 'o', 'o', 't') => Control::Footer(HeaderFooter::from_record(record, version)),
         make_4chid!('f', 'n', ' ', ' ') => Control::Footnote(FootnoteEndnote::from_record(record, version)),
         make_4chid!('e', 'n', ' ', ' ') => Control::Endnote(FootnoteEndnote::from_record(record, version)),
-        make_4chid!('t', 'c', 'm', 't') |
-        make_4chid!('c', 'o', 'l', 'd') |
+        make_4chid!('t', 'c', 'm', 't') => Control::HiddenComment(HiddenComment::from_record(record, version)),
 
         // 필드 컨트롤
         make_4chid!('%', 'u', 'n', 'k') |
