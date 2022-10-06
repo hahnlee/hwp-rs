@@ -11,6 +11,7 @@ pub mod picture;
 pub mod section;
 pub mod shape_object;
 pub mod table;
+pub mod unknown;
 
 use byteorder::{LittleEndian, ReadBytesExt};
 use hwp_macro::make_4chid;
@@ -30,7 +31,7 @@ use self::{
     shape_object::{
         GenShapeObject, ShapeArc, ShapeCurve, ShapeEllipse, ShapeLine, ShapePolygon, ShapeRectangle,
     },
-    table::TableControl, number::AutoNumber, number::NewNumber,
+    table::TableControl, number::AutoNumber, number::NewNumber, unknown::UnknownControl,
 };
 
 #[derive(Debug, Clone)]
@@ -59,7 +60,7 @@ pub enum Control {
     Foot(HeaderFooter),
 
     // 지원 안하는 레코드
-    Unknown(u32, Vec<Record>),
+    Unknown(UnknownControl),
 }
 
 pub fn parse_control(record: Record, version: &Version) -> Control {
@@ -100,7 +101,7 @@ pub fn parse_control(record: Record, version: &Version) -> Control {
         make_4chid!('i', 'd', 'x', 'm') |
         make_4chid!('b', 'o', 'k', 'm') |
         make_4chid!('t', 'c', 'p', 's') |
-        make_4chid!('t', 'd', 'u', 't') => Control::Unknown(ctrl_id, record.remain_children()),
+        make_4chid!('t', 'd', 'u', 't') => Control::Unknown(UnknownControl::from_record(record)),
 
         // 개체 이외 컨트롤 + 문단리스트
         make_4chid!('s', 'e', 'c', 'd') => Control::Secd(SectionControl::from_record(record)),
@@ -146,6 +147,6 @@ pub fn parse_control(record: Record, version: &Version) -> Control {
         make_4chid!('%', '%', 'm', 'e') |
         make_4chid!('%', 'c', 'p', 'r') |
         make_4chid!('%', 't', 'o', 'c') |
-        _ => Control::Unknown(ctrl_id, record.remain_children()),
+        _ => Control::Unknown(UnknownControl::from_record(record)),
     }
 }
