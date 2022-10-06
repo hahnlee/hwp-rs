@@ -6,7 +6,7 @@ pub mod header_footer;
 pub mod number;
 pub mod ole;
 pub mod page_definition;
-pub mod paragraph_list_header;
+pub mod paragraph_list;
 pub mod picture;
 pub mod section;
 pub mod shape_object;
@@ -25,13 +25,16 @@ use self::{
     container::Container,
     equation::Equation,
     header_footer::HeaderFooter,
+    number::AutoNumber,
+    number::NewNumber,
     ole::Ole,
     picture::Picture,
     section::SectionControl,
     shape_object::{
         GenShapeObject, ShapeArc, ShapeCurve, ShapeEllipse, ShapeLine, ShapePolygon, ShapeRectangle,
     },
-    table::TableControl, number::AutoNumber, number::NewNumber, unknown::UnknownControl,
+    table::TableControl,
+    unknown::UnknownControl,
 };
 
 #[derive(Debug, Clone)]
@@ -55,9 +58,9 @@ pub enum Control {
     NewNumber(NewNumber),
 
     // 개체 이외 컨트롤 + 문단리스트
-    Secd(SectionControl),
-    Head(HeaderFooter),
-    Foot(HeaderFooter),
+    SectionDefinition(SectionControl),
+    Header(HeaderFooter),
+    Footer(HeaderFooter),
 
     // 지원 안하는 레코드
     Unknown(UnknownControl),
@@ -104,9 +107,9 @@ pub fn parse_control(record: Record, version: &Version) -> Control {
         make_4chid!('t', 'd', 'u', 't') => Control::Unknown(UnknownControl::from_record(record)),
 
         // 개체 이외 컨트롤 + 문단리스트
-        make_4chid!('s', 'e', 'c', 'd') => Control::Secd(SectionControl::from_record(record)),
-        make_4chid!('h', 'e', 'a', 'd') => Control::Head(HeaderFooter::from_record(record, version)),
-        make_4chid!('f', 'o', 'o', 't') => Control::Foot(HeaderFooter::from_record(record, version)),
+        make_4chid!('s', 'e', 'c', 'd') => Control::SectionDefinition(SectionControl::from_record(record)),
+        make_4chid!('h', 'e', 'a', 'd') => Control::Header(HeaderFooter::from_record(record, version)),
+        make_4chid!('f', 'o', 'o', 't') => Control::Footer(HeaderFooter::from_record(record, version)),
         make_4chid!('f', 'n', ' ', ' ') |
         make_4chid!('e', 'n', ' ', ' ') |
         make_4chid!('t', 'c', 'm', 't') |
