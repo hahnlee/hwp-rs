@@ -1,3 +1,4 @@
+pub mod auto_number;
 pub mod common_properties;
 pub mod container;
 pub mod equation;
@@ -22,13 +23,14 @@ use crate::hwp::{
 use self::{
     container::Container,
     equation::Equation,
+    header_footer::HeaderFooter,
     ole::Ole,
     picture::Picture,
     section::SectionControl,
     shape_object::{
         GenShapeObject, ShapeArc, ShapeCurve, ShapeEllipse, ShapeLine, ShapePolygon, ShapeRectangle,
     },
-    table::TableControl, header_footer::HeaderFooter,
+    table::TableControl, auto_number::AutoNumber,
 };
 
 #[derive(Debug, Clone)]
@@ -48,9 +50,10 @@ pub enum Control {
     Container(Container),
 
     // 개체 이외 컨트롤
-    Secd(SectionControl),
+    AutoNumber(AutoNumber),
 
     // 개체 이외 컨트롤 + 문단리스트
+    Secd(SectionControl),
     Head(HeaderFooter),
     Foot(HeaderFooter),
 
@@ -59,10 +62,12 @@ pub enum Control {
 }
 
 pub fn parse_control(record: Record, version: &Version) -> Control {
-    if record.tag_id != BodyTextRecord::HWPTAG_CTRL_HEADER as u32 {
-        // TODO: (@hahnlee) Result로 바꾸기
-        panic!("잘못된 레코드 입니다 {}", record.tag_id);
-    }
+    assert_eq!(
+        record.tag_id,
+        BodyTextRecord::HWPTAG_CTRL_HEADER as u32,
+        "잘못된 레코드 입니다 {}",
+        record.tag_id
+    );
 
     let mut reader = record.get_data_reader();
     let ctrl_id = reader.read_u32::<LittleEndian>().unwrap();
@@ -70,8 +75,6 @@ pub fn parse_control(record: Record, version: &Version) -> Control {
     // NOTE: (@hahnlee) 한글 표준 문서에는 누락된 컨트롤이 있다
     // https://www.hancom.com/board/devmanualList.do
     match ctrl_id {
-        make_4chid!('s', 'e', 'c', 'd') => Control::Secd(SectionControl::from_record(record)),
-
         // 개체 공통 속성 컨트롤
         make_4chid!('t', 'b', 'l', ' ') => Control::Table(TableControl::from_record(record, version)),
         make_4chid!('g', 's', 'o', ' ') => Control::GenShapeObject(GenShapeObject::from_record(record, version)),
@@ -88,7 +91,7 @@ pub fn parse_control(record: Record, version: &Version) -> Control {
 
         // TODO: (@hahnlee) 파싱하기
         // 개체 이외 컨트롤
-        make_4chid!('a', 't', 'n', 'o') |
+        make_4chid!('a', 't', 'n', 'o') => Control::AutoNumber(AutoNumber::from_record(record)),
         make_4chid!('n', 'w', 'n', 'o') |
         make_4chid!('p', 'g', 'h', 'd') |
         make_4chid!('p', 'g', 'c', 't') |
@@ -99,6 +102,7 @@ pub fn parse_control(record: Record, version: &Version) -> Control {
         make_4chid!('t', 'd', 'u', 't') => Control::Unknown(ctrl_id, record.remain_children()),
 
         // 개체 이외 컨트롤 + 문단리스트
+        make_4chid!('s', 'e', 'c', 'd') => Control::Secd(SectionControl::from_record(record)),
         make_4chid!('h', 'e', 'a', 'd') => Control::Head(HeaderFooter::from_record(record, version)),
         make_4chid!('f', 'o', 'o', 't') => Control::Foot(HeaderFooter::from_record(record, version)),
         make_4chid!('f', 'n', ' ', ' ') |
