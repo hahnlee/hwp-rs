@@ -1,7 +1,7 @@
 pub mod common_properties;
 pub mod container;
 pub mod equation;
-pub mod footnote_shape;
+pub mod footnote_endnote;
 pub mod header_footer;
 pub mod number;
 pub mod ole;
@@ -34,7 +34,7 @@ use self::{
         GenShapeObject, ShapeArc, ShapeCurve, ShapeEllipse, ShapeLine, ShapePolygon, ShapeRectangle,
     },
     table::TableControl,
-    unknown::UnknownControl,
+    unknown::UnknownControl, footnote_endnote::FootnoteEndnote,
 };
 
 #[derive(Debug, Clone)]
@@ -61,6 +61,8 @@ pub enum Control {
     SectionDefinition(SectionControl),
     Header(HeaderFooter),
     Footer(HeaderFooter),
+    Footnote(FootnoteEndnote),
+    Endnote(FootnoteEndnote),
 
     // 지원 안하는 레코드
     Unknown(UnknownControl),
@@ -110,8 +112,8 @@ pub fn parse_control(record: Record, version: &Version) -> Control {
         make_4chid!('s', 'e', 'c', 'd') => Control::SectionDefinition(SectionControl::from_record(record)),
         make_4chid!('h', 'e', 'a', 'd') => Control::Header(HeaderFooter::from_record(record, version)),
         make_4chid!('f', 'o', 'o', 't') => Control::Footer(HeaderFooter::from_record(record, version)),
-        make_4chid!('f', 'n', ' ', ' ') |
-        make_4chid!('e', 'n', ' ', ' ') |
+        make_4chid!('f', 'n', ' ', ' ') => Control::Footnote(FootnoteEndnote::from_record(record, version)),
+        make_4chid!('e', 'n', ' ', ' ') => Control::Endnote(FootnoteEndnote::from_record(record, version)),
         make_4chid!('t', 'c', 'm', 't') |
         make_4chid!('c', 'o', 'l', 'd') |
 
