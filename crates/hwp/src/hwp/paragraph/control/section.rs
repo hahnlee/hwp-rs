@@ -52,21 +52,21 @@ impl SectionControl {
 
         // NOTE: (@hahnlee) 양쪽, 홀수, 짝수 정보가 반복됨.
         // TODO: (@hahnlee) 항상 모든 모든 정보를 내려주는지 확인필요
-        if record.next_child().tag_id != BodyTextRecord::HWPTAG_PAGE_BORDER_FILL as u32 {
-            panic!("쪽/배경 설정이 아닙니다");
-        }
-
-        // NOTE: (@hahnlee) 양쪽, 홀수, 짝수 정보가 반복됨.
-        // TODO: (@hahnlee) 항상 모든 모든 정보를 내려주는지 확인필요
-        if record.next_child().tag_id != BodyTextRecord::HWPTAG_PAGE_BORDER_FILL as u32 {
-            panic!("쪽/배경 설정이 아닙니다");
-        }
-
-        // NOTE: (@hahnlee) 양쪽, 홀수, 짝수 정보가 반복됨.
-        // TODO: (@hahnlee) 항상 모든 모든 정보를 내려주는지 확인필요
-        if record.next_child().tag_id != BodyTextRecord::HWPTAG_PAGE_BORDER_FILL as u32 {
-            panic!("쪽/배경 설정이 아닙니다");
-        }
+        assert_eq!(
+            record.next_child().tag_id,
+            BodyTextRecord::HWPTAG_PAGE_BORDER_FILL as u32,
+            "쪽/배경 설정이 아닙니다"
+        );
+        assert_eq!(
+            record.next_child().tag_id,
+            BodyTextRecord::HWPTAG_PAGE_BORDER_FILL as u32,
+            "쪽/배경 설정이 아닙니다"
+        );
+        assert_eq!(
+            record.next_child().tag_id,
+            BodyTextRecord::HWPTAG_PAGE_BORDER_FILL as u32,
+            "쪽/배경 설정이 아닙니다"
+        );
 
         // TODO: (@hahnlee) 바탕쪽 정보 관련된 파싱 추가하기
 

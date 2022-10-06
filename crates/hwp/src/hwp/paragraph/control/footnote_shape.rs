@@ -6,11 +6,11 @@ use crate::hwp::record::{tags::BodyTextRecord, Record};
 #[derive(Debug, Clone)]
 pub struct FootnoteShape {
     /// 사용자 기호
-    pub user_char: String,
+    pub user_char: char,
     /// 앞 장식 문자
-    pub prefix_char: String,
+    pub prefix_char: char,
     /// 뒤 장식 문자
-    pub suffix_char: String,
+    pub suffix_char: char,
     /// 시작 번호
     pub start_number: u16,
 
@@ -32,11 +32,11 @@ impl FootnoteShape {
         // TODO: (@hahnlee) 속성
         reader.read_u32::<LittleEndian>().unwrap();
 
-        let user_char = String::from_utf16(&[reader.read_u16::<LittleEndian>().unwrap()]).unwrap();
+        let user_char = char::from_u32(reader.read_u16::<LittleEndian>().unwrap().into()).unwrap();
         let prefix_char =
-            String::from_utf16(&[reader.read_u16::<LittleEndian>().unwrap()]).unwrap();
+            char::from_u32(reader.read_u16::<LittleEndian>().unwrap().into()).unwrap();
         let suffix_char =
-            String::from_utf16(&[reader.read_u16::<LittleEndian>().unwrap()]).unwrap();
+            char::from_u32(reader.read_u16::<LittleEndian>().unwrap().into()).unwrap();
 
         let start_number = reader.read_u16::<LittleEndian>().unwrap();
 
