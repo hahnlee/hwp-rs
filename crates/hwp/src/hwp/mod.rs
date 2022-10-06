@@ -7,6 +7,7 @@ pub mod version;
 
 mod record;
 mod utils;
+mod parameter_set;
 
 use self::{body::Body, doc_info::DocInfo, header::Header};
 
