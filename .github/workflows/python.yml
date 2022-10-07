@@ -6,11 +6,6 @@ on:
       - main
   release:
     types: [published]
-  pull_request:
-    paths:
-      - crates/**
-      - Cargo.lock
-      - Cargo.toml
 
 jobs:
   linux:
