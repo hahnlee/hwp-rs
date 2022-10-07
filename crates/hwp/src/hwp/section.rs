@@ -84,7 +84,7 @@ impl Section {
         let mut encrypted: Vec<u8> = Vec::new();
         stream.read_to_end(&mut encrypted).unwrap();
 
-        let decrypted = decrypt_aes_128_ecb(&decryption_key, &encrypted).unwrap();
+        let decrypted = decrypt_aes_128_ecb(&decryption_key, &encrypted);
 
         let cursor = Cursor::new(decrypted);
 

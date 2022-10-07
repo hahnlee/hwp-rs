@@ -20,10 +20,6 @@ pub struct PyParagraph {
 
 #[pymethods]
 impl PyParagraph {
-    fn __str__(&self) -> String {
-        self.char_list.to_string()
-    }
-
     fn chars(&self) -> Vec<Py<PyAny>> {
         let mut chars = Vec::new();
         for char in &self.char_list.chars {
