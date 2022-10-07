@@ -39,10 +39,3 @@ for section in hwp.body_texts.sections:
     for paragraph in section.paragraphs:
         print(paragraph_to_string(paragraph.chars()))
 ```
-
-# Develop
-```
-pip install maturin
-maturin develop
-python
-```
