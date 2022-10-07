@@ -1,0 +1,31 @@
+name: Python
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    paths:
+      - crates/**
+      - Cargo.lock
+      - Cargo.toml
+
+defaults:
+  run:
+    working-directory: crates/python
+
+jobs:
+  linux:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+    - uses: messense/maturin-action@v1
+      with:
+        manylinux: auto
+        command: build
+        args: --release --sdist -o dist --find-interpreter
+    - name: Upload wheels
+      uses: actions/upload-artifact@v2
+      with:
+        name: wheels
+        path: dist
