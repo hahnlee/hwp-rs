@@ -7,11 +7,13 @@ pub mod line_segment;
 pub mod range_tag;
 
 use self::{
+    char::{Char, CharControls},
     char_list::CharList,
     char_shape::CharShape,
     control::{parse_control, Control},
     header::ParagraphHeader,
-    line_segment::LineSegment, range_tag::RangeTag,
+    line_segment::LineSegment,
+    range_tag::RangeTag,
 };
 
 use super::{
@@ -108,6 +110,33 @@ impl Paragraph {
     }
 
     pub fn to_string(&self) -> String {
-        self.char_list.to_string()
+        // TODO: (@hahnlee) 테이블 어떻게 하는지 알아보기
+        let mut out = format!("");
+
+        let mut i = 0;
+        for char in &self.char_list.chars {
+            match char {
+                Char::CharCode(code) => {
+                    out.push(char::from_u32((*code).into()).unwrap());
+                }
+
+                Char::CharControl(CharControls::LineBreak) => {
+                    out.push('\n');
+                }
+                Char::ExtendedControl(_, _) => {
+                    match &self.controls[i] {
+                        Control::AutoNumber(auto_number) => {
+                            out.push_str(&auto_number.to_string());
+                        },
+                        _ => {}
+                    };
+
+                    i += 1;
+                }
+                _ => {}
+            };
+        }
+
+        out
     }
 }

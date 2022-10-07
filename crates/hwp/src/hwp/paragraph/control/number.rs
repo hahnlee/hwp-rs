@@ -7,6 +7,10 @@ use crate::hwp::{
     utils::bits::{get_flag, get_value_range},
 };
 
+const TEN_HEAVENLY_STEMS_KR: [char; 10] =
+    ['갑', '을', '병', '정', '무', '기', '경', '신', '임', '계'];
+const TEN_HEAVENLY_STEMS: [char; 10] = ['甲', '乙', '丙', '丁', '戊', '己', '庚', '辛', '壬', '癸'];
+
 /// 번호 종류
 #[repr(u32)]
 #[derive(Debug, Clone, FromPrimitive)]
@@ -74,6 +78,19 @@ impl AutoNumber {
             user_char,
             prefix_char,
             suffix_char,
+        }
+    }
+
+    pub fn to_string(&self) -> String {
+        // TODO: (@hahnlee) 다른 방법도 만들어주기
+        match self.shape {
+            0 => format!("{}", self.number),
+            15 => format!(
+                "{}",
+                TEN_HEAVENLY_STEMS_KR[((self.number - 1) % 10) as usize]
+            ),
+            16 => format!("{}", TEN_HEAVENLY_STEMS[((self.number - 1) % 10) as usize]),
+            _ => format!(""),
         }
     }
 }

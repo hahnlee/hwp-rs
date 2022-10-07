@@ -44,24 +44,4 @@ impl CharList {
             _ => result,
         })
     }
-
-    pub fn to_string(&self) -> String {
-        // TODO: (@hahnlee) 테이블 어떻게 하는지 알아보기
-        let mut buf: Vec<u16> = Vec::new();
-
-        for char in &self.chars {
-            match char {
-                Char::CharCode(code) => {
-                    buf.push(*code);
-                },
-                Char::CharControl(CharControls::LineBreak) => {
-                    // new line
-                    buf.push(10);
-                },
-                _ => {}
-            };
-        }
-
-        String::from_utf16(&buf).unwrap()
-    }
 }
