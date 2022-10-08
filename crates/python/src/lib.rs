@@ -42,10 +42,10 @@ impl HWPReader {
         })
     }
 
-    pub fn find_all(&self) -> Vec<Py<PyAny>> {
+    pub fn find_all(&self, tag: &str) -> Vec<Py<PyAny>> {
         (&self.sections)
             .into_iter()
-            .map(|s| s.find_all())
+            .map(|s| s.find_all(tag))
             .flatten()
             .collect()
     }

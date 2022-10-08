@@ -28,7 +28,7 @@ impl PyParagraph {
         self.paragraph.to_string()
     }
 
-    pub fn find_all(&self) -> Vec<Py<PyAny>> {
+    pub fn find_all(&self, _tag: &str) -> Vec<Py<PyAny>> {
         // TODO: (@hahnlee) 구현필요
         vec![]
     }
@@ -39,5 +39,11 @@ impl PyParagraph {
         Self {
             paragraph: paragraph.clone(),
         }
+    }
+
+    pub fn to_py_any(&self) -> Py<PyAny> {
+        Python::with_gil(|py| {
+            self.clone().into_py(py)
+        })
     }
 }

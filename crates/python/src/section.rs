@@ -12,11 +12,17 @@ pub struct PySection {
 
 #[pymethods]
 impl PySection {
-    pub fn find_all(&self) -> Vec<Py<PyAny>> {
+    pub fn find_all(&self, tag: &str) -> Vec<Py<PyAny>> {
         // TODO: (@hahnlee) find_all('paragraph') 같은건 따로 처리해야함
         (&self.paragraphs)
             .into_iter()
-            .map(|p| p.find_all())
+            .map(|p| {
+                if tag == "paragraph" {
+                    [vec![p.to_py_any()], p.find_all(tag)].concat()
+                } else {
+                    p.find_all(tag)
+                }
+            })
             .flatten()
             .collect()
     }
