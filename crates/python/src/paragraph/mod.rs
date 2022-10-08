@@ -1,43 +1,43 @@
 pub mod char;
-pub mod control;
-pub mod header;
 
-use hwp::hwp::paragraph::{char_list::CharList, Paragraph};
+use hwp::hwp::paragraph::Paragraph;
 use pyo3::prelude::*;
 
-use self::{
-    char::to_py_char,
-    header::{to_py_paragraph_header, PyParagraphHeader},
-};
+use self::char::PyChar;
 
 #[derive(Clone)]
 #[pyclass(name = "Paragraph")]
 pub struct PyParagraph {
-    #[pyo3(get)]
-    pub header: PyParagraphHeader,
-    char_list: CharList,
+    paragraph: Paragraph,
 }
 
 #[pymethods]
 impl PyParagraph {
+    #[getter]
     fn chars(&self) -> Vec<Py<PyAny>> {
         let mut chars = Vec::new();
-        for char in &self.char_list.chars {
+        for char in &self.paragraph.char_list.chars {
             chars.push(Python::with_gil(|py| {
-                Py::new(py, to_py_char(char)).unwrap().into_py(py)
+                Py::new(py, PyChar::from_char(char)).unwrap().into_py(py)
             }));
         }
         chars
     }
-}
 
-pub fn to_py_paragraph(paragraph: &Paragraph) -> PyParagraph {
-    PyParagraph {
-        header: to_py_paragraph_header(&paragraph.header),
-        char_list: paragraph.char_list.clone(),
+    fn __str__(&self) -> String {
+        self.paragraph.to_string()
+    }
+
+    pub fn find_all(&self) -> Vec<Py<PyAny>> {
+        // TODO: (@hahnlee) 구현필요
+        vec![]
     }
 }
 
-#[derive(Clone)]
-#[pyclass(name = "Test")]
-pub struct PyTest {}
+impl PyParagraph {
+    pub fn from_paragraph(paragraph: &Paragraph) -> Self {
+        Self {
+            paragraph: paragraph.clone(),
+        }
+    }
+}
