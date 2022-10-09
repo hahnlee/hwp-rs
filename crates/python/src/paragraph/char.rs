@@ -14,27 +14,29 @@ pub struct PyChar {
     pub data: Option<[u8; 12]>,
 }
 
-pub fn to_py_char(char: &Char) -> PyChar {
-    match char {
-        Char::CharCode(code) => PyChar {
-            kind: format!("char_code"),
-            code: code.clone(),
-            data: None,
-        },
-        Char::CharControl(code) => PyChar {
-            kind: format!("char_control"),
-            code: code.clone() as u16,
-            data: None,
-        },
-        Char::InlineControl(code, data) => PyChar {
-            kind: format!("inline_control"),
-            code: code.clone(),
-            data: Some(data.clone()),
-        },
-        Char::ExtendedControl(code, data) => PyChar {
-            kind: format!("extended_control"),
-            code: code.clone(),
-            data: Some(data.clone()),
-        },
+impl PyChar {
+    pub fn from_char(char: &Char) -> Self {
+        match char {
+            Char::CharCode(code) => Self {
+                kind: format!("char_code"),
+                code: code.clone(),
+                data: None,
+            },
+            Char::CharControl(code) => Self {
+                kind: format!("char_control"),
+                code: code.clone() as u16,
+                data: None,
+            },
+            Char::InlineControl(code, data) => Self {
+                kind: format!("inline_control"),
+                code: code.clone(),
+                data: Some(data.clone()),
+            },
+            Char::ExtendedControl(code, data) => Self {
+                kind: format!("extended_control"),
+                code: code.clone(),
+                data: Some(data.clone()),
+            },
+        }
     }
 }
