@@ -3,7 +3,7 @@
 
 Rust로 작성된 hwp파서와 각종 도구들
 
-[hwp-rs와 libhwp를 공개합니다](https://blog.hanlee/hwp-rs)
+[hwp-rs와 libhwp를 공개합니다](https://blog.hanlee/2022/hwp-rs)
 
 
 - [hwp-rs](./crates/hwp) Rust로 작성된 로우레벨 hwp 파서
