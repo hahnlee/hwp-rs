@@ -13,7 +13,7 @@ use byteorder::LittleEndian;
 
 use self::{bin_data::BinData, font::Font, id_mappings::IDMappings, properties::Properties};
 
-use super::{record::tags::DocInfoRecord, version::Version};
+use super::{header::Header, record::tags::DocInfoRecord, version::Version};
 
 #[derive(Debug)]
 pub struct DocInfo {
@@ -24,22 +24,29 @@ pub struct DocInfo {
 }
 
 impl DocInfo {
-    pub fn from_cfb<T: Read + Seek>(cfb: &mut CompoundFile<T>, version: &Version) -> DocInfo {
+    pub fn from_cfb<T: Read + Seek>(cfb: &mut CompoundFile<T>, header: &Header) -> DocInfo {
         let mut stream = cfb.open_stream("/DocInfo").unwrap();
-        let mut data = DeflateDecoder::new(&mut stream);
+        if header.flags.compressed {
+            let mut data = DeflateDecoder::new(&mut stream);
+            return DocInfo::from_reader(&mut data, &header.version);
+        } else {
+            return DocInfo::from_reader(&mut stream, &header.version);
+        }
+    }
 
-        let properties = Properties::from_reader(&mut data);
-        let id_mappings = IDMappings::from_reader(&mut data, version);
+    pub fn from_reader<T: Read>(data: &mut T, version: &Version) -> Self {
+        let properties = Properties::from_reader(data);
+        let id_mappings = IDMappings::from_reader(data, &version);
 
         let mut bin_data_list: Vec<BinData> = Vec::with_capacity(id_mappings.binary_data as usize);
         for _ in 0..id_mappings.binary_data {
-            bin_data_list.push(BinData::from_reader(&mut data));
+            bin_data_list.push(BinData::from_reader(data));
         }
 
         let mut fonts: Vec<Font> = Vec::with_capacity(id_mappings.fonts_count() as usize);
 
         for _ in 0..id_mappings.fonts_count() {
-            let font = Font::from_reader(&mut data);
+            let font = Font::from_reader(data);
             fonts.push(font);
         }
 
