@@ -1,6 +1,8 @@
 use std::io::Read;
 
 use byteorder::{LittleEndian, ReadBytesExt};
+use num::FromPrimitive;
+use num_derive::FromPrimitive;
 
 use crate::hwp::{
     record::{reader::RecordReader, tags::DocInfoRecord},
@@ -27,27 +29,27 @@ impl BinData {
         let properties = data.read_u16::<LittleEndian>().unwrap();
         let properties = BinDataProperties::from_bits(properties);
 
-        let absolute_path = if properties.data_type == BinDataType::Link as u16 {
+        let absolute_path = if properties.kind == BinDataKind::Link {
             Some(data.read_string::<LittleEndian>().unwrap())
         } else {
             None
         };
 
-        let relative_path = if properties.data_type == BinDataType::Link as u16 {
+        let relative_path = if properties.kind == BinDataKind::Link {
             Some(data.read_string::<LittleEndian>().unwrap())
         } else {
             None
         };
 
-        let id = if properties.data_type == BinDataType::Embedding as u16
-            || properties.data_type == BinDataType::Storage as u16
+        let id = if properties.kind == BinDataKind::Embedding
+            || properties.kind == BinDataKind::Storage
         {
             Some(data.read_u16::<LittleEndian>().unwrap())
         } else {
             None
         };
 
-        let extension = if properties.data_type == BinDataType::Embedding as u16 {
+        let extension = if properties.kind == BinDataKind::Embedding {
             Some(data.read_string::<LittleEndian>().unwrap())
         } else {
             None
@@ -61,11 +63,24 @@ impl BinData {
             extension,
         }
     }
+
+    pub fn cfb_file_name(&self) -> Option<String> {
+        if self.properties.kind != BinDataKind::Embedding {
+            return None;
+        }
+
+        let mut extension = self.extension.clone().unwrap();
+        extension.make_ascii_lowercase();
+
+        let id = self.id.unwrap();
+
+        Some(format!("BIN{:0>4X}.{extension}", id))
+    }
 }
 
 #[repr(u16)]
-#[derive(PartialEq, Eq)]
-pub enum BinDataType {
+#[derive(Debug, PartialEq, Eq, FromPrimitive)]
+pub enum BinDataKind {
     /// 그림 외부 파일 참조
     Link,
     /// 그림 파일 포함
@@ -78,7 +93,7 @@ pub enum BinDataType {
 pub struct BinDataProperties {
     // TODO: (@hahnlee) enum
     /// 타입
-    pub data_type: u16,
+    pub kind: BinDataKind,
     /// 압축 모드
     pub compress_mode: u16,
     /// 상태
@@ -89,7 +104,7 @@ impl BinDataProperties {
     pub fn from_bits(bits: u16) -> BinDataProperties {
         // TODO: (@hahnlee) 남는 비트정보 보존
         BinDataProperties {
-            data_type: get_value_range(bits, 0, 3),
+            kind: BinDataKind::from_u16(get_value_range(bits, 0, 3)).unwrap(),
             compress_mode: get_value_range(bits, 4, 5),
             status: get_value_range(bits, 8, 9),
         }
