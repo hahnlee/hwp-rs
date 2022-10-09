@@ -3,6 +3,9 @@
 
 Rust로 작성된 hwp파서와 각종 도구들
 
+[hwp-rs와 hwppy를 공개합니다](https://blog.hanlee/hwp-rs)
+
+
 - [hwp-rs](./crates/hwp) Rust로 작성된 로우레벨 hwp 파서
 - [hwppy](./crates/python) Rust로 작성된 Python hwp 리더 라이브러리
 ```python
