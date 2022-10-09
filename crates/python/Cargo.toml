@@ -5,7 +5,7 @@ edition = "2021"
 publish = false
 
 [lib]
-name = "hwppy"
+name = "libhwp"
 crate-type = ["cdylib"]
 
 [dependencies]

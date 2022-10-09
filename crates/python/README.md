@@ -1,4 +1,4 @@
-# hwppy
+# libhwp
 rust로 작성된 python hwp 리더 라이브러리
 
 > 본 제품은 한글과컴퓨터의 한/글 문서 파일(.hwp) 공개 문서를 참고하여 개발하였습니다.
@@ -25,7 +25,7 @@ rust로 작성된 python hwp 리더 라이브러리
 
 # 예
 ```python
-from hwppy import HWPReader
+from libhwp import HWPReader
 
 hwp = HWPReader('<파일 경로>')
 

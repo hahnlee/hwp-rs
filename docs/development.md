@@ -18,7 +18,7 @@ cargo test
 cd crates/python
 maturin develop
 ```
-이후 파이썬 인터프리터에서 `import hwppy`처럼 사용할 수 있습니다.
+이후 파이썬 인터프리터에서 `import libhwp`처럼 사용할 수 있습니다.
 
 ## 기능 추가
 새로운 기능이 필요하다면 아래 사항을 참고해주세요
@@ -26,7 +26,7 @@ maturin develop
 ### (hwp-rs) OS 의존적인 기능은 피해주세요
 hwp-rs의 잠정적 목표는 wasm 지원입니다. OS 의존적인 기능은 가급적 피해주세요.
 
-python(hwppy)의 경우에는 괜찮습니다.
+python(libhwp)의 경우에는 괜찮습니다.
 
 ### 기능 추가 전 Issue 또는 Discussion을 만들어주세요.
 hwp-rs는 가능한 적은 기능을 유지하려고 합니다.

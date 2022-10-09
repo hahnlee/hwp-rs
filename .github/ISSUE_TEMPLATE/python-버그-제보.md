@@ -23,5 +23,5 @@ assignees: hahnlee
 **환경:**
  - OS: [e.g. macOS]
  - Python 버전
- - hwppy 버전
+ - libhwp 버전
  - 테스트한 아래아한글 문서 버전

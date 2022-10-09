@@ -69,7 +69,7 @@ impl HWPReader {
 }
 
 #[pymodule]
-fn hwppy(_: Python, module: &PyModule) -> PyResult<()> {
+fn libhwp(_: Python, module: &PyModule) -> PyResult<()> {
     module.add_class::<HWPReader>()?;
     module.add_class::<PyParagraph>()?;
     module.add_class::<PyFile>()?;
