@@ -1,6 +1,8 @@
 # hwppy
 rust로 작성된 python hwp 리더 라이브러리
 
+> 본 제품은 한글과컴퓨터의 한/글 문서 파일(.hwp) 공개 문서를 참고하여 개발하였습니다.
+
 # API
 ## find_all
 - hwp

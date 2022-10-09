@@ -3,6 +3,8 @@ name = "hwp_macro"
 version = "0.1.0"
 edition = "2021"
 license = "Apache-2.0"
+description = "make_4chid를 위한 매크로"
+repository = "https://github.com/hahnlee/hwp-rs"
 
 [lib]
 proc-macro = true
