@@ -1,10 +1,18 @@
+mod bin_data;
 mod paragraph;
 mod section;
 mod version;
 
 use std::fs;
 
+use bin_data::PyFile;
 use hwp::HWP;
+use paragraph::control::common_properties::PyCommonProperties;
+use paragraph::control::equation::PyEquation;
+use paragraph::control::footnote_endnote::PyFootnoteEndnote;
+use paragraph::control::header_footer::PyHeaderFooter;
+use paragraph::control::table::PyTable;
+use paragraph::PyParagraph;
 use pyo3::prelude::*;
 use pyo3::types::PyDict;
 use section::PySection;
@@ -16,6 +24,8 @@ struct HWPReader {
     pub version: PyVersion,
     #[pyo3(get)]
     pub sections: Vec<PySection>,
+    #[pyo3(get)]
+    pub bin_data: Vec<PyFile>,
 }
 
 #[pymethods]
@@ -40,6 +50,11 @@ impl HWPReader {
         Ok(Self {
             version: PyVersion(hwp.header.version.clone()),
             sections,
+            bin_data: hwp
+                .bin_data
+                .into_iter()
+                .map(|b| PyFile::from_rust(&b))
+                .collect(),
         })
     }
 
@@ -56,5 +71,12 @@ impl HWPReader {
 #[pymodule]
 fn hwppy(_: Python, module: &PyModule) -> PyResult<()> {
     module.add_class::<HWPReader>()?;
+    module.add_class::<PyParagraph>()?;
+    module.add_class::<PyFile>()?;
+    module.add_class::<PyTable>()?;
+    module.add_class::<PyEquation>()?;
+    module.add_class::<PyCommonProperties>()?;
+    module.add_class::<PyHeaderFooter>()?;
+    module.add_class::<PyFootnoteEndnote>()?;
     Ok(())
 }

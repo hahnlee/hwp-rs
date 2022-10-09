@@ -15,7 +15,7 @@ on:
       - Cargo.toml
 
 concurrency:
-  group: pr-${{ github.ref }}
+  group: ci-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
