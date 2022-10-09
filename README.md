@@ -19,6 +19,11 @@ for table in hwp.find_all('table'):
     for cell in table.cells:
         for paragraph in cell.paragraphs:
             print(paragraph)
+
+# 문서에 사용된 파일 저장
+for file in hwp.bin_data:
+    with open(file.name, 'wb') as f:
+        f.write(file.data)
 ```
 
 # 개발가이드

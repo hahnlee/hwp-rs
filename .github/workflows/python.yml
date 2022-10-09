@@ -11,6 +11,10 @@ on:
   release:
     types: [published]
 
+concurrency:
+  group: python-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   linux:
     runs-on: ubuntu-latest

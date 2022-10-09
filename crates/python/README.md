@@ -54,4 +54,9 @@ for table in hwp.find_all('table'):
 # 수식 내용 출력
 for equation in hwp.find_all('equation'):
     print(equation.script)  # eg. f(x)= logx+sinx
+
+# 문서에 사용된 파일 저장
+for file in hwp.bin_data:
+    with open(file.name, 'wb') as f:
+        f.write(file.data)
 ```
