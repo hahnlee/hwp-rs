@@ -35,7 +35,7 @@ hwp-rs는 가능한 적은 기능을 유지하려고 합니다.
 논의 후 추가 할 수 있습니다.
 
 # PR
-[Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/) 가이드에 맞추어 PR제목을 만들어주세요.
+[Conventional Commits](https://www.conventionalcommits.org/ko/v1.0.0/) 가이드에 맞추어 PR제목을 만들어주세요.
 
 # Creates
 hwp-rs는 다음과 같은 crates로 되어 있습니다.
