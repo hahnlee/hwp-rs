@@ -4,6 +4,11 @@ on:
     branches:
       - main
       - develop
+    paths:
+      paths:
+        - crates/**
+        - Cargo.lock
+        - Cargo.toml
   pull_request:
     paths:
       - crates/**

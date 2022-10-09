@@ -4,6 +4,10 @@ on:
   push:
     branches:
       - main
+    paths:
+      - crates/**
+      - Cargo.lock
+      - Cargo.toml
   release:
     types: [published]
 
