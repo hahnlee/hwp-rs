@@ -52,7 +52,7 @@ impl PySection {
         Self {
             paragraphs: (&section.paragraphs)
                 .into_iter()
-                .map(|p| PyParagraph::from_paragraph(p))
+                .map(|p| PyParagraph::from_rust(p))
                 .collect::<Vec<PyParagraph>>(),
         }
     }

@@ -3,6 +3,24 @@
 
 Rust로 작성된 hwp파서와 각종 도구들
 
+- [hwp-rs](./crates/hwp) Rust로 작성된 로우레벨 hwp 파서
+- [hwppy](./crates/python) Rust로 작성된 Python hwp 리더 라이브러리
+```python
+from hwppy import HWPReader
+
+hwp = HWPReader('<파일 경로>')
+
+# 모든 문단 출력 (표, 캡션 포함)
+for paragraph in hwp.find_all('paragraph'):
+    print(paragraph)
+
+# 테이블 내용 출력
+for table in hwp.find_all('table'):
+    for cell in table.cells:
+        for paragraph in cell.paragraphs:
+            print(paragraph)
+```
+
 # 개발가이드
 [가이드 문서](./docs/development.md)를 참고해주세요
 
