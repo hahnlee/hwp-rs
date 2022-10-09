@@ -15,6 +15,7 @@ use self::{bin_data::File, body::Body, doc_info::DocInfo, header::Header};
 use std::io::{Cursor, Read};
 
 use cfb::CompoundFile;
+use flate2::read::DeflateDecoder;
 
 #[derive(Debug)]
 pub struct HWP {
@@ -32,11 +33,11 @@ impl HWP {
 
         let header = Header::from_cfb(&mut cfb);
 
-        let doc_info = DocInfo::from_cfb(&mut cfb, &header.version);
+        let doc_info = DocInfo::from_cfb(&mut cfb, &header);
 
-        let body_texts = Body::from_cfb(&mut cfb, &header.version);
+        let body_texts = Body::from_cfb(&mut cfb, &header);
         let view_texts = if header.flags.distributed {
-            Some(Body::from_distributed(&mut cfb, &header.version))
+            Some(Body::from_distributed(&mut cfb, &header))
         } else {
             None
         };
@@ -48,8 +49,20 @@ impl HWP {
             if file_name.is_some() {
                 let name = file_name.unwrap();
                 let mut stream = cfb.open_stream(format!("BinData/{}", name)).unwrap();
-                let mut data = vec![];
-                stream.read_to_end(&mut data).unwrap();
+                let mut buffer = vec![];
+                stream.read_to_end(&mut buffer).unwrap();
+
+                let data = if item.compressed(&header) {
+                    let cursor = Cursor::new(buffer);
+                    let mut reader = DeflateDecoder::new(cursor);
+                    let mut result = vec![];
+                    reader.read_to_end(&mut result).unwrap();
+                    result
+                } else {
+                    buffer
+                };
+
+                // 여기
                 bin_data.push(File { name, data });
             }
         }

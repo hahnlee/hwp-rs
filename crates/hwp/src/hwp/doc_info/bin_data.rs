@@ -6,7 +6,7 @@ use num_derive::FromPrimitive;
 
 use crate::hwp::{
     record::{reader::RecordReader, tags::DocInfoRecord},
-    utils::bits::get_value_range,
+    utils::bits::get_value_range, header::Header,
 };
 
 #[derive(Debug)]
@@ -75,6 +75,14 @@ impl BinData {
         let id = self.id.unwrap();
 
         Some(format!("BIN{:0>4X}.{extension}", id))
+    }
+
+    pub fn compressed(&self, header: &Header) -> bool {
+        match self.properties.compress_mode {
+            0x0000 => header.flags.compressed,
+            0x0010 => true,
+            _ => false,
+        }
     }
 }
 

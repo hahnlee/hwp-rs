@@ -1,6 +1,7 @@
 use crate::hwp::{record::reader::read_records, utils::random::SRand};
 
 use super::{
+    header::Header,
     paragraph::Paragraph,
     record::{reader::RecordReader, tags::DocInfoRecord},
     utils::crypto::decrypt_aes_128_ecb,
@@ -18,9 +19,9 @@ pub struct Section {
 }
 
 impl Section {
-    pub fn from_deflate<T: Read>(decoder: &mut DeflateDecoder<T>, version: &Version) -> Section {
+    pub fn from_reader<T: Read>(reader: &mut T, version: &Version) -> Section {
         let mut data = Vec::new();
-        decoder.read_to_end(&mut data).unwrap();
+        reader.read_to_end(&mut data).unwrap();
 
         let records = read_records(data);
 
@@ -32,12 +33,16 @@ impl Section {
         Section { paragraphs }
     }
 
-    pub fn from_stream<T: Read>(stream: &mut T, version: &Version) -> Section {
-        let mut data = DeflateDecoder::new(stream);
-        Section::from_deflate(&mut data, version)
+    pub fn from_stream<T: Read>(stream: &mut T, header: &Header) -> Section {
+        if header.flags.compressed {
+            let mut data = DeflateDecoder::new(stream);
+            return Section::from_reader(&mut data, &header.version);
+        }
+
+        return Section::from_reader(stream, &header.version);
     }
 
-    pub fn from_distributed<T: Read>(stream: &mut T, version: &Version) -> Section {
+    pub fn from_distributed<T: Read>(stream: &mut T, header: &Header) -> Section {
         let (tag_id, _, size, mut reader) = stream.read_record::<LittleEndian>().unwrap();
 
         if tag_id != DocInfoRecord::HWPTAG_DISTRIBUTE_DOC_DATA as u32 || size != 256 {
@@ -86,10 +91,13 @@ impl Section {
 
         let decrypted = decrypt_aes_128_ecb(&decryption_key, &encrypted);
 
-        let cursor = Cursor::new(decrypted);
+        let mut cursor = Cursor::new(decrypted);
 
-        let mut decoded = DeflateDecoder::new(cursor);
+        if header.flags.compressed {
+            let mut decoded = DeflateDecoder::new(cursor);
+            return Section::from_reader(&mut decoded, &header.version);
+        }
 
-        Section::from_deflate(&mut decoded, version)
+        return Section::from_reader(&mut cursor, &header.version);
     }
 }
