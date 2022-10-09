@@ -6,6 +6,7 @@ use std::fs;
 
 use hwp::HWP;
 use pyo3::prelude::*;
+use pyo3::types::PyDict;
 use section::PySection;
 use version::PyVersion;
 
@@ -42,10 +43,11 @@ impl HWPReader {
         })
     }
 
-    pub fn find_all(&self, tag: &str) -> Vec<Py<PyAny>> {
+    #[args(kwargs = "**")]
+    pub fn find_all(&self, tag: &str, kwargs: Option<&PyDict>) -> Vec<Py<PyAny>> {
         (&self.sections)
             .into_iter()
-            .map(|s| s.find_all(tag))
+            .map(|s| s.find_all(tag, kwargs))
             .flatten()
             .collect()
     }
