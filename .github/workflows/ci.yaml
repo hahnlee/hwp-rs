@@ -5,10 +5,9 @@ on:
       - main
       - develop
     paths:
-      paths:
-        - crates/**
-        - Cargo.lock
-        - Cargo.toml
+      - crates/**
+      - Cargo.lock
+      - Cargo.toml
   pull_request:
     paths:
       - crates/**
