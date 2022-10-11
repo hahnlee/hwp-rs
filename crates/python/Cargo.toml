@@ -9,5 +9,5 @@ name = "libhwp"
 crate-type = ["cdylib"]
 
 [dependencies]
-hwp = { path = "../hwp" }
+hwp = { path = "../hwp", version = "0.1.0" }
 pyo3 = { version = "0.17", features = ["extension-module"] }

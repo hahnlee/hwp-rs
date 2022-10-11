@@ -3,14 +3,14 @@ name = "hwp"
 version = "0.1.0"
 edition = "2021"
 license = "Apache-2.0"
-description = "낮은 수준의 hwp파서"
+description = "낮은 수준의 hwp 파서"
 repository = "https://github.com/hahnlee/hwp-rs"
 
 [dependencies]
 aes = "0.8"
 byteorder = "1"
 cfb = "0.7"
-hwp_macro = { path = "../macro" }
+hwp_macro = { path = "../macro", version = "0.1.0" }
 flate2 = "1.0"
 num = "0.4"
 num-traits = "0.2"
