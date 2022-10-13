@@ -127,7 +127,7 @@ impl Paragraph {
                     match &self.controls[i] {
                         Control::AutoNumber(auto_number) => {
                             out.push_str(&auto_number.to_string());
-                        },
+                        }
                         _ => {}
                     };
 
