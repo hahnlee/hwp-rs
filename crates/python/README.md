@@ -3,7 +3,7 @@ rust로 작성된 python hwp 리더 라이브러리
 
 > 본 제품은 한글과컴퓨터의 한/글 문서 파일(.hwp) 공개 문서를 참고하여 개발하였습니다.
 
-[hwp-rs와 hwppy를 공개합니다](https://blog.hanlee/2022/hwp-rs)
+[hwp-rs와 hwppy를 공개합니다](https://blog.hanlee.io/2022/hwp-rs)
 
 # API
 ## find_all
