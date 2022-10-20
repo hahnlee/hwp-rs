@@ -1,7 +1,7 @@
 use byteorder::{LittleEndian, ReadBytesExt};
 
 use crate::hwp::{
-    record::{tags::DocInfoRecord, Record},
+    record::{tags::DocInfoRecord, Record, read_items},
     version::Version,
 };
 
@@ -108,18 +108,15 @@ impl IDMappings {
         //     0
         // };
 
-        let mut binary_data = vec![];
-        for _ in 0..binary_data_len {
-            binary_data.push(BinData::from_record(record.next_child()));
-        }
+        let binary_data = read_items::<BinData>(record,  version, binary_data_len as usize);
 
-        let korean_fonts = read_fonts(record, korean_fonts_len as usize);
-        let english_fonts = read_fonts(record, english_fonts_len as usize);
-        let chinese_characters_fonts = read_fonts(record, chinese_characters_fonts_len as usize);
-        let japanese_fonts = read_fonts(record, japanese_fonts_len as usize);
-        let etc_fonts = read_fonts(record, etc_fonts_len as usize);
-        let symbol_fonts = read_fonts(record, symbol_fonts_len as usize);
-        let user_fonts = read_fonts(record, user_fonts_len as usize);
+        let korean_fonts = read_items::<Font>(record, version, korean_fonts_len as usize);
+        let english_fonts = read_items::<Font>(record, version, english_fonts_len as usize);
+        let chinese_characters_fonts = read_items::<Font>(record, version, chinese_characters_fonts_len as usize);
+        let japanese_fonts = read_items::<Font>(record, version, japanese_fonts_len as usize);
+        let etc_fonts = read_items::<Font>(record, version, etc_fonts_len as usize);
+        let symbol_fonts = read_items::<Font>(record, version, symbol_fonts_len as usize);
+        let user_fonts = read_items::<Font>(record, version, user_fonts_len as usize);
 
         IDMappings {
             binary_data,
@@ -142,13 +139,4 @@ impl IDMappings {
             // change_tracking_users,
         }
     }
-}
-
-fn read_fonts(record: &mut Record, size: usize) -> Vec<Font> {
-    let mut fonts: Vec<Font> = Vec::with_capacity(size);
-    for _ in 0..size {
-        fonts.push(Font::from_record(record.next_child()));
-    }
-
-    fonts
 }

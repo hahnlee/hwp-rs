@@ -3,8 +3,9 @@ use num::FromPrimitive;
 use num_derive::FromPrimitive;
 
 use crate::hwp::{
-    record::{reader::RecordReader, tags::DocInfoRecord, Record},
-    utils::bits::get_value_range, header::Header,
+    header::Header,
+    record::{reader::RecordReader, tags::DocInfoRecord, FromRecord, Record},
+    utils::bits::get_value_range, version::Version,
 };
 
 #[derive(Debug)]
@@ -17,8 +18,35 @@ pub struct BinData {
 }
 
 impl BinData {
-    pub fn from_record(record: Record) -> BinData {
-        assert_eq!(record.tag_id, DocInfoRecord::HWPTAG_BIN_DATA as u32, "올바르지 않은 정보");
+    pub fn cfb_file_name(&self) -> Option<String> {
+        if self.properties.kind != BinDataKind::Embedding {
+            return None;
+        }
+
+        let mut extension = self.extension.clone().unwrap();
+        extension.make_ascii_lowercase();
+
+        let id = self.id.unwrap();
+
+        Some(format!("BIN{:0>4X}.{extension}", id))
+    }
+
+    pub fn compressed(&self, header: &Header) -> bool {
+        match self.properties.compress_mode {
+            0x0000 => header.flags.compressed,
+            0x0010 => true,
+            _ => false,
+        }
+    }
+}
+
+impl FromRecord for BinData {
+    fn from_record(record: &mut Record, _: &Version) -> BinData {
+        assert_eq!(
+            record.tag_id,
+            DocInfoRecord::HWPTAG_BIN_DATA as u32,
+            "올바르지 않은 정보"
+        );
 
         let mut data = record.get_data_reader();
         let properties = data.read_u16::<LittleEndian>().unwrap();
@@ -56,27 +84,6 @@ impl BinData {
             relative_path,
             id,
             extension,
-        }
-    }
-
-    pub fn cfb_file_name(&self) -> Option<String> {
-        if self.properties.kind != BinDataKind::Embedding {
-            return None;
-        }
-
-        let mut extension = self.extension.clone().unwrap();
-        extension.make_ascii_lowercase();
-
-        let id = self.id.unwrap();
-
-        Some(format!("BIN{:0>4X}.{extension}", id))
-    }
-
-    pub fn compressed(&self, header: &Header) -> bool {
-        match self.properties.compress_mode {
-            0x0000 => header.flags.compressed,
-            0x0010 => true,
-            _ => false,
         }
     }
 }

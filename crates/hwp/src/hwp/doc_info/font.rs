@@ -3,8 +3,8 @@ use std::io::Read;
 use byteorder::{LittleEndian, ReadBytesExt};
 
 use crate::hwp::{
-    record::{reader::RecordReader, tags::DocInfoRecord, Record},
-    utils::bits::get_flag,
+    record::{reader::RecordReader, tags::DocInfoRecord, Record, FromRecord},
+    utils::bits::get_flag, version::Version,
 };
 
 #[derive(Debug)]
@@ -23,8 +23,8 @@ pub struct Font {
     pub alternative_font_name: Option<String>,
 }
 
-impl Font {
-    pub fn from_record(record: Record) -> Font {
+impl FromRecord for Font {
+    fn from_record(record: &mut Record, _: &Version) -> Font {
         assert_eq!(
             record.tag_id,
             DocInfoRecord::HWPTAG_FACE_NAME as u32,
