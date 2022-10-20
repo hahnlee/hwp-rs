@@ -1,11 +1,9 @@
-use std::io::Read;
-
 use byteorder::{LittleEndian, ReadBytesExt};
 use num::FromPrimitive;
 use num_derive::FromPrimitive;
 
 use crate::hwp::{
-    record::{reader::RecordReader, tags::DocInfoRecord},
+    record::{reader::RecordReader, tags::DocInfoRecord, Record},
     utils::bits::get_value_range, header::Header,
 };
 
@@ -19,13 +17,10 @@ pub struct BinData {
 }
 
 impl BinData {
-    pub fn from_reader<T: Read>(stream: &mut T) -> BinData {
-        let (tag_id, _, _, mut data) = stream.read_record::<LittleEndian>().unwrap();
-        if tag_id != DocInfoRecord::HWPTAG_BIN_DATA as u32 {
-            // TODO: (@hahnlee) 옵셔널
-            panic!("올바르지 않은 정보");
-        }
+    pub fn from_record(record: Record) -> BinData {
+        assert_eq!(record.tag_id, DocInfoRecord::HWPTAG_BIN_DATA as u32, "올바르지 않은 정보");
 
+        let mut data = record.get_data_reader();
         let properties = data.read_u16::<LittleEndian>().unwrap();
         let properties = BinDataProperties::from_bits(properties);
 

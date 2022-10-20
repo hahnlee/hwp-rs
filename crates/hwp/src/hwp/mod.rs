@@ -44,7 +44,7 @@ impl HWP {
 
         let mut bin_data = vec![];
 
-        for item in &doc_info.bin_data_list {
+        for item in &doc_info.id_mappings.binary_data {
             let file_name = item.cfb_file_name();
             if file_name.is_some() {
                 let name = file_name.unwrap();

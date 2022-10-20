@@ -72,7 +72,7 @@ impl<R: Read + ?Sized> RecordReader for R {}
 /// 레코드는 level 기반의 tree 구조로 이루어져 있다
 ///
 /// 레코드 배열을 tree로 변환하는 함수
-pub fn read_records(data: Vec<u8>) -> Vec<Record> {
+pub fn read_records(data: &mut Vec<u8>) -> Vec<Record> {
     let len = data.len() - 1;
 
     let mut reader = Cursor::new(data);
@@ -102,7 +102,7 @@ pub fn read_records(data: Vec<u8>) -> Vec<Record> {
     records
 }
 
-fn fill_tree(record: &mut Record, level: u32, reader: &mut Cursor<Vec<u8>>) {
+fn fill_tree(record: &mut Record, level: u32, reader: &mut Cursor<&mut Vec<u8>>) {
     let size = reader.get_ref().len().to_u64().unwrap() - 1;
     while reader.position() < size {
         let (tag_id, next_level, record_size, read_bytes) =
