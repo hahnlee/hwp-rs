@@ -16,7 +16,7 @@ use super::{
 pub struct IDMappings {
     /// 바이너리 데이터
     pub binary_data: Vec<BinData>,
-    // /// 한글 글꼴
+    /// 한글 글꼴
     pub korean_fonts: Vec<Font>,
     /// 영어 글꼴
     pub english_fonts: Vec<Font>,

@@ -1,5 +1,6 @@
 pub mod bin_data;
 pub mod body;
+pub mod color_ref;
 pub mod doc_info;
 pub mod header;
 pub mod paragraph;
