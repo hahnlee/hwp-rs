@@ -23,7 +23,7 @@ impl Section {
         let mut data = Vec::new();
         reader.read_to_end(&mut data).unwrap();
 
-        let records = read_records(data);
+        let records = read_records(&mut data);
 
         let paragraphs = records
             .into_iter()

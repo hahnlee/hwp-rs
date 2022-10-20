@@ -3,8 +3,8 @@ use std::io::Read;
 use byteorder::{LittleEndian, ReadBytesExt};
 
 use crate::hwp::{
-    record::{reader::RecordReader, tags::DocInfoRecord},
-    utils::bits::get_flag,
+    record::{reader::RecordReader, tags::DocInfoRecord, Record, FromRecord},
+    utils::bits::get_flag, version::Version,
 };
 
 #[derive(Debug)]
@@ -23,13 +23,15 @@ pub struct Font {
     pub alternative_font_name: Option<String>,
 }
 
-impl Font {
-    pub fn from_reader<T: Read>(stream: &mut T) -> Font {
-        let (tag_id, _, _, mut data) = stream.read_record::<LittleEndian>().unwrap();
-        if tag_id != DocInfoRecord::HWPTAG_FACE_NAME as u32 {
-            // TODO: (@hahnlee) 옵셔널
-            panic!("올바르지 않은 정보");
-        }
+impl FromRecord for Font {
+    fn from_record(record: &mut Record, _: &Version) -> Font {
+        assert_eq!(
+            record.tag_id,
+            DocInfoRecord::HWPTAG_FACE_NAME as u32,
+            "올바르지 않은 정보"
+        );
+
+        let mut data = record.get_data_reader();
 
         let properties = data.read_u8().unwrap();
         let name = data.read_string::<LittleEndian>().unwrap();

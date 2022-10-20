@@ -1,8 +1,6 @@
-use std::io::Read;
-
 use byteorder::{LittleEndian, ReadBytesExt};
 
-use crate::hwp::record::{reader::RecordReader, tags::DocInfoRecord};
+use crate::hwp::record::{tags::DocInfoRecord, Record};
 
 #[derive(Debug)]
 pub struct Properties {
@@ -29,25 +27,26 @@ pub struct Properties {
 }
 
 impl Properties {
-    pub fn from_reader<T: Read>(reader: &mut T) -> Properties {
-        let (tag, _, size, mut data) = reader.read_record::<LittleEndian>().unwrap();
+    pub fn from_record(record: &mut Record) -> Properties {
+        assert_eq!(
+            record.tag_id,
+            DocInfoRecord::HWPTAG_DOCUMENT_PROPERTIES as u32,
+            "올바르지 않은 레코드 입니다"
+        );
 
-        if tag != DocInfoRecord::HWPTAG_DOCUMENT_PROPERTIES as u32 || size != 26 {
-            // TODO: (@hahnlee) 옵셔널
-            panic!("올바르지 않은 정보");
-        }
+        let mut reader = record.get_data_reader();
 
         Properties {
-            sections: data.read_u16::<LittleEndian>().unwrap(),
-            page_start_number: data.read_u16::<LittleEndian>().unwrap(),
-            footnote_start_number: data.read_u16::<LittleEndian>().unwrap(),
-            endnote_start_number: data.read_u16::<LittleEndian>().unwrap(),
-            picture_start_number: data.read_u16::<LittleEndian>().unwrap(),
-            table_start_number: data.read_u16::<LittleEndian>().unwrap(),
-            formula_start_number: data.read_u16::<LittleEndian>().unwrap(),
-            list_id: data.read_u32::<LittleEndian>().unwrap(),
-            paragraph_id: data.read_u32::<LittleEndian>().unwrap(),
-            character_in_paragraph: data.read_u32::<LittleEndian>().unwrap(),
+            sections: reader.read_u16::<LittleEndian>().unwrap(),
+            page_start_number: reader.read_u16::<LittleEndian>().unwrap(),
+            footnote_start_number: reader.read_u16::<LittleEndian>().unwrap(),
+            endnote_start_number: reader.read_u16::<LittleEndian>().unwrap(),
+            picture_start_number: reader.read_u16::<LittleEndian>().unwrap(),
+            table_start_number: reader.read_u16::<LittleEndian>().unwrap(),
+            formula_start_number: reader.read_u16::<LittleEndian>().unwrap(),
+            list_id: reader.read_u32::<LittleEndian>().unwrap(),
+            paragraph_id: reader.read_u32::<LittleEndian>().unwrap(),
+            character_in_paragraph: reader.read_u32::<LittleEndian>().unwrap(),
         }
     }
 }

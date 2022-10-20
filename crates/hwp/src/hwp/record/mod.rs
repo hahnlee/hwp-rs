@@ -1,5 +1,7 @@
 use std::io::Cursor;
 
+use super::version::Version;
+
 pub mod reader;
 pub mod tags;
 
@@ -58,4 +60,17 @@ impl Record {
 
         out
     }
+}
+
+pub trait FromRecord {
+    fn from_record(record: &mut Record, version: &Version) -> Self;
+}
+
+pub fn read_items<T: FromRecord>(record: &mut Record, version: &Version, size: usize) -> Vec<T> {
+    let mut read_items: Vec<T> = Vec::with_capacity(size);
+    for _ in 0..size {
+        read_items.push(T::from_record(&mut record.next_child(), version));
+    }
+
+    read_items
 }
