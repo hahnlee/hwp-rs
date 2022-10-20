@@ -67,7 +67,7 @@ impl Header {
     }
 
     pub fn to_bytes(&self) -> Vec<u8> {
-        // TODO (@hahnlee) 나머지 영역도 추가하기
+        // TODO: (@hahnlee) 나머지 영역도 추가하기
         [self.signature.to_vec(), self.reserved.to_vec()].concat()
     }
 }
