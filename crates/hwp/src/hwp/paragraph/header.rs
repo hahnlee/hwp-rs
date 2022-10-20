@@ -6,6 +6,8 @@ use crate::hwp::version::Version;
 
 #[derive(Debug, Clone)]
 pub struct ParagraphHeader {
+    /// 문단 모양 아이디 참조값
+    pub paragraph_shape_id: u16,
     /// 글자수
     pub chars: u32,
     /// 글자 모양 정보 수
@@ -27,8 +29,7 @@ impl ParagraphHeader {
         // ctrl mask
         reader.read_u32::<LittleEndian>().unwrap();
 
-        // 문단 모양 아이디 참조값
-        reader.read_u16::<LittleEndian>().unwrap();
+        let paragraph_shape_id = reader.read_u16::<LittleEndian>().unwrap();
 
         // 문단 스타일 아이디 참조값
         reader.read_u8().unwrap();
@@ -51,6 +52,7 @@ impl ParagraphHeader {
         }
 
         Self {
+            paragraph_shape_id,
             chars,
             char_shapes,
             aligns,
