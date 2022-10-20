@@ -1,7 +1,17 @@
 pub mod bin_data;
+pub mod border_fill;
+pub mod bullet;
+pub mod change_tracking;
+pub mod change_tracking_author;
+pub mod char_shape;
 pub mod font;
 pub mod id_mappings;
+pub mod memo_shape;
+pub mod numbering;
+pub mod paragraph_shape;
 pub mod properties;
+pub mod style;
+pub mod tab_definition;
 
 use std::io::{Read, Seek};
 

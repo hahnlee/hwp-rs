@@ -1,11 +1,16 @@
 use byteorder::{LittleEndian, ReadBytesExt};
 
 use crate::hwp::{
-    record::{tags::DocInfoRecord, Record, read_items},
+    record::{read_items, tags::DocInfoRecord, Record},
     version::Version,
 };
 
-use super::{bin_data::BinData, font::Font};
+use super::{
+    bin_data::BinData, border_fill::BorderFill, bullet::Bullet, change_tracking::ChangeTracking,
+    change_tracking_author::ChangeTrackingAuthor, char_shape::CharShape, font::Font,
+    memo_shape::MemoShape, numbering::Numbering, paragraph_shape::ParagraphShape, style::Style,
+    tab_definition::TabDefinition,
+};
 
 #[derive(Debug)]
 pub struct IDMappings {
@@ -25,26 +30,26 @@ pub struct IDMappings {
     pub symbol_fonts: Vec<Font>,
     /// 사용자 글꼴
     pub user_fonts: Vec<Font>,
-    // /// 테두리/배경
-    // pub border_fils: i32,
+    /// 테두리/배경
+    pub border_fils: Vec<BorderFill>,
     // /// 글자 모양
-    // pub char_shapes: i32,
-    // /// 탭 정의
-    // pub tab_definitions: i32,
-    // /// 문단 번호
-    // pub numbering: i32,
-    // /// 글머리표
-    // pub bullets: i32,
-    // /// 문단 모양
-    // pub paragraph_shapes: i32,
-    // /// 스타일(문단 스타일)
-    // pub styles: i32,
-    // /// 메모 모양 (5.0.2.1 이상)
-    // pub memo_shapes: i32,
-    // /// 변경추적 (5.0.3.2 이상)
-    // pub change_trackings: i32,
-    // /// 변경추적 사용자 (5.0.3.2 이상)
-    // pub change_tracking_users: i32,
+    pub char_shapes: Vec<CharShape>,
+    /// 탭 정의
+    pub tab_definitions: Vec<TabDefinition>,
+    /// 문단 번호
+    pub numberings: Vec<Numbering>,
+    /// 글머리표
+    pub bullets: Vec<Bullet>,
+    /// 문단 모양
+    pub paragraph_shapes: Vec<ParagraphShape>,
+    /// 스타일(문단 스타일)
+    pub styles: Vec<Style>,
+    /// 메모 모양 (5.0.2.1 이상)
+    pub memo_shapes: Vec<MemoShape>,
+    /// 변경추적 (5.0.3.2 이상)
+    pub change_trackings: Vec<ChangeTracking>,
+    /// 변경추적 사용자 (5.0.3.2 이상)
+    pub change_tracking_authors: Vec<ChangeTrackingAuthor>,
 }
 
 impl IDMappings {
@@ -72,71 +77,60 @@ impl IDMappings {
 
         let mut reader = record.get_data_reader();
 
-        let binary_data_len = reader.read_i32::<LittleEndian>().unwrap();
-        let korean_fonts_len = reader.read_i32::<LittleEndian>().unwrap();
-        let english_fonts_len = reader.read_i32::<LittleEndian>().unwrap();
-        let chinese_characters_fonts_len = reader.read_i32::<LittleEndian>().unwrap();
-        let japanese_fonts_len = reader.read_i32::<LittleEndian>().unwrap();
-        let etc_fonts_len = reader.read_i32::<LittleEndian>().unwrap();
-        let symbol_fonts_len = reader.read_i32::<LittleEndian>().unwrap();
-        let user_fonts_len = reader.read_i32::<LittleEndian>().unwrap();
+        let binary_data = reader.read_i32::<LittleEndian>().unwrap() as usize;
+        let korean_fonts = reader.read_i32::<LittleEndian>().unwrap() as usize;
+        let english_fonts = reader.read_i32::<LittleEndian>().unwrap() as usize;
+        let chinese_characters_fonts = reader.read_i32::<LittleEndian>().unwrap() as usize;
+        let japanese_fonts = reader.read_i32::<LittleEndian>().unwrap() as usize;
+        let etc_fonts = reader.read_i32::<LittleEndian>().unwrap() as usize;
+        let symbol_fonts = reader.read_i32::<LittleEndian>().unwrap() as usize;
+        let user_fonts = reader.read_i32::<LittleEndian>().unwrap() as usize;
 
-        // TODO: (@hahnlee)
-        // let border_fils = reader.read_i32::<LittleEndian>().unwrap();
-        // let char_shapes = reader.read_i32::<LittleEndian>().unwrap();
-        // let tab_definitions = reader.read_i32::<LittleEndian>().unwrap();
-        // let numbering = reader.read_i32::<LittleEndian>().unwrap();
-        // let bullets = reader.read_i32::<LittleEndian>().unwrap();
-        // let paragraph_shapes = reader.read_i32::<LittleEndian>().unwrap();
-        // let styles = reader.read_i32::<LittleEndian>().unwrap();
+        let border_fils = reader.read_i32::<LittleEndian>().unwrap() as usize;
+        let char_shapes = reader.read_i32::<LittleEndian>().unwrap() as usize;
+        let tab_definitions = reader.read_i32::<LittleEndian>().unwrap() as usize;
+        let numberings = reader.read_i32::<LittleEndian>().unwrap() as usize;
+        let bullets = reader.read_i32::<LittleEndian>().unwrap() as usize;
+        let paragraph_shapes = reader.read_i32::<LittleEndian>().unwrap() as usize;
+        let styles = reader.read_i32::<LittleEndian>().unwrap() as usize;
 
-        // let memo_shapes = if *version >= memo_supported_version {
-        //     reader.read_i32::<LittleEndian>().unwrap()
-        // } else {
-        //     0
-        // };
+        let memo_shapes = if *version >= memo_supported_version {
+            reader.read_i32::<LittleEndian>().unwrap() as usize
+        } else {
+            0
+        };
 
-        // let change_trackings = if version.ge(&tracking_supported_version) {
-        //     reader.read_i32::<LittleEndian>().unwrap()
-        // } else {
-        //     0
-        // };
+        let change_trackings = if version.ge(&tracking_supported_version) {
+            reader.read_i32::<LittleEndian>().unwrap() as usize
+        } else {
+            0
+        };
 
-        // let change_tracking_users = if version.ge(&tracking_supported_version) {
-        //     reader.read_i32::<LittleEndian>().unwrap()
-        // } else {
-        //     0
-        // };
-
-        let binary_data = read_items::<BinData>(record,  version, binary_data_len as usize);
-
-        let korean_fonts = read_items::<Font>(record, version, korean_fonts_len as usize);
-        let english_fonts = read_items::<Font>(record, version, english_fonts_len as usize);
-        let chinese_characters_fonts = read_items::<Font>(record, version, chinese_characters_fonts_len as usize);
-        let japanese_fonts = read_items::<Font>(record, version, japanese_fonts_len as usize);
-        let etc_fonts = read_items::<Font>(record, version, etc_fonts_len as usize);
-        let symbol_fonts = read_items::<Font>(record, version, symbol_fonts_len as usize);
-        let user_fonts = read_items::<Font>(record, version, user_fonts_len as usize);
+        let change_tracking_authors = if version.ge(&tracking_supported_version) {
+            reader.read_i32::<LittleEndian>().unwrap() as usize
+        } else {
+            0
+        };
 
         IDMappings {
-            binary_data,
-            korean_fonts,
-            english_fonts,
-            chinese_characters_fonts,
-            japanese_fonts,
-            etc_fonts,
-            symbol_fonts,
-            user_fonts,
-            // border_fils,
-            // char_shapes,
-            // tab_definitions,
-            // numbering,
-            // bullets,
-            // paragraph_shapes,
-            // styles,
-            // memo_shapes,
-            // change_trackings,
-            // change_tracking_users,
+            binary_data: read_items(record, version, binary_data),
+            korean_fonts: read_items(record, version, korean_fonts),
+            english_fonts: read_items(record, version, english_fonts),
+            chinese_characters_fonts: read_items(record, version, chinese_characters_fonts),
+            japanese_fonts: read_items(record, version, japanese_fonts),
+            etc_fonts: read_items(record, version, etc_fonts),
+            symbol_fonts: read_items(record, version, symbol_fonts),
+            user_fonts: read_items(record, version, user_fonts),
+            border_fils: read_items(record, version, border_fils),
+            char_shapes: read_items(record, version, char_shapes),
+            tab_definitions: read_items(record, version, tab_definitions),
+            numberings: read_items(record, version, numberings),
+            bullets: read_items(record, version, bullets),
+            paragraph_shapes: read_items(record, version, paragraph_shapes),
+            styles: read_items(record, version, styles),
+            memo_shapes: read_items(record, version, memo_shapes),
+            change_trackings: read_items(record, version, change_trackings),
+            change_tracking_authors: read_items(record, version, change_tracking_authors),
         }
     }
 }
