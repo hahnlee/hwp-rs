@@ -13,49 +13,34 @@ use crate::hwp::{
 // TODO: (@hahnlee)
 #[derive(Debug)]
 pub struct BorderFill {
+    /// 선 정보
+    pub borders: [Border; 4],
+    /// 대각선
+    pub diagonal_border: Border,
+    /// 채우기 종류
     pub fill_kind: BorderFillKind,
+    /// 채우기 정보
     pub fill_content: FillContent,
 }
 
 impl FromRecord for BorderFill {
     fn from_record(record: &mut Record, _: &Version) -> Self {
-        assert_eq!(
-            record.tag_id,
-            DocInfoRecord::HWPTAG_BORDER_FILL as u32
-        );
+        assert_eq!(record.tag_id, DocInfoRecord::HWPTAG_BORDER_FILL as u32);
 
         let mut reader = record.get_data_reader();
 
         // TODO: (@hahnlee) 속성(표 24 참조)
         reader.read_u16::<LittleEndian>().unwrap();
 
-        // TODO: (@hahnlee) 4방향 테두리선 종류(표 25 참조)
-        [
-            reader.read_u8().unwrap(),
-            reader.read_u8().unwrap(),
-            reader.read_u8().unwrap(),
-            reader.read_u8().unwrap(),
+        // NOTE: (@hahnlee) 공식문서와 순서가 다르다
+        let borders = [
+            Border::from_reader(&mut reader),
+            Border::from_reader(&mut reader),
+            Border::from_reader(&mut reader),
+            Border::from_reader(&mut reader),
         ];
-        // TODO: (@hahnlee) 4방향 테두리선 굵기(표 26 참조)
-        [
-            reader.read_u8().unwrap(),
-            reader.read_u8().unwrap(),
-            reader.read_u8().unwrap(),
-            reader.read_u8().unwrap(),
-        ];
-        // TODO: (@hahnlee) 4방향 테두리선 색상.
-        [
-            ColorRef::from_u32(reader.read_u32::<LittleEndian>().unwrap()),
-            ColorRef::from_u32(reader.read_u32::<LittleEndian>().unwrap()),
-            ColorRef::from_u32(reader.read_u32::<LittleEndian>().unwrap()),
-            ColorRef::from_u32(reader.read_u32::<LittleEndian>().unwrap()),
-        ];
-        // TODO: (@hahnlee) 대각선 종류
-        reader.read_u8().unwrap();
-        // TODO: (@hahnlee) 대각선 굵기
-        reader.read_u8().unwrap();
-        // TODO: (@hahnlee) 대각선 색깔
-        ColorRef::from_u32(reader.read_u32::<LittleEndian>().unwrap());
+
+        let diagonal_border = Border::from_reader(&mut reader);
 
         let fill_kind =
             BorderFillKind::from_u32(reader.read_u32::<LittleEndian>().unwrap()).unwrap();
@@ -66,8 +51,27 @@ impl FromRecord for BorderFill {
         };
 
         Self {
+            borders,
+            diagonal_border,
             fill_kind,
             fill_content,
+        }
+    }
+}
+
+#[derive(Debug)]
+pub struct Border {
+    pub width: u8,
+    pub kind: u8,
+    pub color: ColorRef,
+}
+
+impl Border {
+    pub fn from_reader<T: Read>(reader: &mut T) -> Self {
+        Self {
+            width: reader.read_u8().unwrap(),
+            kind: reader.read_u8().unwrap(),
+            color: ColorRef::from_u32(reader.read_u32::<LittleEndian>().unwrap()),
         }
     }
 }
