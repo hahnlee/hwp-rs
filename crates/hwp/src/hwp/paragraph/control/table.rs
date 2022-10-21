@@ -32,7 +32,8 @@ impl TableControl {
 
         let table_record = TableRecord::from_record(&mut record.next_child(), version);
         let mut cells = Vec::new();
-        while record.is_next_child_id(BodyTextRecord::HWPTAG_LIST_HEADER as u32) {
+        let cell_count = table_record.row_count.clone().into_iter().reduce(|result, current| result + current).unwrap();
+        for _ in 0..cell_count {
             cells.push(Cell::from_record(&mut record, version));
         }
 
@@ -159,6 +160,8 @@ pub struct Cell {
 impl Cell {
     pub fn from_record(record: &mut Record, version: &Version) -> Self {
         let meta = record.next_child();
+        assert_eq!(meta.tag_id, BodyTextRecord::HWPTAG_LIST_HEADER as u32);
+
         let mut reader = meta.get_data_reader();
         let paragraph_list = ParagraphList::from_record(&mut reader, record, version);
 
@@ -178,7 +181,7 @@ impl Cell {
             reader.read_u16::<LittleEndian>().unwrap(),
         ];
 
-        let border_fill_id = reader.read_u16::<LittleEndian>().unwrap();
+        let border_fill_id = reader.read_u16::<LittleEndian>().unwrap() - 1;
 
         Self {
             paragraph_list,

@@ -10,10 +10,8 @@ use crate::hwp::{
 pub struct ParagraphShape {
     /// 탭 정의 아이디(TabDef ID) 참조 값
     pub tab_definition_id: u16,
-    /// 번호 문단 ID(Numbering ID) 또는 글머리표 문단 모양
-    pub numbering_id: u16,
-    /// Bullet ID 참조 값
-    pub bullet_id: u16,
+    /// 번호 문단 ID(Numbering ID) 또는 글머리표 문단 모양 ID(Bullet ID) 참조 값
+    pub numbering_bullet_id: u16,
     /// 테두리/배경 모양 ID(BorderFill ID) 참조 값
     pub border_fill_id: u16,
 }
@@ -36,14 +34,14 @@ impl FromRecord for ParagraphShape {
         reader.read_i32::<LittleEndian>().unwrap();
         // TODO: (@hahnlee) 문단 간격 아래
         reader.read_i32::<LittleEndian>().unwrap();
-        
+
         // TODO: (@hahnlee) 줄 간격. 한글 2007 이하 버전(5.0.2.5 버전 미만)에서 사용.
-        reader.read_u16::<LittleEndian>().unwrap();
-        // NOTE: (@hahnlee) 문서와 달리 위 속성중 하나는 16byte이다. 임시로 줄간격에 적용하였다
+        reader.read_u32::<LittleEndian>().unwrap();
 
         let tab_definition_id = reader.read_u16::<LittleEndian>().unwrap();
-        let numbering_id = reader.read_u16::<LittleEndian>().unwrap();
-        let bullet_id = reader.read_u16::<LittleEndian>().unwrap();
+
+        let numbering_bullet_id = reader.read_u16::<LittleEndian>().unwrap();
+
         let border_fill_id = reader.read_u16::<LittleEndian>().unwrap();
 
         // TODO: (@hahnlee) 문단 테두리 왼쪽 간격
@@ -59,8 +57,7 @@ impl FromRecord for ParagraphShape {
         // TODO: (@hahnlee) UINT32 줄 간격(5.0.2.5 버전 이상)
         Self {
             tab_definition_id,
-            numbering_id,
-            bullet_id,
+            numbering_bullet_id,
             border_fill_id,
         }
     }
