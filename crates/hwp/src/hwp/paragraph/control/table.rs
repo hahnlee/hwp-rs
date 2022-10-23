@@ -122,10 +122,8 @@ impl TableRecord {
                 valid_zones.push(ValidZone::from_reader(&mut reader));
             }
         }
-
-        let mut unknown = vec![];
-        reader.read_to_end(&mut unknown).unwrap();
-        assert_eq!(unknown.len(), 0);
+        
+        assert_eq!(reader.position(), record.data.len() as u64);
 
         Self {
             page_break,
