@@ -69,8 +69,8 @@ pub struct Border {
 impl Border {
     pub fn from_reader<T: Read>(reader: &mut T) -> Self {
         Self {
-            width: reader.read_u8().unwrap(),
             kind: reader.read_u8().unwrap(),
+            width: reader.read_u8().unwrap(),
             color: ColorRef::from_u32(reader.read_u32::<LittleEndian>().unwrap()),
         }
     }
