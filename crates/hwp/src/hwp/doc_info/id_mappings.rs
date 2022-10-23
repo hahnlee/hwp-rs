@@ -31,7 +31,7 @@ pub struct IDMappings {
     /// 사용자 글꼴
     pub user_fonts: Vec<Font>,
     /// 테두리/배경
-    pub border_fils: Vec<BorderFill>,
+    pub border_fills: Vec<BorderFill>,
     // /// 글자 모양
     pub char_shapes: Vec<CharShape>,
     /// 탭 정의
@@ -86,7 +86,7 @@ impl IDMappings {
         let symbol_fonts = reader.read_i32::<LittleEndian>().unwrap() as usize;
         let user_fonts = reader.read_i32::<LittleEndian>().unwrap() as usize;
 
-        let border_fils = reader.read_i32::<LittleEndian>().unwrap() as usize;
+        let border_fills = reader.read_i32::<LittleEndian>().unwrap() as usize;
         let char_shapes = reader.read_i32::<LittleEndian>().unwrap() as usize;
         let tab_definitions = reader.read_i32::<LittleEndian>().unwrap() as usize;
         let numberings = reader.read_i32::<LittleEndian>().unwrap() as usize;
@@ -121,7 +121,7 @@ impl IDMappings {
             etc_fonts: read_items(record, version, etc_fonts),
             symbol_fonts: read_items(record, version, symbol_fonts),
             user_fonts: read_items(record, version, user_fonts),
-            border_fils: read_items(record, version, border_fils),
+            border_fills: read_items(record, version, border_fills),
             char_shapes: read_items(record, version, char_shapes),
             tab_definitions: read_items(record, version, tab_definitions),
             numberings: read_items(record, version, numberings),
