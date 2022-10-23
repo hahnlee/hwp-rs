@@ -32,7 +32,12 @@ impl TableControl {
 
         let table_record = TableRecord::from_record(&mut record.next_child(), version);
         let mut cells = Vec::new();
-        let cell_count = table_record.row_count.clone().into_iter().reduce(|result, current| result + current).unwrap();
+        let cell_count = table_record
+            .row_count
+            .clone()
+            .into_iter()
+            .reduce(|result, current| result + current)
+            .unwrap();
         for _ in 0..cell_count {
             cells.push(Cell::from_record(&mut record, version));
         }
@@ -61,6 +66,8 @@ pub struct TableRecord {
     /// row에 몇개의 column이 있는지 기록 (표준문서의 Row Size)
     pub row_count: Vec<u16>,
     pub border_fill_id: u16,
+    /// 영역 속성 (5.0.1.0 이상)
+    pub valid_zones: Vec<ValidZone>,
 }
 
 #[repr(u32)]
@@ -108,13 +115,15 @@ impl TableRecord {
         let border_fill_id = reader.read_u16::<LittleEndian>().unwrap();
 
         // TODO: (@hahnlee) 영역 속성
-        if version.ge(&Version::from_str("5.0.1.0")) {
+        let mut valid_zones = vec![];
+        if *version >= Version::from_str("5.0.1.0") {
             let size = reader.read_u16::<LittleEndian>().unwrap();
             for _ in 0..size {
-                let mut buf = [0u8; 10];
-                reader.read_exact(&mut buf).unwrap();
+                valid_zones.push(ValidZone::from_reader(&mut reader));
             }
         }
+        
+        assert_eq!(reader.position(), record.data.len() as u64);
 
         Self {
             page_break,
@@ -125,11 +134,38 @@ impl TableRecord {
             padding,
             row_count,
             border_fill_id,
+            valid_zones,
         }
     }
 
     pub fn cell_count(&self) -> u16 {
         self.row_count.iter().fold(0, |result, cols| result + cols)
+    }
+}
+
+#[derive(Debug, Clone)]
+pub struct ValidZone {
+    /// 시작 열 주소
+    pub start_column: u16,
+    /// 시작 행 주소
+    pub start_row: u16,
+    /// 끝 열 주소
+    pub end_column: u16,
+    /// 끝 행 주소
+    pub end_row: u16,
+    /// 테두리 채우기 ID
+    pub border_fill_id: u16,
+}
+
+impl ValidZone {
+    pub fn from_reader<T: Read>(reader: &mut T) -> Self {
+        Self {
+            start_column: reader.read_u16::<LittleEndian>().unwrap(),
+            start_row: reader.read_u16::<LittleEndian>().unwrap(),
+            end_column: reader.read_u16::<LittleEndian>().unwrap(),
+            end_row: reader.read_u16::<LittleEndian>().unwrap(),
+            border_fill_id: reader.read_u16::<LittleEndian>().unwrap(),
+        }
     }
 }
 
