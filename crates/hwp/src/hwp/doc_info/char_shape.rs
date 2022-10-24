@@ -2,7 +2,7 @@ use byteorder::{LittleEndian, ReadBytesExt};
 
 use crate::hwp::{
     record::{tags::DocInfoRecord, FromRecord, Record},
-    version::Version, color_ref::ColorRef,
+    version::Version, color_ref::ColorRef, utils::bits::get_flag,
 };
 
 #[derive(Debug)]
@@ -19,6 +19,10 @@ pub struct CharShape {
     pub font_positions: [i8; 7],
     /// 기준 크기, 0pt～4096pt
     pub base_size: i32,
+    /// 기울임 여부
+    pub italic: bool,
+    /// 진하게 여부
+    pub bold: bool,
     /// 글자 색
     pub color: ColorRef,
     /// 밑줄 색
@@ -95,8 +99,10 @@ impl FromRecord for CharShape {
 
         let base_size = reader.read_i32::<LittleEndian>().unwrap();
 
-        // TODO: (@hahnlee) 속성(표 30 참조)
-        reader.read_u32::<LittleEndian>().unwrap();
+        let attribute = reader.read_u32::<LittleEndian>().unwrap();
+        let italic = get_flag(attribute, 0);
+        let bold = get_flag(attribute, 1);
+        // TODO: (@hahnlee) 나머지 파싱
 
         // TODO: (@hahnlee) 그림자 간격, -100%～100%
         reader.read_u8().unwrap();
@@ -128,6 +134,8 @@ impl FromRecord for CharShape {
             font_sizes,
             font_positions,
             base_size,
+            italic,
+            bold,
             color,
             underline_color,
             shade_color,

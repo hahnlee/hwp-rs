@@ -36,6 +36,8 @@ pub struct Paragraph {
 
 impl Paragraph {
     pub fn from_record(record: &mut Record, version: &Version) -> Paragraph {
+        assert_eq!(record.tag_id, BodyTextRecord::HWPTAG_PARA_HEADER as u32);
+
         let header = ParagraphHeader::from_reader(&mut record.get_data_reader(), version);
 
         // NOTE: (@hahnlee) 문서와 달리 header.chars가 0이 아니어도 없을 수 있다.

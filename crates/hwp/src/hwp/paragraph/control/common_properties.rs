@@ -1,9 +1,12 @@
 use std::io::Seek;
 
 use byteorder::{LittleEndian, ReadBytesExt};
+use num::FromPrimitive;
+use num_derive::FromPrimitive;
 
 use crate::hwp::{
     record::{reader::RecordReader, tags::BodyTextRecord, Record},
+    utils::bits::{get_value_range, get_flag},
     version::Version,
 };
 
@@ -103,6 +106,10 @@ pub struct Offset {
 pub struct Caption {
     /// 문단 리스트
     pub paragraph_list: ParagraphList,
+    /// 방향
+    pub align: CaptionAlign,
+    /// 캡션 폭에 마진을 포함할 지 여부 (가로 방향일 때만 사용)
+    pub include_margin: bool,
 }
 
 impl Caption {
@@ -119,7 +126,25 @@ impl Caption {
 
         let paragraph_list = ParagraphList::from_record(&mut reader, record, version);
 
-        // TODO: (@hahnlee) 더 많은 정보 얻기
-        Self { paragraph_list }
+        let attribute = reader.read_u32::<LittleEndian>().unwrap();
+        let align = CaptionAlign::from_u32(get_value_range(attribute, 0, 1)).unwrap();
+        let include_margin = get_flag(attribute, 2);
+
+        // TODO: (@hahnlee) 남은데이터 파싱하기
+        // NOTE: (@hahnlee) 바이트가 문서와 다름...
+        Self {
+            paragraph_list,
+            align,
+            include_margin,
+        }
     }
+}
+
+#[repr(u32)]
+#[derive(Debug, Clone, FromPrimitive)]
+pub enum CaptionAlign {
+    Left,
+    Right,
+    Top,
+    Bottom,
 }

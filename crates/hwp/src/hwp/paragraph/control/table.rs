@@ -114,7 +114,6 @@ impl TableRecord {
 
         let border_fill_id = reader.read_u16::<LittleEndian>().unwrap();
 
-        // TODO: (@hahnlee) 영역 속성
         let mut valid_zones = vec![];
         if *version >= Version::from_str("5.0.1.0") {
             let size = reader.read_u16::<LittleEndian>().unwrap();
