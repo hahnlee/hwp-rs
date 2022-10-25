@@ -1,7 +1,7 @@
-use byteorder::{LittleEndian, ReadBytesExt};
+use byteorder::LittleEndian;
 
 use crate::hwp::{
-    record::{tags::DocInfoRecord, FromRecord, Record, reader::RecordReader},
+    record::{reader::RecordReader, tags::DocInfoRecord, FromRecord, Record},
     version::Version,
 };
 
@@ -25,9 +25,6 @@ impl FromRecord for Style {
 
         // TODO: (@hahnlee)
 
-        Self {
-            name,
-            english_name,
-        }
+        Self { name, english_name }
     }
 }

@@ -18,7 +18,7 @@ pub struct BorderFill {
     /// 대각선
     pub diagonal_border: Border,
     /// 채우기 종류
-    pub fill_kind: BorderFillKind,
+    pub fill_kind: FillKind,
     /// 채우기 정보
     pub fill_content: FillContent,
 }
@@ -42,11 +42,10 @@ impl FromRecord for BorderFill {
 
         let diagonal_border = Border::from_reader(&mut reader);
 
-        let fill_kind =
-            BorderFillKind::from_u32(reader.read_u32::<LittleEndian>().unwrap()).unwrap();
+        let fill_kind = FillKind::from_u32(reader.read_u32::<LittleEndian>().unwrap()).unwrap();
 
         let fill_content = match fill_kind {
-            BorderFillKind::Color => FillContent::Color(ColorFill::from_reader(&mut reader)),
+            FillKind::Color => FillContent::Color(ColorFill::from_reader(&mut reader)),
             _ => FillContent::None(()),
         };
 
@@ -87,7 +86,7 @@ impl BorderFill {
 
 #[repr(u32)]
 #[derive(Debug, Clone, FromPrimitive, PartialEq)]
-pub enum BorderFillKind {
+pub enum FillKind {
     /// 채우기 없음
     None = 0x00000000,
     /// 단색 채우기
