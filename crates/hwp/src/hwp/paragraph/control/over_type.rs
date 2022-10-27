@@ -20,7 +20,7 @@ pub struct OverType {
 }
 
 impl OverType {
-    pub fn from_record(record: Record) -> Self {
+    pub fn from_record(record: &mut Record) -> Self {
         let mut reader = record.get_data_reader();
         let ctrl_id = reader.read_u32::<LittleEndian>().unwrap();
 

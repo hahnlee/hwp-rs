@@ -18,7 +18,7 @@ pub struct SectionControl {
 }
 
 impl SectionControl {
-    pub fn from_record(mut record: Record) -> SectionControl {
+    pub fn from_record(record: &mut Record) -> SectionControl {
         let mut reader = record.get_data_reader();
         // TODO: (@hahnlee) 관련파싱 추가하기
         reader.read_u32::<LittleEndian>().unwrap();
@@ -44,9 +44,9 @@ impl SectionControl {
         let mut unknown = Vec::new();
         reader.read_to_end(&mut unknown).unwrap();
 
-        let page_definition = PageDefinition::from_record(record.next_child());
-        let footnote_shape = FootnoteEndnoteShape::from_record(record.next_child());
-        let endnote_shape = FootnoteEndnoteShape::from_record(record.next_child());
+        let page_definition = PageDefinition::from_record(&mut record.next_child());
+        let footnote_shape = FootnoteEndnoteShape::from_record(&mut record.next_child());
+        let endnote_shape = FootnoteEndnoteShape::from_record(&mut record.next_child());
 
         // NOTE: (@hahnlee) 양쪽, 홀수, 짝수 정보가 반복됨.
         // TODO: (@hahnlee) 항상 모든 모든 정보를 내려주는지 확인필요
@@ -97,11 +97,8 @@ pub struct FootnoteEndnoteShape {
 }
 
 impl FootnoteEndnoteShape {
-    pub fn from_record(record: Record) -> Self {
-        if record.tag_id != BodyTextRecord::HWPTAG_FOOTNOTE_SHAPE as u32 {
-            // TODO: (@hahnlee) Result 타입으로 바꾸는것 검토
-            panic!("다른 레코드 입니다 {}", record.tag_id);
-        }
+    pub fn from_record(record: &mut Record) -> Self {
+        assert_eq!(record.tag_id, BodyTextRecord::HWPTAG_FOOTNOTE_SHAPE as u32);
 
         let mut reader = record.get_data_reader();
 

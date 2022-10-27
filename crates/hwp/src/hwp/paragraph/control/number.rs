@@ -52,7 +52,7 @@ pub struct AutoNumber {
 }
 
 impl AutoNumber {
-    pub fn from_record(record: Record) -> Self {
+    pub fn from_record(record: &mut Record) -> Self {
         let mut reader = record.get_data_reader();
         let ctrl_id = reader.read_u32::<LittleEndian>().unwrap();
 
@@ -107,7 +107,7 @@ pub struct NewNumber {
 }
 
 impl NewNumber {
-    pub fn from_record(record: Record) -> Self {
+    pub fn from_record(record: &mut Record) -> Self {
         let mut reader = record.get_data_reader();
         let ctrl_id = reader.read_u32::<LittleEndian>().unwrap();
 

@@ -22,8 +22,8 @@ pub struct TableControl {
 }
 
 impl TableControl {
-    pub fn from_record(mut record: Record, version: &Version) -> Self {
-        let common_properties = CommonProperties::from_record(&mut record, version);
+    pub fn from_record(record: &mut Record, version: &Version) -> Self {
+        let common_properties = CommonProperties::from_record(record, version);
 
         assert!(
             record.is_next_child_id(BodyTextRecord::HWPTAG_TABLE as u32),
@@ -39,7 +39,7 @@ impl TableControl {
             .reduce(|result, current| result + current)
             .unwrap();
         for _ in 0..cell_count {
-            cells.push(Cell::from_record(&mut record, version));
+            cells.push(Cell::from_record(record, version));
         }
 
         assert!(

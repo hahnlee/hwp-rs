@@ -96,7 +96,7 @@ pub enum Control {
     Unknown(UnknownControl),
 }
 
-pub fn parse_control(record: Record, version: &Version) -> Control {
+pub fn parse_control(record: &mut Record, version: &Version) -> Control {
     assert_eq!(
         record.tag_id,
         BodyTextRecord::HWPTAG_CTRL_HEADER as u32,
@@ -144,8 +144,6 @@ pub fn parse_control(record: Record, version: &Version) -> Control {
             Control::Container(Container::from_record(record, version))
         }
 
-        // TODO: (@hahnlee) 파싱하기
-        // 개체 이외 컨트롤
         make_4chid!('c', 'o', 'l', 'd') => Control::Column(ColumnControl::from_record(record)),
         make_4chid!('a', 't', 'n', 'o') => Control::AutoNumber(AutoNumber::from_record(record)),
         make_4chid!('n', 'w', 'n', 'o') => Control::NewNumber(NewNumber::from_record(record)),

@@ -94,8 +94,8 @@ impl Paragraph {
         let control_count = char_list.extend_control_count();
         let mut controls: Vec<Control> = Vec::with_capacity(control_count);
         for _ in 0..control_count {
-            let child = record.next_child();
-            controls.push(parse_control(child, version));
+            let mut child = record.next_child();
+            controls.push(parse_control(&mut child, version));
         }
 
         let unknown = record.remain_children();
