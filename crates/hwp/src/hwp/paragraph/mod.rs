@@ -35,7 +35,7 @@ pub struct Paragraph {
 }
 
 impl Paragraph {
-    pub fn from_record(record: &mut Record, version: &Version) -> Paragraph {
+    pub fn from_record(record: &mut Record, version: &Version) -> Self {
         assert_eq!(record.tag_id, BodyTextRecord::HWPTAG_PARA_HEADER as u32);
 
         let header = ParagraphHeader::from_reader(&mut record.get_data_reader(), version);
@@ -100,7 +100,7 @@ impl Paragraph {
 
         let unknown = record.remain_children();
 
-        Paragraph {
+        Self {
             header,
             char_list,
             char_shapes,

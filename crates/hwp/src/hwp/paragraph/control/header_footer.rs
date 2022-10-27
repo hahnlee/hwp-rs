@@ -9,11 +9,12 @@ pub struct HeaderFooter {
 }
 
 impl HeaderFooter {
-    pub fn from_record(record: &mut Record, version: &Version) -> HeaderFooter {
+    pub fn from_record(record: &mut Record, version: &Version) -> Self {
         let meta = record.next_child();
         let mut reader = meta.get_data_reader();
 
         let paragraph_list = ParagraphList::from_record(&mut reader, record, version);
-        HeaderFooter { paragraph_list }
+
+        Self { paragraph_list }
     }
 }

@@ -41,7 +41,7 @@ impl BinData {
 }
 
 impl FromRecord for BinData {
-    fn from_record(record: &mut Record, _: &Version) -> BinData {
+    fn from_record(record: &mut Record, _: &Version) -> Self {
         assert_eq!(
             record.tag_id,
             DocInfoRecord::HWPTAG_BIN_DATA as u32,
@@ -78,7 +78,7 @@ impl FromRecord for BinData {
             None
         };
 
-        BinData {
+        Self {
             properties,
             absolute_path,
             relative_path,
@@ -110,9 +110,9 @@ pub struct BinDataProperties {
 }
 
 impl BinDataProperties {
-    pub fn from_bits(bits: u16) -> BinDataProperties {
+    pub fn from_bits(bits: u16) -> Self {
         // TODO: (@hahnlee) 남는 비트정보 보존
-        BinDataProperties {
+        Self {
             kind: BinDataKind::from_u16(get_value_range(bits, 0, 3)).unwrap(),
             compress_mode: get_value_range(bits, 4, 5),
             status: get_value_range(bits, 8, 9),

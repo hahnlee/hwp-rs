@@ -121,7 +121,7 @@ impl TableRecord {
                 valid_zones.push(ValidZone::from_reader(&mut reader));
             }
         }
-        
+
         assert_eq!(reader.position(), record.data.len() as u64);
 
         Self {

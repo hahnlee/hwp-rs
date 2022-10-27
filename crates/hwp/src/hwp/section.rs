@@ -19,7 +19,7 @@ pub struct Section {
 }
 
 impl Section {
-    pub fn from_reader<T: Read>(reader: &mut T, version: &Version) -> Section {
+    pub fn from_reader<T: Read>(reader: &mut T, version: &Version) -> Self {
         let mut data = Vec::new();
         reader.read_to_end(&mut data).unwrap();
 
@@ -30,10 +30,10 @@ impl Section {
             .map(|mut record| Paragraph::from_record(&mut record, version))
             .collect();
 
-        Section { paragraphs }
+        Self { paragraphs }
     }
 
-    pub fn from_stream<T: Read>(stream: &mut T, header: &Header) -> Section {
+    pub fn from_stream<T: Read>(stream: &mut T, header: &Header) -> Self {
         if header.flags.compressed {
             let mut data = DeflateDecoder::new(stream);
             return Section::from_reader(&mut data, &header.version);
@@ -42,7 +42,7 @@ impl Section {
         return Section::from_reader(stream, &header.version);
     }
 
-    pub fn from_distributed<T: Read>(stream: &mut T, header: &Header) -> Section {
+    pub fn from_distributed<T: Read>(stream: &mut T, header: &Header) -> Self {
         let (tag_id, _, size, mut reader) = stream.read_record::<LittleEndian>().unwrap();
 
         assert_eq!(tag_id, DocInfoRecord::HWPTAG_DISTRIBUTE_DOC_DATA as u32);

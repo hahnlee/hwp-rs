@@ -1,8 +1,10 @@
 use byteorder::{LittleEndian, ReadBytesExt};
 
 use crate::hwp::{
+    color_ref::ColorRef,
     record::{tags::DocInfoRecord, FromRecord, Record},
-    version::Version, color_ref::ColorRef, utils::bits::get_flag,
+    utils::bits::get_flag,
+    version::Version,
 };
 
 #[derive(Debug)]
@@ -109,7 +111,6 @@ impl FromRecord for CharShape {
         // TODO: (@hahnlee) 그림자 간격, -100%～100%
         reader.read_u8().unwrap();
 
-        
         let color = ColorRef::from_u32(reader.read_u32::<LittleEndian>().unwrap());
         let underline_color = ColorRef::from_u32(reader.read_u32::<LittleEndian>().unwrap());
         let shade_color = ColorRef::from_u32(reader.read_u32::<LittleEndian>().unwrap());
@@ -122,7 +123,9 @@ impl FromRecord for CharShape {
         };
 
         let strikethrough_color = if *version >= Version::from_str("5.0.3.0") {
-            Some(ColorRef::from_u32(reader.read_u32::<LittleEndian>().unwrap()))
+            Some(ColorRef::from_u32(
+                reader.read_u32::<LittleEndian>().unwrap(),
+            ))
         } else {
             None
         };

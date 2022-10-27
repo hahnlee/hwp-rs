@@ -53,7 +53,7 @@ pub struct IDMappings {
 }
 
 impl IDMappings {
-    pub fn from_record(record: &mut Record, version: &Version) -> IDMappings {
+    pub fn from_record(record: &mut Record, version: &Version) -> Self {
         assert_eq!(
             record.tag_id,
             DocInfoRecord::HWPTAG_ID_MAPPINGS as u32,
@@ -112,7 +112,7 @@ impl IDMappings {
             0
         };
 
-        IDMappings {
+        Self {
             binary_data: read_items(record, version, binary_data),
             korean_fonts: read_items(record, version, korean_fonts),
             english_fonts: read_items(record, version, english_fonts),

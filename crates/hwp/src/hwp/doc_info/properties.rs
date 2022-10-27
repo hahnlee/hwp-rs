@@ -27,7 +27,7 @@ pub struct Properties {
 }
 
 impl Properties {
-    pub fn from_record(record: &mut Record) -> Properties {
+    pub fn from_record(record: &mut Record) -> Self {
         assert_eq!(
             record.tag_id,
             DocInfoRecord::HWPTAG_DOCUMENT_PROPERTIES as u32,
@@ -36,7 +36,7 @@ impl Properties {
 
         let mut reader = record.get_data_reader();
 
-        Properties {
+        Self {
             sections: reader.read_u16::<LittleEndian>().unwrap(),
             page_start_number: reader.read_u16::<LittleEndian>().unwrap(),
             footnote_start_number: reader.read_u16::<LittleEndian>().unwrap(),

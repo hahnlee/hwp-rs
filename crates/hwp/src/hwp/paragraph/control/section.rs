@@ -18,7 +18,7 @@ pub struct SectionControl {
 }
 
 impl SectionControl {
-    pub fn from_record(record: &mut Record) -> SectionControl {
+    pub fn from_record(record: &mut Record) -> Self {
         let mut reader = record.get_data_reader();
         // TODO: (@hahnlee) 관련파싱 추가하기
         reader.read_u32::<LittleEndian>().unwrap();
@@ -68,7 +68,7 @@ impl SectionControl {
 
         // TODO: (@hahnlee) 바탕쪽 정보 관련된 파싱 추가하기
 
-        SectionControl {
+        Self {
             unknown,
             page_definition,
             footnote_shape,
