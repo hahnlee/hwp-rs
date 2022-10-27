@@ -9,10 +9,10 @@ pub struct HiddenComment {
 }
 
 impl HiddenComment {
-    pub fn from_record(mut record: Record, version: &Version) -> Self {
+    pub fn from_record(record: &mut Record, version: &Version) -> Self {
         let meta = record.next_child();
         let mut reader = meta.get_data_reader();
-        let paragraph_list = ParagraphList::from_record(&mut reader, &mut record, version);
+        let paragraph_list = ParagraphList::from_record(&mut reader, record, version);
 
         Self { paragraph_list }
     }

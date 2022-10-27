@@ -19,7 +19,7 @@ pub struct PageDefinition {
 }
 
 impl PageDefinition {
-    pub fn from_record(record: Record) -> PageDefinition {
+    pub fn from_record(record: &mut Record) -> PageDefinition {
         assert_eq!(
             record.tag_id,
             BodyTextRecord::HWPTAG_PAGE_DEF as u32,

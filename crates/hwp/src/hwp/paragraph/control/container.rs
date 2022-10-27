@@ -10,8 +10,8 @@ pub struct Container {
 }
 
 impl Container {
-    pub fn from_record(mut record: Record, version: &Version) -> Self {
-        let common_properties = CommonProperties::from_record(&mut record, version);
+    pub fn from_record(record: &mut Record, version: &Version) -> Self {
+        let common_properties = CommonProperties::from_record(record, version);
 
         // TODO: (@hahnlee) 남은 데이터 파싱하기
         Self { common_properties }

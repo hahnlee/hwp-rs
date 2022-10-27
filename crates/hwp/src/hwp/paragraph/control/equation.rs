@@ -16,8 +16,8 @@ pub struct Equation {
 }
 
 impl Equation {
-    pub fn from_record(mut record: Record, version: &Version) -> Self {
-        let common_properties = CommonProperties::from_record(&mut record, version);
+    pub fn from_record(record: &mut Record, version: &Version) -> Self {
+        let common_properties = CommonProperties::from_record(record, version);
 
         assert!(
             record.is_next_child_id(BodyTextRecord::HWPTAG_EQEDIT as u32),

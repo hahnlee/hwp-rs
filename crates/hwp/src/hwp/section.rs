@@ -45,10 +45,8 @@ impl Section {
     pub fn from_distributed<T: Read>(stream: &mut T, header: &Header) -> Section {
         let (tag_id, _, size, mut reader) = stream.read_record::<LittleEndian>().unwrap();
 
-        if tag_id != DocInfoRecord::HWPTAG_DISTRIBUTE_DOC_DATA as u32 || size != 256 {
-            // TODO: (@hahnlee) 옵셔널
-            panic!("올바르지 않은 정보");
-        }
+        assert_eq!(tag_id, DocInfoRecord::HWPTAG_DISTRIBUTE_DOC_DATA as u32);
+        assert_eq!(size, 256);
 
         let mut data = [0u8; 256];
         reader.read_exact(&mut data).unwrap();
