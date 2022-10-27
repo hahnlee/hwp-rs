@@ -3,6 +3,7 @@ use num::FromPrimitive;
 use num_derive::FromPrimitive;
 
 use crate::hwp::{
+    doc_info::border_fill::Border,
     record::Record,
     utils::bits::{get_flag, get_value_range},
 };
@@ -23,6 +24,8 @@ pub struct ColumnControl {
     pub gap: i16,
     /// 단 너비가 동일하지 않으면, 단의 개수만큼 단의 폭
     pub widths: Vec<u16>,
+    /// 구분선
+    pub border: Border,
 }
 
 impl ColumnControl {
@@ -40,18 +43,16 @@ impl ColumnControl {
         let gap = reader.read_i16::<LittleEndian>().unwrap();
 
         let mut widths = vec![];
-        for _ in 0..count {
-            widths.push(reader.read_u16::<LittleEndian>().unwrap());
+        if !same_width {
+            for _ in 0..count {
+                widths.push(reader.read_u16::<LittleEndian>().unwrap());
+            }
         }
 
-        // NOTE: (@hahnlee) 속성의 bit 16-32 (표 139 참조)
-        // TODO: (@hahnlee) 문서에 정의 되어 있지 않음. 확인 필요.
+        // NOTE: (@hahnlee) 속성의 bit 16-32, 어떤 내용이 담기는지는 표준문서에 정의되어 있지 않다
         reader.read_u16::<LittleEndian>().unwrap();
 
-        // TODO: (@hahnlee)
-        // UINT8 1 단 구분선 종류(테두리/배경의 테두리 선 종류 참조)
-        // UINT8 1 단 구분선 굵기(테두리/배경의 테두리 선 굵기 참조)
-        // CORORREF 4 단 구분선 색상(테두리/배경의 테두리 선 색상 참조)
+        let border = Border::from_reader(&mut reader);
 
         Self {
             ctrl_id,
@@ -61,6 +62,7 @@ impl ColumnControl {
             same_width,
             gap,
             widths,
+            border,
         }
     }
 }
