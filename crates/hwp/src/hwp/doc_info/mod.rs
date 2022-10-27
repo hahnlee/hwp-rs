@@ -31,7 +31,7 @@ pub struct DocInfo {
 }
 
 impl DocInfo {
-    pub fn from_cfb<T: Read + Seek>(cfb: &mut CompoundFile<T>, header: &Header) -> DocInfo {
+    pub fn from_cfb<T: Read + Seek>(cfb: &mut CompoundFile<T>, header: &Header) -> Self {
         let mut stream = cfb.open_stream("/DocInfo").unwrap();
         if header.flags.compressed {
             let mut data = DeflateDecoder::new(&mut stream);
@@ -58,7 +58,7 @@ impl DocInfo {
         // HWPTAG_DISTRIBUTE_DOC_DATA
         // HWPTAG_TRACKCHANGE
 
-        DocInfo {
+        Self {
             properties,
             id_mappings,
         }

@@ -28,7 +28,7 @@ pub struct HWP {
 }
 
 impl HWP {
-    pub fn from_bytes(bytes: &[u8]) -> HWP {
+    pub fn from_bytes(bytes: &[u8]) -> Self {
         let cursor = Cursor::new(bytes);
         let mut cfb = CompoundFile::open(cursor).unwrap();
 
@@ -68,7 +68,7 @@ impl HWP {
             }
         }
 
-        HWP {
+        Self {
             header,
             doc_info,
             body_texts,

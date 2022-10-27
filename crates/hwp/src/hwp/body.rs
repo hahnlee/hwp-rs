@@ -10,7 +10,7 @@ pub struct Body {
 }
 
 impl Body {
-    pub fn from_cfb<T: Read + Seek>(cfb: &mut CompoundFile<T>, header: &Header) -> Body {
+    pub fn from_cfb<T: Read + Seek>(cfb: &mut CompoundFile<T>, header: &Header) -> Self {
         let body_text = cfb.read_storage("/BodyText").unwrap();
 
         let size = body_text.count();
@@ -21,10 +21,10 @@ impl Body {
             sections.push(section);
         }
 
-        Body { sections }
+        Self { sections }
     }
 
-    pub fn from_distributed<T: Read + Seek>(cfb: &mut CompoundFile<T>, header: &Header) -> Body {
+    pub fn from_distributed<T: Read + Seek>(cfb: &mut CompoundFile<T>, header: &Header) -> Self {
         let view_text = cfb.read_storage("/ViewText").unwrap();
         let size = view_text.count();
 
@@ -37,6 +37,6 @@ impl Body {
             sections.push(section);
         }
 
-        Body { sections }
+        Self { sections }
     }
 }

@@ -25,7 +25,7 @@ pub struct Font {
 }
 
 impl FromRecord for Font {
-    fn from_record(record: &mut Record, _: &Version) -> Font {
+    fn from_record(record: &mut Record, _: &Version) -> Self {
         assert_eq!(
             record.tag_id,
             DocInfoRecord::HWPTAG_FACE_NAME as u32,
@@ -64,7 +64,7 @@ impl FromRecord for Font {
             None
         };
 
-        Font {
+        Self {
             name,
             default_font_name,
             panose,

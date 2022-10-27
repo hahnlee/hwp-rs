@@ -19,7 +19,7 @@ pub struct PageDefinition {
 }
 
 impl PageDefinition {
-    pub fn from_record(record: &mut Record) -> PageDefinition {
+    pub fn from_record(record: &mut Record) -> Self {
         assert_eq!(
             record.tag_id,
             BodyTextRecord::HWPTAG_PAGE_DEF as u32,
@@ -44,7 +44,7 @@ impl PageDefinition {
         let direction = get_value(properties, 0);
         let binding_method = get_value_range(properties, 1, 2);
 
-        PageDefinition {
+        Self {
             width,
             height,
             padding,

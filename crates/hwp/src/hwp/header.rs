@@ -24,7 +24,7 @@ pub struct Header {
 const SIGNATURE_STR: &str = "HWP Document File";
 
 impl Header {
-    pub fn from_cfb<T: Read + Seek>(cfb: &mut CompoundFile<T>) -> Header {
+    pub fn from_cfb<T: Read + Seek>(cfb: &mut CompoundFile<T>) -> Self {
         let mut stream = cfb.open_stream("/FileHeader").unwrap();
 
         assert_eq!(stream.len(), 256, "헤더 사이즈가 맞지 않습니다");
@@ -55,7 +55,7 @@ impl Header {
         let mut reserved: [u8; 207] = [0; 207];
         stream.read(&mut reserved).unwrap();
 
-        Header {
+        Self {
             version,
             flags,
             license,
@@ -136,10 +136,10 @@ pub struct License {
 }
 
 impl License {
-    fn from_bits(bits: u32) -> License {
+    fn from_bits(bits: u32) -> Self {
         let reserved = get_value_range(bits, 3, 32);
 
-        License {
+        Self {
             ccl: get_flag(bits, 0),
             replication_restrictions: get_flag(bits, 1),
             replication_alike: get_flag(bits, 2),
