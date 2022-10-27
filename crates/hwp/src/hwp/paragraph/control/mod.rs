@@ -1,4 +1,4 @@
-pub mod bookmark;
+pub mod book_mark;
 pub mod column;
 pub mod common_properties;
 pub mod container;
@@ -31,7 +31,7 @@ use crate::hwp::{
 };
 
 use self::{
-    bookmark::Bookmark,
+    book_mark::Bookmark,
     column::ColumnControl,
     container::Container,
     equation::Equation,
