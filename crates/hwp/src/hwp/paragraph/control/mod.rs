@@ -161,7 +161,7 @@ pub fn parse_control(record: &mut Record, version: &Version) -> Control {
 
         // 개체 이외 컨트롤 + 문단리스트
         make_4chid!('s', 'e', 'c', 'd') => {
-            Control::SectionDefinition(SectionControl::from_record(record))
+            Control::SectionDefinition(SectionControl::from_record(record, version))
         }
         make_4chid!('h', 'e', 'a', 'd') => {
             Control::Header(HeaderFooter::from_record(record, version))
