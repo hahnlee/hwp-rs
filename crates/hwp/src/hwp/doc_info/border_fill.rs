@@ -10,17 +10,14 @@ use crate::hwp::{
     version::Version,
 };
 
-// TODO: (@hahnlee)
 #[derive(Debug)]
 pub struct BorderFill {
     /// 선 정보
     pub borders: [Border; 4],
     /// 대각선
     pub diagonal_border: Border,
-    /// 채우기 종류
-    pub fill_kind: FillKind,
     /// 채우기 정보
-    pub fill_content: FillContent,
+    pub fill: Fill,
 }
 
 impl FromRecord for BorderFill {
@@ -42,18 +39,12 @@ impl FromRecord for BorderFill {
 
         let diagonal_border = Border::from_reader(&mut reader);
 
-        let fill_kind = FillKind::from_u32(reader.read_u32::<LittleEndian>().unwrap()).unwrap();
-
-        let fill_content = match fill_kind {
-            FillKind::Color => FillContent::Color(ColorFill::from_reader(&mut reader)),
-            _ => FillContent::None(()),
-        };
+        let fill = Fill::from_reader(&mut reader);
 
         Self {
             borders,
             diagonal_border,
-            fill_kind,
-            fill_content,
+            fill,
         }
     }
 }
@@ -75,9 +66,29 @@ impl Border {
     }
 }
 
-impl BorderFill {
+#[derive(Debug)]
+pub struct Fill {
+    /// 채우기 종류
+    pub kind: FillKind,
+    /// 채우기 내용
+    pub content: FillContent,
+}
+
+impl Fill {
+    pub fn from_reader<T: Read>(reader: &mut T) -> Self {
+        let kind = FillKind::from_u32(reader.read_u32::<LittleEndian>().unwrap()).unwrap();
+
+        // TODO: (@hahnlee) 나머지 채우기
+        let content = match kind {
+            FillKind::Color => FillContent::Color(ColorFill::from_reader(reader)),
+            _ => FillContent::None(()),
+        };
+
+        Self { kind, content }
+    }
+
     pub fn as_color_fill(&self) -> &ColorFill {
-        match &self.fill_content {
+        match &self.content {
             FillContent::Color(color) => color,
             _ => panic!("color_fill이 아닙니다"),
         }
@@ -105,15 +116,15 @@ pub enum FillContent {
 
 #[derive(Debug)]
 pub struct ColorFill {
-    pub background_color: ColorRef,
-    pub pattern_color: ColorRef,
+    pub background: ColorRef,
+    pub pattern: ColorRef,
 }
 
 impl ColorFill {
     fn from_reader<T: Read>(reader: &mut T) -> Self {
         Self {
-            background_color: ColorRef::from_u32(reader.read_u32::<LittleEndian>().unwrap()),
-            pattern_color: ColorRef::from_u32(reader.read_u32::<LittleEndian>().unwrap()),
+            background: ColorRef::from_u32(reader.read_u32::<LittleEndian>().unwrap()),
+            pattern: ColorRef::from_u32(reader.read_u32::<LittleEndian>().unwrap()),
         }
     }
 }
