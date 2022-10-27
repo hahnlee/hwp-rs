@@ -58,7 +58,7 @@ impl FromRecord for BorderFill {
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct Border {
     pub width: u8,
     pub kind: u8,
