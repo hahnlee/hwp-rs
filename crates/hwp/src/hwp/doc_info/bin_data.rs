@@ -101,7 +101,6 @@ pub enum BinDataKind {
 
 #[derive(Debug)]
 pub struct BinDataProperties {
-    // TODO: (@hahnlee) enum
     /// 타입
     pub kind: BinDataKind,
     /// 압축 모드
