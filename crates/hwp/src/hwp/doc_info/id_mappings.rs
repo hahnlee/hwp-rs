@@ -32,7 +32,7 @@ pub struct IDMappings {
     pub user_fonts: Vec<Font>,
     /// 테두리/배경
     pub border_fills: Vec<BorderFill>,
-    // /// 글자 모양
+    /// 글자 모양
     pub char_shapes: Vec<CharShape>,
     /// 탭 정의
     pub tab_definitions: Vec<TabDefinition>,
