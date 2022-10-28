@@ -1,10 +1,14 @@
 use std::io::Read;
 
 use byteorder::{LittleEndian, ReadBytesExt};
+use num::FromPrimitive;
+use num_derive::FromPrimitive;
 
 use crate::hwp::{
+    doc_info::border_fill::Border,
     paragraph::control::page_definition::PageDefinition,
     record::{tags::BodyTextRecord, Record},
+    utils::bits::get_value_range,
     version::Version,
 };
 
@@ -123,6 +127,8 @@ impl SectionControl {
 /// 각주 / 미주 모양
 #[derive(Debug, Clone)]
 pub struct FootnoteEndnoteShape {
+    /// 번호 모양
+    pub number_shape: NumberShape,
     /// 사용자 기호
     pub user_char: char,
     /// 앞 장식 문자
@@ -131,11 +137,18 @@ pub struct FootnoteEndnoteShape {
     pub suffix_char: char,
     /// 시작 번호
     pub start_number: u16,
-
+    /// 구분선 위 여백
+    pub margin_top: i16,
+    /// 구분선 아래 여백
+    pub margin_bottom: i16,
+    /// 주석 사이 여백
+    pub comment_margin: i16,
     /// 구분선 길이
     ///
     /// NOTE: 공식 문서와 다르게 실제로는 4바이트다
     pub divide_line_length: u32,
+    /// 구분선
+    pub border: Border,
 }
 
 impl FootnoteEndnoteShape {
@@ -144,8 +157,9 @@ impl FootnoteEndnoteShape {
 
         let mut reader = record.get_data_reader();
 
-        // TODO: (@hahnlee) 속성
-        reader.read_u32::<LittleEndian>().unwrap();
+        let attribute = reader.read_u32::<LittleEndian>().unwrap();
+        // TODO: (@hahnlee) 속성 파싱
+        let number_shape = NumberShape::from_u32(get_value_range(attribute, 0, 7)).unwrap();
 
         let user_char = char::from_u32(reader.read_u16::<LittleEndian>().unwrap().into()).unwrap();
         let prefix_char =
@@ -157,27 +171,121 @@ impl FootnoteEndnoteShape {
 
         let divide_line_length = reader.read_u32::<LittleEndian>().unwrap();
 
-        // TODO: (@hahnlee) 구분선 위 여백
-        reader.read_i16::<LittleEndian>().unwrap();
-        // TODO: (@hahnlee) 구분선 아래 여백
-        reader.read_i16::<LittleEndian>().unwrap();
-        // TODO: (@hahnlee) 주석 사이 여백
-        reader.read_i16::<LittleEndian>().unwrap();
+        let margin_top = reader.read_i16::<LittleEndian>().unwrap();
+        let margin_bottom = reader.read_i16::<LittleEndian>().unwrap();
 
-        // TODO: (@hahnlee) 구분선 종류
-        reader.read_u8().unwrap();
-        // TODO: (@hahnlee) 구분선 굵기
-        reader.read_u8().unwrap();
+        let comment_margin = reader.read_i16::<LittleEndian>().unwrap();
 
-        // TODO: (@hahnlee) 구분선 색상
-        reader.read_u32::<LittleEndian>().unwrap();
+        let border = Border::from_reader(&mut reader);
 
         Self {
+            number_shape,
             user_char,
             prefix_char,
             suffix_char,
             start_number,
             divide_line_length,
+            margin_top,
+            margin_bottom,
+            comment_margin,
+            border,
         }
+    }
+}
+
+/// 번호종류, hwpx 표준문서 참고
+#[repr(u32)]
+#[derive(Debug, Clone, FromPrimitive)]
+pub enum NumberShape {
+    /// 1, 2, 3
+    Digit,
+    /// 동그라미 쳐진 1, 2, 3
+    CircledDigit,
+    /// I, II, III
+    RomanCapital,
+    /// i, ii, iii
+    RomanSmall,
+    /// A, B, C .. Z
+    LatinCapital,
+    /// a, b, c, ... z
+    LatinSmall,
+    /// 동그라미 쳐진 A, B, C
+    CircledLatinCapital,
+    /// 동그라미 쳐진 a, b, c
+    CircledLatinSmall,
+    /// 가, 나, 다
+    HangulSyllable,
+    /// 동그라미 쳐진 가,나,다
+    CircledHangulSyllable,
+    /// ᄀ, ᄂ, ᄃ
+    HangulJamo,
+    /// 동그라미 쳐진 ᄀ,ᄂ,ᄃ
+    CircledHangulJamo,
+    /// 일, 이, 삼
+    HangulPhonetic,
+    /// 一, 二, 三
+    Ideograph,
+    /// 동그라미 쳐진 一,二,三
+    CircledIdeograph,
+    /// 갑, 을, 병, 정, 무, 기, 경, 신, 임, 계
+    DecagonCircle,
+    /// 甲, 乙, 丙, 丁, 戊, 己, 庚, 辛, 壬, 癸
+    DecagonCircleHanja,
+    /// 4가지 문자가 차례로 반복
+    Symbol = 0x80,
+    /// 사용자 지정 문자 반복
+    UserChar = 0x81,
+}
+
+const HANGUL_PHONETIC: [char; 10] = ['일', '이', '삼', '사', '오', '육', '칠', '팔', '구', '십'];
+// NOTE: (@hahnlee) 초성기호로, 맥 입력기의 'ㄱ'과 코드가 다르다
+const HANGUL_CHOSONG: [char; 14] = [
+    'ᄀ', 'ᄂ', 'ᄃ', 'ᄅ', 'ᄆ', 'ᄇ', 'ᄉ', 'ᄋ', 'ᄌ', 'ᄎ', 'ᄏ', 'ᄐ', 'ᄑ', 'ᄒ',
+];
+// NOTE: (@hahnlee) 종성기호로, 맥 입력기의 'ㅏ'와 코드가 다르다
+const HANGUL_JONGSONG: [char; 6] = ['ᅡ', 'ᅥ', 'ᅩ', 'ᅮ', 'ᅳ', 'ᅵ'];
+
+const IDEOGRAPH: [char; 10] = ['一', '二', '三', '四', '五', '六', '七', '八', '九', '十'];
+const DECAGON_CIRCLE: [char; 10] = ['갑', '을', '병', '정', '무', '기', '경', '신', '임', '계'];
+const DECAGON_CIRCLE_CN: [char; 10] = ['甲', '乙', '丙', '丁', '戊', '己', '庚', '辛', '壬', '癸'];
+
+pub fn format_number_shape(number_shape: &NumberShape, number: u16) -> String {
+    match number_shape {
+        NumberShape::Digit => format!("{}", number),
+        NumberShape::CircledDigit => String::from_utf16(&[0x2460 + ((number - 1) % 20)]).unwrap(),
+        NumberShape::LatinCapital => String::from_utf16(&[0x0041 + ((number - 1) % 26)]).unwrap(),
+        NumberShape::LatinSmall => String::from_utf16(&[0x0061 + ((number - 1) % 26)]).unwrap(),
+        NumberShape::CircledLatinCapital => {
+            String::from_utf16(&[0x24B6 + ((number - 1) % 26)]).unwrap()
+        }
+        NumberShape::CircledLatinSmall => {
+            String::from_utf16(&[0x24D0 + ((number - 1) % 26)]).unwrap()
+        }
+        NumberShape::HangulSyllable => {
+            let choseong = HANGUL_CHOSONG[((number - 1) % 14) as usize];
+            let jongseong = HANGUL_JONGSONG[(((number - 1) / 14) % 6) as usize];
+            let choseong_index = (choseong as u16) - 0x1100;
+            let jongseong_index = (jongseong as u16) - 0x1161;
+            String::from_utf16(&[((choseong_index * 21) + jongseong_index) * 28 + 0xAC00]).unwrap()
+        }
+        NumberShape::CircledHangulSyllable => {
+            String::from_utf16(&[0x326E + ((number - 1) % 14)]).unwrap()
+        }
+        NumberShape::HangulJamo => format!("{}", HANGUL_CHOSONG[((number - 1) % 14) as usize]),
+        NumberShape::CircledHangulJamo => {
+            String::from_utf16(&[0x3260 + ((number - 1) % 14)]).unwrap()
+        }
+        NumberShape::HangulPhonetic => format!("{}", HANGUL_PHONETIC[((number - 1) % 10) as usize]),
+        NumberShape::Ideograph => format!("{}", IDEOGRAPH[((number - 1) % 10) as usize]),
+        NumberShape::CircledIdeograph => {
+            String::from_utf16(&[0x3280 + ((number - 1) % 10)]).unwrap()
+        }
+        NumberShape::DecagonCircle => {
+            format!("{}", DECAGON_CIRCLE[((number - 1) % 10) as usize])
+        }
+        NumberShape::DecagonCircleHanja => {
+            format!("{}", DECAGON_CIRCLE_CN[((number - 1) % 10) as usize])
+        }
+        _ => format!(""),
     }
 }
