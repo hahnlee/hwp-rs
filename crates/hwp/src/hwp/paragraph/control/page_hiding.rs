@@ -8,17 +8,17 @@ pub struct PageHiding {
     /// 컨트롤 ID
     pub ctrl_id: u32,
     /// 머리말 숨김 여부
-    pub header: bool,
+    pub hide_header: bool,
     /// 꼬리말 숨김 여부
-    pub footer: bool,
+    pub hide_footer: bool,
     /// 바탕쪽 숨김 여부
-    pub master_page: bool,
+    pub hide_master_page: bool,
     /// 테두리 숨김 여부
-    pub border: bool,
+    pub hide_border: bool,
     /// 배경 숨김 여부
-    pub fill: bool,
+    pub hide_fill: bool,
     /// 페이지 번호 숨김 여부
-    pub page_number: bool,
+    pub hide_page_number: bool,
 }
 
 impl PageHiding {
@@ -28,22 +28,22 @@ impl PageHiding {
         let ctrl_id = reader.read_u32::<LittleEndian>().unwrap();
 
         // TODO: (@hahnlee) 확인 필요
-        let properties = reader.read_u8().unwrap();
-        let header = get_flag(properties, 1);
-        let footer = get_flag(properties, 2);
-        let master_page = get_flag(properties, 3);
-        let border = get_flag(properties, 4);
-        let fill = get_flag(properties, 5);
-        let page_number = get_flag(properties, 6);
+        let attribute = reader.read_u8().unwrap();
+        let hide_header = get_flag(attribute, 1);
+        let hide_footer = get_flag(attribute, 2);
+        let hide_master_page = get_flag(attribute, 3);
+        let hide_border = get_flag(attribute, 4);
+        let hide_fill = get_flag(attribute, 5);
+        let hide_page_number = get_flag(attribute, 6);
 
         Self {
             ctrl_id,
-            header,
-            footer,
-            master_page,
-            border,
-            fill,
-            page_number,
+            hide_header,
+            hide_footer,
+            hide_master_page,
+            hide_border,
+            hide_fill,
+            hide_page_number,
         }
     }
 }
