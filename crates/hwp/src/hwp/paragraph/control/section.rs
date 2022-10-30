@@ -8,7 +8,7 @@ use crate::hwp::{
     doc_info::border_fill::Border,
     paragraph::control::page_definition::PageDefinition,
     record::{tags::BodyTextRecord, Record},
-    utils::bits::get_value_range,
+    utils::bits::{get_flag, get_value_range},
     version::Version,
 };
 
@@ -16,6 +16,30 @@ use crate::hwp::{
 pub struct SectionControl {
     /// 컨트롤 ID
     pub ctrl_id: u32,
+    /// 머리말을 감출지 여부
+    pub hide_header: bool,
+    /// 꼬리말을 감출지 여부
+    pub hide_footer: bool,
+    /// 바탕쪽 숨김 여부
+    pub hide_master_page: bool,
+    /// 테두리 숨김 여부
+    pub hide_border: bool,
+    /// 배경 숨김 여부
+    pub hide_fill: bool,
+    /// 페이지 번호 숨김 여부
+    pub hide_page_number: bool,
+    /// 구역의 첫 쪽에만 테두리 표시 여부
+    pub border_on_first_page: bool,
+    /// 구역의 첫 쪽에만 배경 표시 여부
+    pub fill_on_first_page: bool,
+    /// 텍스트 방향
+    pub text_direction: TextDirection,
+    /// 빈 줄 감춤 여부
+    pub hide_empty_line: bool,
+    /// 구역 나눔으로 새 페이지가 생길 때의 페이지 번호 적용할지 여부
+    pub new_page_number: bool,
+    /// 원고지 정서법 적용 여부
+    pub manuscript_paper_orthography: bool,
     /// 동일한 페이지에서 서로 다른 단 사이의 간격
     pub column_space: i16,
     /// 세로 줄맞춤 간격
@@ -54,8 +78,23 @@ impl SectionControl {
 
         let ctrl_id = reader.read_u32::<LittleEndian>().unwrap();
 
-        // TODO: (@hahnlee) 속성
-        reader.read_u32::<LittleEndian>().unwrap();
+        let attribute = reader.read_u32::<LittleEndian>().unwrap();
+        let hide_header = get_flag(attribute, 0);
+        let hide_footer = get_flag(attribute, 1);
+        let hide_master_page = get_flag(attribute, 2);
+        let hide_border = get_flag(attribute, 3);
+        let hide_fill = get_flag(attribute, 4);
+        let hide_page_number = get_flag(attribute, 5);
+        let border_on_first_page = get_flag(attribute, 8);
+        let fill_on_first_page = get_flag(attribute, 9);
+        let text_direction = TextDirection::from_u32(get_value_range(attribute, 16, 18)).unwrap();
+        let hide_empty_line = get_flag(attribute, 19);
+        let new_page_number = if get_value_range(attribute, 20, 21) == 0 {
+            false
+        } else {
+            true
+        };
+        let manuscript_paper_orthography = get_flag(attribute, 22);
 
         let column_space = reader.read_i16::<LittleEndian>().unwrap();
         let vertical_alignment = reader.read_i16::<LittleEndian>().unwrap();
@@ -106,6 +145,18 @@ impl SectionControl {
 
         Self {
             ctrl_id,
+            hide_header,
+            hide_footer,
+            hide_master_page,
+            hide_border,
+            hide_fill,
+            hide_page_number,
+            border_on_first_page,
+            fill_on_first_page,
+            text_direction,
+            hide_empty_line,
+            new_page_number,
+            manuscript_paper_orthography,
             column_space,
             vertical_alignment,
             horizontal_alignment,
@@ -122,6 +173,13 @@ impl SectionControl {
             endnote_shape,
         }
     }
+}
+
+#[repr(u32)]
+#[derive(Debug, Clone, FromPrimitive)]
+pub enum TextDirection {
+    Horizontal,
+    Vertical,
 }
 
 /// 각주 / 미주 모양
