@@ -67,9 +67,7 @@ pub struct SectionControl {
     pub footnote_shape: FootnoteEndnoteShape,
     /// 미주 모양 정보
     pub endnote_shape: FootnoteEndnoteShape,
-    // TODO: (@hahnlee) 재구성시 처리
-    #[allow(dead_code)]
-    unknown: Vec<u8>,
+    pub unknown: Vec<u8>,
 }
 
 impl SectionControl {
