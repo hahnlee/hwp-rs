@@ -29,9 +29,7 @@ pub struct Paragraph {
     pub line_segments: Vec<LineSegment>,
     pub range_tags: Vec<RangeTag>,
     pub controls: Vec<Control>,
-    // TODO: (@hahnlee) 재구성시 처리
-    #[allow(dead_code)]
-    unknown: Vec<Record>,
+    pub unknown: Vec<Record>,
 }
 
 impl Paragraph {

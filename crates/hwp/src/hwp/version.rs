@@ -12,7 +12,6 @@ impl Version {
     pub fn from_bytes(bytes: [u8; 4]) -> Self {
         let [build_number, micro, minor, major] = bytes;
 
-        // TODO: (@hahnlee) 각 숫자 검증하기
         Self {
             major,
             minor,
@@ -27,12 +26,8 @@ impl Version {
             .map(|v| v.parse::<u8>().unwrap())
             .collect();
 
-        if version.len() != 4 {
-            // TODO: (@hahnlee) 옵셔널
-            panic!("올바르지 않은 정보");
-        }
+        assert_eq!(version.len(), 4);
 
-        // TODO: (@hahnlee) 각 숫자 검증하기
         Self {
             major: version[0],
             minor: version[1],

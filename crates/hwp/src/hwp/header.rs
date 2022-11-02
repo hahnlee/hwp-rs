@@ -2,6 +2,8 @@ use std::io::{Read, Seek};
 
 use byteorder::{LittleEndian, ReadBytesExt};
 use cfb::CompoundFile;
+use num::FromPrimitive;
+use num_derive::FromPrimitive;
 
 use super::{
     utils::bits::{get_flag, get_value_range},
@@ -13,12 +15,10 @@ pub struct Header {
     pub version: Version,
     pub flags: Flags,
     pub license: License,
-    // TODO: (@hahnlee) enum
-    pub encrypt_version: u32,
-    // TODO: (@hahnlee) enum
-    pub kogl: u8,
-    signature: [u8; 32],
-    reserved: [u8; 207],
+    pub encrypt_version: EncryptVersion,
+    pub kogl: KOGL,
+    pub signature: [u8; 32],
+    pub reserved: [u8; 207],
 }
 
 const SIGNATURE_STR: &str = "HWP Document File";
@@ -49,8 +49,9 @@ impl Header {
         let license = stream.read_u32::<LittleEndian>().unwrap();
         let license = License::from_bits(license);
 
-        let encrypt_version = stream.read_u32::<LittleEndian>().unwrap();
-        let kogl = stream.read_u8().unwrap();
+        let encrypt_version =
+            EncryptVersion::from_u32(stream.read_u32::<LittleEndian>().unwrap()).unwrap();
+        let kogl = KOGL::from_u8(stream.read_u8().unwrap()).unwrap();
 
         let mut reserved: [u8; 207] = [0; 207];
         stream.read(&mut reserved).unwrap();
@@ -65,11 +66,28 @@ impl Header {
             reserved,
         }
     }
+}
 
-    pub fn to_bytes(&self) -> Vec<u8> {
-        // TODO: (@hahnlee) 나머지 영역도 추가하기
-        [self.signature.to_vec(), self.reserved.to_vec()].concat()
-    }
+#[repr(u32)]
+#[derive(Debug, FromPrimitive)]
+pub enum EncryptVersion {
+    None,
+    /// 한/글 2.5 버전 이하
+    HWP2_5,
+    /// 한/글 3.0 버전 Enhanced
+    HWP3Enhanced,
+    /// 한/글 3.0 버전 Old
+    HWP3Old,
+    /// 한/글 7.0 버전 이후
+    HWP7,
+}
+
+#[repr(u8)]
+#[derive(Debug, FromPrimitive)]
+pub enum KOGL {
+    None,
+    KOR = 6,
+    US = 15,
 }
 
 #[derive(Debug)]
@@ -92,9 +110,7 @@ pub struct Flags {
     pub kogl: bool,
     pub has_video_control: bool,
     pub has_order_field_control: bool,
-    // TODO: (@hahnlee) to_bytes / to_u32 구현시 처리하기
-    #[allow(dead_code)]
-    reserved: u32,
+    pub reserved: u32,
 }
 
 impl Flags {
@@ -130,9 +146,7 @@ pub struct License {
     pub ccl: bool,
     pub replication_restrictions: bool,
     pub replication_alike: bool,
-    // TODO: (@hahnlee) to_bytes / to_u32 구현시 처리하기
-    #[allow(dead_code)]
-    reserved: u32,
+    pub reserved: u32,
 }
 
 impl License {
