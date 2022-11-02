@@ -37,6 +37,10 @@ pub struct ParagraphListHeader {
     pub count: u32,
     /// 방향
     pub direction: Direction,
+    /// 문단의 줄바꿈
+    pub line_break: LineBreak,
+    /// 세로 정렬
+    pub vertical_align: VerticalAlign,
 }
 
 impl ParagraphListHeader {
@@ -44,19 +48,42 @@ impl ParagraphListHeader {
         // NOTE: (@hahnlee) 문서에는 2바이트로 나와있으나, 실제론 4바이트를 읽어야함
         let count = reader.read_u32::<LittleEndian>().unwrap();
 
-        let properties = reader.read_u32::<LittleEndian>().unwrap();
-        let direction = Direction::from_u32(get_value_range(properties, 0, 2)).unwrap();
+        let attribute = reader.read_u32::<LittleEndian>().unwrap();
+        let direction = Direction::from_u32(get_value_range(attribute, 0, 2)).unwrap();
+        let line_break = LineBreak::from_u32(get_value_range(attribute, 3, 4)).unwrap();
+        let vertical_align = VerticalAlign::from_u32(get_value_range(attribute, 5, 6)).unwrap();
 
-        // TODO: (@hahnlee) 나머지 속성 추가
-
-        // 이후 속성은 레코드에 따라 다름
-        Self { count, direction }
+        Self {
+            count,
+            direction,
+            line_break,
+            vertical_align,
+        }
     }
 }
 
-#[repr(u32)]
+#[repr(u8)]
 #[derive(Debug, Clone, FromPrimitive)]
 pub enum Direction {
     Horizontal,
     Vertical,
+}
+
+#[repr(u8)]
+#[derive(Debug, Clone, FromPrimitive)]
+pub enum LineBreak {
+    /// 일반적인 줄바꿈
+    Normal,
+    /// 자간을 조종하여 한 줄을 유지
+    SingleLine,
+    /// 내용에 따라 폭이 늘어남
+    Dynamic,
+}
+
+#[repr(u8)]
+#[derive(Debug, Clone, FromPrimitive)]
+pub enum VerticalAlign {
+    Top,
+    Center,
+    Bottom,
 }
