@@ -30,7 +30,6 @@ impl Body {
 
         let mut sections: Vec<Section> = Vec::with_capacity(size);
 
-        // TODO: (@hahnlee) 통합 방법 생각하기
         for i in 0..size {
             let mut stream = cfb.open_stream(format!("/ViewText/Section{}", i)).unwrap();
             let section = Section::from_distributed(&mut stream, header);
