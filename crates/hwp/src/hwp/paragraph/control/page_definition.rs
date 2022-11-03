@@ -1,6 +1,11 @@
 use byteorder::{LittleEndian, ReadBytesExt};
+use num::FromPrimitive;
+use num_derive::FromPrimitive;
 
-use crate::hwp::{record::{tags::BodyTextRecord, Record}, utils::bits::{get_value, get_value_range}};
+use crate::hwp::{
+    record::{tags::BodyTextRecord, Record},
+    utils::bits::{get_value, get_value_range},
+};
 
 /// 페이지 정의
 #[derive(Debug, Clone)]
@@ -11,11 +16,10 @@ pub struct PageDefinition {
     pub height: u32,
     /// 여백
     pub padding: Padding,
-    // TODO: (@hahnlee) enum
     /// 용지방향
-    pub direction: u32,
+    pub landscape: Landscape,
     /// 제책 방법
-    pub binding_method: u32,
+    pub gutter_kind: GutterKind,
 }
 
 impl PageDefinition {
@@ -41,15 +45,15 @@ impl PageDefinition {
         };
 
         let properties = reader.read_u32::<LittleEndian>().unwrap();
-        let direction = get_value(properties, 0);
-        let binding_method = get_value_range(properties, 1, 2);
+        let landscape = Landscape::from_u32(get_value(properties, 0)).unwrap();
+        let gutter_kind = GutterKind::from_u32(get_value_range(properties, 1, 2)).unwrap();
 
         Self {
             width,
             height,
             padding,
-            direction,
-            binding_method,
+            landscape,
+            gutter_kind,
         }
     }
 }
@@ -66,4 +70,24 @@ pub struct Padding {
     pub footer: u32,
     /// 제본 여백
     pub binding: u32,
+}
+
+#[repr(u8)]
+#[derive(Debug, Clone, FromPrimitive)]
+pub enum Landscape {
+    /// 좁게
+    Narrowly,
+    /// 넓게
+    Widely,
+}
+
+#[repr(u8)]
+#[derive(Debug, Clone, FromPrimitive)]
+pub enum GutterKind {
+    /// 한쪽 편집
+    LeftOnly,
+    /// 맞쪽 편집
+    LeftRight,
+    /// 위로 넘기기
+    TopBottom,
 }

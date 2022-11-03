@@ -61,10 +61,7 @@ pub fn read_char<T: Read>(reader: &mut T) -> Char {
     reader.read_exact(&mut buf).unwrap();
 
     let other = reader.read_u16::<LittleEndian>().unwrap();
-    if code != other {
-        // TODO: (@hahnlee) 파싱 수정하기
-        panic!("잘못된 자료형입니다");
-    }
+    assert_eq!(code, other);
 
     let ext = match code {
         1 | 2 | 3 | 11 | 12 | 14 | 15 | 16 | 17 | 18 | 21 | 22 | 23 => {
