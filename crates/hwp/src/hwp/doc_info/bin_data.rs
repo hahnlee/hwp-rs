@@ -5,7 +5,8 @@ use num_derive::FromPrimitive;
 use crate::hwp::{
     header::Header,
     record::{reader::RecordReader, tags::DocInfoRecord, FromRecord, Record},
-    utils::bits::get_value_range, version::Version,
+    utils::bits::get_value_range,
+    version::Version,
 };
 
 #[derive(Debug)]
@@ -33,8 +34,8 @@ impl BinData {
 
     pub fn compressed(&self, header: &Header) -> bool {
         match self.properties.compress_mode {
-            0x0000 => header.flags.compressed,
-            0x0010 => true,
+            CompressMode::Default => header.flags.compressed,
+            CompressMode::Compress => true,
             _ => false,
         }
     }
@@ -88,7 +89,7 @@ impl FromRecord for BinData {
     }
 }
 
-#[repr(u16)]
+#[repr(u8)]
 #[derive(Debug, PartialEq, Eq, FromPrimitive)]
 pub enum BinDataKind {
     /// 그림 외부 파일 참조
@@ -99,23 +100,46 @@ pub enum BinDataKind {
     Storage,
 }
 
+#[repr(u8)]
+#[derive(Debug, PartialEq, Eq, FromPrimitive)]
+pub enum CompressMode {
+    /// 스토리지의 디폴트 모드 따라감
+    Default,
+    /// 무조건 압축
+    Compress,
+    /// 무조건 압축하지 않음
+    None,
+}
+
+#[repr(u8)]
+#[derive(Debug, PartialEq, Eq, FromPrimitive)]
+pub enum BinDataStatus {
+    /// 아직 access 된 적이 없는 상태
+    Initial,
+    /// access에 성공하여 파일을 찾은 상태
+    Success,
+    /// access가 실패한 에러 상태
+    Failed,
+    /// 링크 access가 실패했으나 무시된 상태
+    Ignored,
+}
+
 #[derive(Debug)]
 pub struct BinDataProperties {
     /// 타입
     pub kind: BinDataKind,
     /// 압축 모드
-    pub compress_mode: u16,
+    pub compress_mode: CompressMode,
     /// 상태
-    pub status: u16,
+    pub status: BinDataStatus,
 }
 
 impl BinDataProperties {
     pub fn from_bits(bits: u16) -> Self {
-        // TODO: (@hahnlee) 남는 비트정보 보존
         Self {
             kind: BinDataKind::from_u16(get_value_range(bits, 0, 3)).unwrap(),
-            compress_mode: get_value_range(bits, 4, 5),
-            status: get_value_range(bits, 8, 9),
+            compress_mode: CompressMode::from_u16(get_value_range(bits, 4, 5)).unwrap(),
+            status: BinDataStatus::from_u16(get_value_range(bits, 8, 9)).unwrap(),
         }
     }
 }
