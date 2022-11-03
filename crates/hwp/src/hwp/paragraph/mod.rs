@@ -110,7 +110,6 @@ impl Paragraph {
     }
 
     pub fn to_string(&self) -> String {
-        // TODO: (@hahnlee) 테이블 어떻게 하는지 알아보기
         let mut out = format!("");
 
         let mut i = 0;

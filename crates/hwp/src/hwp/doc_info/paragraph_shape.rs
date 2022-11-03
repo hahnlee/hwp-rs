@@ -8,7 +8,6 @@ use crate::hwp::{
     version::Version,
 };
 
-// TODO: (@hahnlee)
 #[derive(Debug)]
 pub struct ParagraphShape {
     /// 줄 간격 종류. 한/글 2007 이하 버전에서 사용.

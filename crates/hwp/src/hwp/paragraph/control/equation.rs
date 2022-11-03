@@ -33,7 +33,6 @@ impl Equation {
     }
 }
 
-// TODO: (@hahnlee) 합치는게 낫지 않을까?
 #[derive(Debug, Clone)]
 pub struct EquationRecord {
     pub script: String,
