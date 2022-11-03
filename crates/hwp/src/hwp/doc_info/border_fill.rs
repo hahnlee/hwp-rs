@@ -111,17 +111,56 @@ pub enum BackSlashDiagonalShape {
     RightTopToBottomLeftEdge = 0b111,
 }
 
+#[repr(u8)]
+#[derive(Debug, Clone, FromPrimitive)]
+pub enum BorderKind {
+    /// 실선
+    Solid,
+    /// 긴 점선
+    Dash,
+    /// 점선
+    Dot,
+    /// -.-.-.-.
+    DashDot,
+    /// -..-..-..
+    DashDotDot,
+    /// Dash보다 긴 선분의 반복
+    LongDash,
+    /// Dot보다 큰 동그라미의 반복
+    Circle,
+    /// 2중선
+    DoubleSlim,
+    /// 가는선 + 굵은선 2중선
+    SlimThick,
+    /// 굵은선 + 가는선 2중선
+    TickSlim,
+    /// 가는선 + 굵은선 + 가는선 3중선
+    SlimTickSlim,
+    /// 물결
+    Wave,
+    /// 물결 2중선
+    DoubleWave,
+    /// 두꺼운 3D
+    Tick3D,
+    /// 두꺼운 3D(광원 반대)
+    Tick3DInset,
+    /// 3D 단선
+    Slim3D,
+    /// 3D 단선(광원 반대)
+    Slim3DInset,
+}
+
 #[derive(Debug, Clone)]
 pub struct Border {
     pub width: u8,
-    pub kind: u8,
+    pub kind: BorderKind,
     pub color: ColorRef,
 }
 
 impl Border {
     pub fn from_reader<T: Read>(reader: &mut T) -> Self {
         Self {
-            kind: reader.read_u8().unwrap(),
+            kind: BorderKind::from_u8(reader.read_u8().unwrap()).unwrap(),
             width: reader.read_u8().unwrap(),
             color: ColorRef::from_u32(reader.read_u32::<LittleEndian>().unwrap()),
         }
