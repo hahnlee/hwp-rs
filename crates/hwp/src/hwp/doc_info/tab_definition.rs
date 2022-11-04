@@ -10,7 +10,6 @@ use crate::hwp::{
     version::Version,
 };
 
-// TODO: (@hahnlee)
 #[derive(Debug)]
 pub struct TabDefinition {
     /// 문단 왼쪽 끝 자동 탭(내어 쓰기용 자동 탭) 유무

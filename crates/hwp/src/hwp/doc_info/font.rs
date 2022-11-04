@@ -75,6 +75,7 @@ impl FromRecord for Font {
 }
 
 /// https://en.wikipedia.org/wiki/PANOSE
+/// https://monotype.github.io/panose/pan1.htm
 #[derive(Debug)]
 pub struct Panose {
     /// 글꼴 계열
