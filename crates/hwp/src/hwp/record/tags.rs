@@ -2,7 +2,7 @@ const HWPTAG_BEGIN: u32 = 0x10;
 
 #[repr(u32)]
 #[derive(PartialEq, Eq)]
-#[allow(non_camel_case_types, dead_code)]
+#[allow(non_camel_case_types)]
 pub enum DocInfoRecord {
     /// 문서 속성
     HWPTAG_DOCUMENT_PROPERTIES = HWPTAG_BEGIN,
@@ -31,6 +31,7 @@ pub enum DocInfoRecord {
     /// 배포용 문서 데이터
     HWPTAG_DISTRIBUTE_DOC_DATA,
     /// 예약
+    #[allow(dead_code)]
     RESERVED,
     /// 호환 문서
     HWPTAG_COMPATIBLE_DOCUMENT,
