@@ -5,7 +5,7 @@ use num::FromPrimitive;
 use num_derive::FromPrimitive;
 
 use crate::hwp::{
-    record::{reader::RecordReader, tags::DocInfoRecord, FromRecord, Record},
+    record::{reader::RecordReader, tags::DocInfoRecord, FromRecordCursor, RecordCursor},
     utils::bits::get_flag,
     version::Version,
 };
@@ -24,8 +24,10 @@ pub struct Font {
     pub alternative_font_name: Option<String>,
 }
 
-impl FromRecord for Font {
-    fn from_record(record: &mut Record, _: &Version) -> Self {
+impl FromRecordCursor for Font {
+    fn from_record_cursor(cursor: &mut RecordCursor, _: &Version) -> Self {
+        let record = cursor.current();
+
         assert_eq!(
             record.tag_id,
             DocInfoRecord::HWPTAG_FACE_NAME as u32,

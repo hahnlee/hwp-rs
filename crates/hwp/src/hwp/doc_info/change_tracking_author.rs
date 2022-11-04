@@ -1,5 +1,5 @@
 use crate::hwp::{
-    record::{tags::DocInfoRecord, FromRecord, Record},
+    record::{tags::DocInfoRecord, FromRecordCursor, RecordCursor},
     version::Version,
 };
 
@@ -7,8 +7,9 @@ use crate::hwp::{
 #[derive(Debug)]
 pub struct ChangeTrackingAuthor {}
 
-impl FromRecord for ChangeTrackingAuthor {
-    fn from_record(record: &mut Record, _: &Version) -> Self {
+impl FromRecordCursor for ChangeTrackingAuthor {
+    fn from_record_cursor(cursor: &mut RecordCursor, _: &Version) -> Self {
+        let record = cursor.current();
         assert_eq!(
             record.tag_id,
             DocInfoRecord::HWPTAG_TRACK_CHANGE_AUTHOR as u32

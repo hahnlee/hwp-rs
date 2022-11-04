@@ -1,9 +1,9 @@
-use crate::hwp::{record::reader::read_records, utils::random::SRand};
+use crate::hwp::utils::random::SRand;
 
 use super::{
     header::Header,
     paragraph::Paragraph,
-    record::{reader::RecordReader, tags::DocInfoRecord},
+    record::{reader::RecordReader, tags::DocInfoRecord, RecordCursor},
     utils::crypto::decrypt_aes_128_ecb,
     version::Version,
 };
@@ -20,15 +20,13 @@ pub struct Section {
 
 impl Section {
     pub fn from_reader<T: Read>(reader: &mut T, version: &Version) -> Self {
-        let mut data = Vec::new();
-        reader.read_to_end(&mut data).unwrap();
+        let mut cursor = RecordCursor::new(reader);
 
-        let records = read_records(&mut data);
+        let mut paragraphs = vec![];
 
-        let paragraphs = records
-            .into_iter()
-            .map(|mut record| Paragraph::from_record(&mut record, version))
-            .collect();
+        while cursor.has_next() {
+            paragraphs.push(Paragraph::from_record_cursor(&mut cursor, version))
+        }
 
         Self { paragraphs }
     }

@@ -1,7 +1,7 @@
 use byteorder::{LittleEndian, ReadBytesExt};
 
 use crate::hwp::{
-    record::{reader::RecordReader, tags::BodyTextRecord, Record},
+    record::{reader::RecordReader, tags::BodyTextRecord, Record, RecordCursor},
     version::Version,
 };
 
@@ -16,15 +16,15 @@ pub struct Equation {
 }
 
 impl Equation {
-    pub fn from_record(record: &mut Record, version: &Version) -> Self {
-        let common_properties = CommonProperties::from_record(record, version);
+    pub fn from_record(record: &mut Record, cursor: &mut RecordCursor, version: &Version) -> Self {
+        let common_properties = CommonProperties::from_record(record, cursor, version);
 
         assert!(
-            record.is_next_child_id(BodyTextRecord::HWPTAG_EQEDIT as u32),
+            cursor.record_id(BodyTextRecord::HWPTAG_EQEDIT as u32),
             "수식객체가 아닙니다"
         );
 
-        let equation_record = EquationRecord::from_record(&mut record.next_child());
+        let equation_record = EquationRecord::from_record(&mut cursor.current());
 
         Self {
             common_properties,

@@ -5,8 +5,8 @@ use num::FromPrimitive;
 use num_derive::FromPrimitive;
 
 use crate::hwp::{
-    record::{reader::RecordReader, tags::BodyTextRecord, Record},
-    utils::bits::{get_value_range, get_flag},
+    record::{reader::RecordReader, tags::BodyTextRecord, Record, RecordCursor},
+    utils::bits::{get_flag, get_value_range},
     version::Version,
 };
 
@@ -34,7 +34,7 @@ pub struct CommonProperties {
 }
 
 impl CommonProperties {
-    pub fn from_record(record: &mut Record, version: &Version) -> Self {
+    pub fn from_record(record: &mut Record, cursor: &mut RecordCursor, version: &Version) -> Self {
         let size = record.data.len() as u64;
         let mut reader = record.get_data_reader();
 
@@ -77,8 +77,8 @@ impl CommonProperties {
             "안읽은 바이트가 있습니다"
         );
 
-        let caption = if record.is_next_child_id(BodyTextRecord::HWPTAG_LIST_HEADER as u32) {
-            Some(Caption::from_record(record, version))
+        let caption = if cursor.record_id(BodyTextRecord::HWPTAG_LIST_HEADER as u32) {
+            Some(Caption::from_record_cursor(cursor, version))
         } else {
             None
         };
@@ -113,18 +113,18 @@ pub struct Caption {
 }
 
 impl Caption {
-    pub fn from_record(record: &mut Record, version: &Version) -> Self {
-        let meta = record.next_child();
+    pub fn from_record_cursor(cursor: &mut RecordCursor, version: &Version) -> Self {
+        let record = cursor.current();
 
         assert_eq!(
-            meta.tag_id,
+            record.tag_id,
             BodyTextRecord::HWPTAG_LIST_HEADER as u32,
             "다른 레코드 입니다"
         );
 
-        let mut reader = meta.get_data_reader();
+        let mut reader = record.get_data_reader();
 
-        let paragraph_list = ParagraphList::from_record(&mut reader, record, version);
+        let paragraph_list = ParagraphList::from_reader(&mut reader, cursor, version);
 
         let attribute = reader.read_u32::<LittleEndian>().unwrap();
         let align = CaptionAlign::from_u32(get_value_range(attribute, 0, 1)).unwrap();

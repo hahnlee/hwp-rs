@@ -4,7 +4,7 @@ use num_derive::FromPrimitive;
 
 use crate::hwp::{
     color_ref::ColorRef,
-    record::{tags::DocInfoRecord, FromRecord, Record},
+    record::{tags::DocInfoRecord, FromRecordCursor, RecordCursor},
     utils::bits::{get_flag, get_value_range},
     version::Version,
 };
@@ -73,8 +73,9 @@ pub struct CharShape {
     pub strike_color: Option<ColorRef>,
 }
 
-impl FromRecord for CharShape {
-    fn from_record(record: &mut Record, version: &Version) -> Self {
+impl FromRecordCursor for CharShape {
+    fn from_record_cursor(cursor: &mut RecordCursor, version: &Version) -> Self {
+        let record = cursor.current();
         assert_eq!(
             record.tag_id,
             DocInfoRecord::HWPTAG_CHAR_SHAPE as u32,

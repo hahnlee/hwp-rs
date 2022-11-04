@@ -1,4 +1,8 @@
-use std::io::Cursor;
+use std::io::{Cursor, Read};
+
+use byteorder::LittleEndian;
+
+use self::reader::RecordReader;
 
 use super::version::Version;
 
@@ -11,65 +15,87 @@ pub struct Record {
     pub level: u32,
     pub size: u32,
     pub data: Vec<u8>,
-    pub children: Vec<Record>,
 }
 
 impl Record {
     pub fn new(tag_id: u32, level: u32, size: u32, data: Vec<u8>) -> Self {
-        let children = Vec::new();
         Self {
             tag_id,
             level,
             size,
-            children,
             data,
         }
-    }
-
-    pub fn add(&mut self, other: Record) {
-        // NOTE: (@hahnlee) VecDeq와 유사한 기능을 위해 사용
-        // VecDeq를 사용하는 것이 편하나, 최종적으로 children을 Vec로 변환할 필요가 있어 남겨둠
-        self.children.insert(0, other)
-    }
-
-    pub fn is_next_child_id(&self, tag_id: u32) -> bool {
-        if self.has_next_children() {
-            return self.children.last().unwrap().tag_id == tag_id;
-        }
-
-        return false;
-    }
-
-    pub fn has_next_children(&self) -> bool {
-        return self.children.len() > 0;
     }
 
     pub fn get_data_reader(&self) -> Cursor<&Vec<u8>> {
         Cursor::new(&self.data)
     }
+}
 
-    pub fn next_child(&mut self) -> Record {
-        self.children.pop().unwrap()
+pub struct RecordCursor {
+    records: Vec<Record>,
+}
+
+impl RecordCursor {
+    pub fn new<T: Read>(reader: &mut T) -> Self {
+        let mut data = Vec::new();
+        reader.read_to_end(&mut data).unwrap();
+
+        let mut reader = Cursor::new(&data);
+        let mut records = vec![];
+
+        while reader.position() < (data.len() as u64) {
+            let (tag_id, level, size, mut data) = reader.read_record::<LittleEndian>().unwrap();
+            let mut buf = Vec::new();
+            data.read_to_end(&mut buf).unwrap();
+
+            records.insert(0, Record::new(tag_id, level, size, buf));
+        }
+
+        Self { records }
     }
 
-    pub fn remain_children(&self) -> Vec<Record> {
-        // @NOTE: (@hahnlee): 순서를 반대로 저장했으므로 반환전 순서를 돌린다
-        // 파서의 커버리지가 높을수록 모르는 바이트가 적어지기 때문에 성능에 큰 문제가 없을것으로 생각
-        let mut out = self.children.clone();
-        out.reverse();
+    pub fn current(&mut self) -> Record {
+        self.records.pop().unwrap()
+    }
 
-        out
+    pub fn record_id(&self, tag_id: u32) -> bool {
+        if self.records.len() == 0 {
+            return false;
+        }
+
+        return self.records.last().unwrap().tag_id == tag_id;
+    }
+
+    pub fn next_level(&self) -> u32 {
+        return self.records.last().unwrap().level;
+    }
+
+    pub fn has_next(&self) -> bool {
+        self.records.len() > 0
+    }
+
+    pub fn collect_children(&mut self, level: u32) -> Vec<Record> {
+        let mut children = vec![];
+        while self.has_next() && self.next_level() > level {
+            children.push(self.current());
+        }
+        children
     }
 }
 
-pub trait FromRecord {
-    fn from_record(record: &mut Record, version: &Version) -> Self;
+pub trait FromRecordCursor {
+    fn from_record_cursor(cursor: &mut RecordCursor, version: &Version) -> Self;
 }
 
-pub fn read_items<T: FromRecord>(record: &mut Record, version: &Version, size: usize) -> Vec<T> {
+pub fn read_items<T: FromRecordCursor>(
+    cursor: &mut RecordCursor,
+    version: &Version,
+    size: usize,
+) -> Vec<T> {
     let mut read_items: Vec<T> = Vec::with_capacity(size);
     for _ in 0..size {
-        read_items.push(T::from_record(&mut record.next_child(), version));
+        read_items.push(T::from_record_cursor(cursor, version));
     }
 
     read_items

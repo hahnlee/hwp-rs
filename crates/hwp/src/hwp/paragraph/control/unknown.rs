@@ -2,7 +2,7 @@ use std::io::Read;
 
 use byteorder::{LittleEndian, ReadBytesExt};
 
-use crate::hwp::record::Record;
+use crate::hwp::record::{Record, RecordCursor};
 
 #[derive(Debug, Clone)]
 pub struct UnknownControl {
@@ -15,14 +15,14 @@ pub struct UnknownControl {
 }
 
 impl UnknownControl {
-    pub fn from_record(record: &mut Record) -> Self {
+    pub fn from_record(record: &mut Record, cursor: &mut RecordCursor) -> Self {
         let mut reader = record.get_data_reader();
 
         let ctrl_id = reader.read_u32::<LittleEndian>().unwrap();
         let mut data = Vec::new();
         reader.read_to_end(&mut data).unwrap();
 
-        let children = record.remain_children();
+        let children = cursor.collect_children(record.level);
 
         Self {
             ctrl_id,

@@ -5,7 +5,7 @@ use num::FromPrimitive;
 use num_derive::FromPrimitive;
 
 use crate::hwp::{
-    record::{tags::DocInfoRecord, FromRecord, Record},
+    record::{tags::DocInfoRecord, FromRecordCursor, RecordCursor},
     utils::bits::get_flag,
     version::Version,
 };
@@ -19,9 +19,11 @@ pub struct TabDefinition {
     pub tab_infos: Vec<TabInfo>,
 }
 
-impl FromRecord for TabDefinition {
-    fn from_record(record: &mut Record, _: &Version) -> Self {
+impl FromRecordCursor for TabDefinition {
+    fn from_record_cursor(cursor: &mut RecordCursor, _: &Version) -> Self {
+        let record = cursor.current();
         assert_eq!(record.tag_id, DocInfoRecord::HWPTAG_TAB_DEF as u32);
+
         let mut reader = record.get_data_reader();
 
         let attribute = reader.read_u32::<LittleEndian>().unwrap();

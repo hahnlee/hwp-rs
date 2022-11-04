@@ -1,5 +1,5 @@
-use crate::hwp::parameter_set::ParameterSetReader;
 use crate::hwp::record::Record;
+use crate::hwp::{parameter_set::ParameterSetReader, record::RecordCursor};
 use byteorder::{LittleEndian, ReadBytesExt};
 
 /// 찾아보기 표식
@@ -16,11 +16,11 @@ pub struct Bookmark {
 }
 
 impl Bookmark {
-    pub fn from_record(record: &mut Record) -> Self {
+    pub fn from_record(record: &mut Record, cursor: &mut RecordCursor) -> Self {
         let mut reader = record.get_data_reader();
         let ctrl_id = reader.read_u32::<LittleEndian>().unwrap();
 
-        let child = record.next_child();
+        let child = cursor.current();
         let mut data = child.get_data_reader();
 
         // NOTE: (@hahnlee) 실제를 보니

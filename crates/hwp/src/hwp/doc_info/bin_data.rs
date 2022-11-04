@@ -4,7 +4,7 @@ use num_derive::FromPrimitive;
 
 use crate::hwp::{
     header::Header,
-    record::{reader::RecordReader, tags::DocInfoRecord, FromRecord, Record},
+    record::{reader::RecordReader, tags::DocInfoRecord, FromRecordCursor, RecordCursor},
     utils::bits::get_value_range,
     version::Version,
 };
@@ -41,8 +41,10 @@ impl BinData {
     }
 }
 
-impl FromRecord for BinData {
-    fn from_record(record: &mut Record, _: &Version) -> Self {
+impl FromRecordCursor for BinData {
+    fn from_record_cursor(cursor: &mut RecordCursor, _: &Version) -> Self {
+        let record = cursor.current();
+
         assert_eq!(
             record.tag_id,
             DocInfoRecord::HWPTAG_BIN_DATA as u32,

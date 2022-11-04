@@ -3,7 +3,7 @@ use num::FromPrimitive;
 use num_derive::FromPrimitive;
 
 use crate::hwp::{
-    record::{tags::DocInfoRecord, FromRecord, Record},
+    record::{tags::DocInfoRecord, FromRecordCursor, RecordCursor},
     utils::bits::{get_flag, get_value, get_value_range},
     version::Version,
 };
@@ -82,9 +82,11 @@ pub struct ParagraphShape {
     pub line_spacing: Option<u32>,
 }
 
-impl FromRecord for ParagraphShape {
-    fn from_record(record: &mut Record, version: &Version) -> Self {
+impl FromRecordCursor for ParagraphShape {
+    fn from_record_cursor(cursor: &mut RecordCursor, version: &Version) -> Self {
+        let record = cursor.current();
         assert_eq!(record.tag_id, DocInfoRecord::HWPTAG_PARA_SHAPE as u32);
+
         let mut reader = record.get_data_reader();
 
         let attribute = reader.read_u32::<LittleEndian>().unwrap();

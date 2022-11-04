@@ -1,9 +1,6 @@
-use std::io::{Cursor, Read, Result, Seek, SeekFrom, Take};
+use std::io::{Read, Result, Take};
 
-use byteorder::{ByteOrder, LittleEndian, ReadBytesExt};
-use num::ToPrimitive;
-
-use super::Record;
+use byteorder::{ByteOrder, ReadBytesExt};
 
 pub trait RecordReader: Read + ReadBytesExt {
     #[inline]
@@ -68,67 +65,3 @@ pub trait RecordReader: Read + ReadBytesExt {
 }
 
 impl<R: Read + ?Sized> RecordReader for R {}
-
-/// 레코드는 level 기반의 tree 구조로 이루어져 있다
-///
-/// 레코드 배열을 tree로 변환하는 함수
-pub fn read_records(data: &mut Vec<u8>) -> Vec<Record> {
-    let len = data.len() - 1;
-
-    let mut reader = Cursor::new(data);
-
-    let mut records = Vec::new();
-
-    while reader.position() < len as u64 {
-        let (tag_id, level, size, mut data) = reader.read_record::<LittleEndian>().unwrap();
-        let mut buf = Vec::new();
-        data.read_to_end(&mut buf).unwrap();
-
-        let mut current_record = Record::new(tag_id, level, size, buf);
-
-        let next_record_info = reader.read_record_with_bytes::<LittleEndian>();
-        if !next_record_info.is_err() {
-            let (_, next_level, _, read_bytes) = next_record_info.unwrap();
-            reader.seek(SeekFrom::Current(-read_bytes)).unwrap();
-
-            if next_level > level {
-                fill_tree(&mut current_record, level, &mut reader);
-            }
-        }
-
-        records.push(current_record);
-    }
-
-    records
-}
-
-fn fill_tree(record: &mut Record, level: u32, reader: &mut Cursor<&mut Vec<u8>>) {
-    let size = reader.get_ref().len().to_u64().unwrap() - 1;
-    while reader.position() < size {
-        let (tag_id, next_level, record_size, read_bytes) =
-            reader.read_record_with_bytes::<LittleEndian>().unwrap();
-
-        if next_level <= level {
-            reader.seek(SeekFrom::Current(-read_bytes)).unwrap();
-            break;
-        }
-
-        let mut data = reader.take(record_size as u64);
-        let mut buf = Vec::new();
-        data.read_to_end(&mut buf).unwrap();
-
-        let mut next_record = Record::new(tag_id, next_level, record_size, buf);
-
-        let record_info = reader.read_record_with_bytes::<LittleEndian>();
-        if !record_info.is_err() {
-            let (_, next_next_level, _, read_bytes) = record_info.unwrap();
-            reader.seek(SeekFrom::Current(-read_bytes)).unwrap();
-
-            if next_next_level > next_level {
-                fill_tree(&mut next_record, next_level, reader);
-            }
-        }
-
-        record.add(next_record);
-    }
-}
