@@ -26,7 +26,7 @@ impl FromRecord for Numbering {
         let mut paragraph_heads = vec![];
 
         for _ in 0..7 {
-            paragraph_heads.push(ParagraphHead::from_reader(&mut reader));
+            paragraph_heads.push(ParagraphHead::from_reader(&mut reader, true));
         }
 
         let start = reader.read_u16::<LittleEndian>().unwrap();
@@ -39,19 +39,23 @@ impl FromRecord for Numbering {
 
         if reader.position() < record.size.into() {
             for _ in 7..10 {
-                paragraph_heads.push(ParagraphHead::from_reader(&mut reader));
+                paragraph_heads.push(ParagraphHead::from_reader(&mut reader, true));
             }
 
             if *version >= Version::from_str("5.1.0.0") {
                 for i in 7..10 {
-                    paragraph_heads[i].start_number = Some(reader.read_u32::<LittleEndian>().unwrap());
+                    paragraph_heads[i].start_number =
+                        Some(reader.read_u32::<LittleEndian>().unwrap());
                 }
             }
         }
 
         assert_eq!(reader.position(), record.size.into());
 
-        Self { start, paragraph_heads }
+        Self {
+            start,
+            paragraph_heads,
+        }
     }
 }
 
@@ -81,7 +85,7 @@ pub struct ParagraphHead {
 }
 
 impl ParagraphHead {
-    pub fn from_reader<T: Read>(reader: &mut T) -> Self {
+    pub fn from_reader<T: Read>(reader: &mut T, numbering: bool) -> Self {
         // 속성(표 40 참조)
         let attribute = reader.read_u32::<LittleEndian>().unwrap();
         let align = ParagraphHeadAlign::from_u32(get_value_range(attribute, 0, 1)).unwrap();
@@ -92,7 +96,11 @@ impl ParagraphHead {
         let width_adjust = reader.read_i16::<LittleEndian>().unwrap();
         let text_offset = reader.read_i16::<LittleEndian>().unwrap();
         let char_shape_id = reader.read_u32::<LittleEndian>().unwrap();
-        let number_format = reader.read_string::<LittleEndian>().unwrap();
+        let number_format = if numbering {
+            reader.read_string::<LittleEndian>().unwrap()
+        } else {
+            format!("")
+        };
 
         let start_number = None;
 
