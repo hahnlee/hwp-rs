@@ -63,7 +63,6 @@ impl HWP {
                     buffer
                 };
 
-                // 여기
                 bin_data.push(File { name, data });
             }
         }

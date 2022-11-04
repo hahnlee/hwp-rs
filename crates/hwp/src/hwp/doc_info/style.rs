@@ -8,7 +8,6 @@ use crate::hwp::{
     version::Version,
 };
 
-// TODO: (@hahnlee)
 #[derive(Debug)]
 pub struct Style {
     /// 로컬 스타일 이름. 한글 윈도우에서는 한글 스타일 이름
