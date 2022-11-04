@@ -27,7 +27,6 @@ impl PageHiding {
 
         let ctrl_id = reader.read_u32::<LittleEndian>().unwrap();
 
-        // TODO: (@hahnlee) 확인 필요
         let attribute = reader.read_u8().unwrap();
         let hide_header = get_flag(attribute, 1);
         let hide_footer = get_flag(attribute, 2);

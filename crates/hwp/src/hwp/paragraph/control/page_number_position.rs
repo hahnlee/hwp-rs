@@ -4,11 +4,15 @@ use num_derive::FromPrimitive;
 
 use crate::hwp::{record::Record, utils::bits::get_value_range};
 
+use super::section::NumberShape;
+
 /// 페이지 번호 위치
 #[derive(Debug, Clone)]
 pub struct PageNumberPosition {
     /// 컨트롤 ID
     pub ctrl_id: u32,
+    /// 번호 모양
+    pub number_shape: NumberShape,
     /// 번호의 표시 위치
     pub position: DisplayPosition,
     /// 사용자 기호
@@ -26,8 +30,7 @@ impl PageNumberPosition {
         let ctrl_id = reader.read_u32::<LittleEndian>().unwrap();
 
         let properties = reader.read_u32::<LittleEndian>().unwrap();
-        // TODO: (@hahnlee) 번호모양
-        get_value_range(properties, 0, 7);
+        let number_shape = NumberShape::from_u32(get_value_range(properties, 0, 7)).unwrap();
         let position = DisplayPosition::from_u32(get_value_range(properties, 8, 11)).unwrap();
 
         let user_char = char::from_u32(reader.read_u16::<LittleEndian>().unwrap().into()).unwrap();
@@ -38,6 +41,7 @@ impl PageNumberPosition {
 
         Self {
             ctrl_id,
+            number_shape,
             position,
             user_char,
             prefix_char,
