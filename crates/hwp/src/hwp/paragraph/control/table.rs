@@ -5,7 +5,7 @@ use num::FromPrimitive;
 use num_derive::FromPrimitive;
 
 use crate::hwp::{
-    record::{tags::BodyTextRecord, Record},
+    record::{tags::BodyTextRecord, Record, RecordCursor},
     utils::bits::{get_flag, get_value_range},
     version::Version,
 };
@@ -22,15 +22,15 @@ pub struct TableControl {
 }
 
 impl TableControl {
-    pub fn from_record(record: &mut Record, version: &Version) -> Self {
-        let common_properties = CommonProperties::from_record(record, version);
+    pub fn from_record(record: &mut Record, cursor: &mut RecordCursor, version: &Version) -> Self {
+        let common_properties = CommonProperties::from_record(record, cursor, version);
 
         assert!(
-            record.is_next_child_id(BodyTextRecord::HWPTAG_TABLE as u32),
+            cursor.record_id(BodyTextRecord::HWPTAG_TABLE as u32),
             "테이블이 아닙니다"
         );
 
-        let table_record = TableRecord::from_record(&mut record.next_child(), version);
+        let table_record = TableRecord::from_record(&mut cursor.current(), version);
         let mut cells = Vec::new();
         let cell_count = table_record
             .row_count
@@ -38,14 +38,10 @@ impl TableControl {
             .into_iter()
             .reduce(|result, current| result + current)
             .unwrap();
-        for _ in 0..cell_count {
-            cells.push(Cell::from_record(record, version));
-        }
 
-        assert!(
-            !record.has_next_children(),
-            "해석할 수 없는 추가 데이터가 있습니다"
-        );
+        for _ in 0..cell_count {
+            cells.push(Cell::from_record_cursor(cursor, version));
+        }
 
         Self {
             common_properties,
@@ -193,12 +189,12 @@ pub struct Cell {
 }
 
 impl Cell {
-    pub fn from_record(record: &mut Record, version: &Version) -> Self {
-        let meta = record.next_child();
-        assert_eq!(meta.tag_id, BodyTextRecord::HWPTAG_LIST_HEADER as u32);
+    pub fn from_record_cursor(cursor: &mut RecordCursor, version: &Version) -> Self {
+        let record = cursor.current();
+        assert_eq!(record.tag_id, BodyTextRecord::HWPTAG_LIST_HEADER as u32);
 
-        let mut reader = meta.get_data_reader();
-        let paragraph_list = ParagraphList::from_record(&mut reader, record, version);
+        let mut reader = record.get_data_reader();
+        let paragraph_list = ParagraphList::from_reader(&mut reader, cursor, version);
 
         let column = reader.read_u16::<LittleEndian>().unwrap();
         let row = reader.read_u16::<LittleEndian>().unwrap();

@@ -6,7 +6,7 @@ use num_derive::FromPrimitive;
 
 use crate::hwp::{
     color_ref::ColorRef,
-    record::{tags::DocInfoRecord, FromRecord, Record},
+    record::{tags::DocInfoRecord, FromRecordCursor, RecordCursor},
     utils::bits::{get_flag, get_value_range},
     version::Version,
 };
@@ -39,8 +39,9 @@ pub struct BorderFill {
     pub fill: Fill,
 }
 
-impl FromRecord for BorderFill {
-    fn from_record(record: &mut Record, _: &Version) -> Self {
+impl FromRecordCursor for BorderFill {
+    fn from_record_cursor(cursor: &mut RecordCursor, _: &Version) -> Self {
+        let record = cursor.current();
         assert_eq!(record.tag_id, DocInfoRecord::HWPTAG_BORDER_FILL as u32);
 
         let mut reader = record.get_data_reader();

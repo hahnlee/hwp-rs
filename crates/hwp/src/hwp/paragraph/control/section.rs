@@ -7,7 +7,7 @@ use num_derive::FromPrimitive;
 use crate::hwp::{
     doc_info::border_fill::Border,
     paragraph::control::page_definition::PageDefinition,
-    record::{tags::BodyTextRecord, Record},
+    record::{tags::BodyTextRecord, Record, RecordCursor},
     utils::bits::{get_flag, get_value_range},
     version::Version,
 };
@@ -71,7 +71,7 @@ pub struct SectionControl {
 }
 
 impl SectionControl {
-    pub fn from_record(record: &mut Record, version: &Version) -> Self {
+    pub fn from_record(record: &mut Record, cursor: &mut RecordCursor, version: &Version) -> Self {
         let mut reader = record.get_data_reader();
 
         let ctrl_id = reader.read_u32::<LittleEndian>().unwrap();
@@ -117,24 +117,24 @@ impl SectionControl {
         let mut unknown = Vec::new();
         reader.read_to_end(&mut unknown).unwrap();
 
-        let page_definition = PageDefinition::from_record(&mut record.next_child());
-        let footnote_shape = FootnoteEndnoteShape::from_record(&mut record.next_child());
-        let endnote_shape = FootnoteEndnoteShape::from_record(&mut record.next_child());
+        let page_definition = PageDefinition::from_record(&mut cursor.current());
+        let footnote_shape = FootnoteEndnoteShape::from_record(&mut cursor.current());
+        let endnote_shape = FootnoteEndnoteShape::from_record(&mut cursor.current());
 
         // NOTE: (@hahnlee) 양쪽, 홀수, 짝수 정보가 반복됨.
         // TODO: (@hahnlee) 항상 모든 모든 정보를 내려주는지 확인필요
         assert_eq!(
-            record.next_child().tag_id,
+            cursor.current().tag_id,
             BodyTextRecord::HWPTAG_PAGE_BORDER_FILL as u32,
             "쪽/배경 설정이 아닙니다"
         );
         assert_eq!(
-            record.next_child().tag_id,
+            cursor.current().tag_id,
             BodyTextRecord::HWPTAG_PAGE_BORDER_FILL as u32,
             "쪽/배경 설정이 아닙니다"
         );
         assert_eq!(
-            record.next_child().tag_id,
+            cursor.current().tag_id,
             BodyTextRecord::HWPTAG_PAGE_BORDER_FILL as u32,
             "쪽/배경 설정이 아닙니다"
         );

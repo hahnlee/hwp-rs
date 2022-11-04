@@ -6,7 +6,7 @@ use num_derive::FromPrimitive;
 
 use crate::hwp::{
     doc_info::numbering::ParagraphHead,
-    record::{tags::DocInfoRecord, FromRecord, Record},
+    record::{tags::DocInfoRecord, FromRecordCursor, RecordCursor},
     version::Version,
 };
 
@@ -24,8 +24,9 @@ pub struct Bullet {
     pub checked_char: char,
 }
 
-impl FromRecord for Bullet {
-    fn from_record(record: &mut Record, _: &Version) -> Self {
+impl FromRecordCursor for Bullet {
+    fn from_record_cursor(cursor: &mut RecordCursor, _: &Version) -> Self {
+        let record = cursor.current();
         assert_eq!(record.tag_id, DocInfoRecord::HWPTAG_BULLET as u32);
 
         let mut reader = record.get_data_reader();

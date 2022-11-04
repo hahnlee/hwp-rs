@@ -4,6 +4,7 @@ pub mod bullet;
 pub mod change_tracking;
 pub mod change_tracking_author;
 pub mod char_shape;
+pub mod compatible_document;
 pub mod font;
 pub mod id_mappings;
 pub mod memo_shape;
@@ -18,15 +19,11 @@ use std::io::{Read, Seek};
 use cfb::CompoundFile;
 use flate2::read::DeflateDecoder;
 
-use crate::hwp::record::reader::read_records;
+use crate::hwp::{doc_info::compatible_document::CompatibleDocument, record::RecordCursor};
 
 use self::{id_mappings::IDMappings, properties::Properties};
 
-use super::{
-    header::Header,
-    record::{tags::DocInfoRecord, Record},
-    version::Version,
-};
+use super::{header::Header, record::tags::DocInfoRecord, version::Version};
 
 #[derive(Debug)]
 pub struct DocInfo {
@@ -46,49 +43,31 @@ impl DocInfo {
     }
 
     pub fn from_reader<T: Read>(reader: &mut T, version: &Version) -> Self {
-        let mut data = Vec::new();
-        reader.read_to_end(&mut data).unwrap();
+        let mut cursor = RecordCursor::new(reader);
 
-        let mut records = read_records(&mut data);
-        records.reverse();
+        let properties = Properties::from_record(&mut cursor.current());
+        let id_mappings = IDMappings::from_record_cursor(&mut cursor, &version);
 
-        let properties = Properties::from_record(&mut records.pop().unwrap());
-        let id_mappings = IDMappings::from_record(&mut records.pop().unwrap(), &version);
-
-        if check_next_record_id(&records, DocInfoRecord::HWPTAG_DOC_DATA as u32) {
+        if cursor.record_id(DocInfoRecord::HWPTAG_DOC_DATA as u32) {
             // TODO: (@hahnlee) 파싱하기
-            records.pop();
+            cursor.current();
         }
-        if check_next_record_id(&records, DocInfoRecord::HWPTAG_FORBIDDEN_CHAR as u32) {
+        if cursor.record_id(DocInfoRecord::HWPTAG_FORBIDDEN_CHAR as u32) {
             // TODO: (@hahnlee) 파싱하기
-            records.pop();
+            cursor.current();
         }
-        if check_next_record_id(&records, DocInfoRecord::HWPTAG_COMPATIBLE_DOCUMENT as u32) {
-            // TODO: (@hahnlee) 파싱하기
-            records.pop();
-        }
-        if check_next_record_id(&records, DocInfoRecord::HWPTAG_LAYOUT_COMPATIBILITY as u32) {
-            // TODO: (@hahnlee) 파싱하기
-            records.pop();
-        }
-        if check_next_record_id(&records, DocInfoRecord::HWPTAG_TRACKCHANGE as u32) {
-            // TODO: (@hahnlee) 파싱하기
-            records.pop();
+        if cursor.record_id(DocInfoRecord::HWPTAG_COMPATIBLE_DOCUMENT as u32) {
+            CompatibleDocument::from_record_cursor(&mut cursor);
         }
 
-        assert_eq!(records.len(), 0);
+        if cursor.record_id(DocInfoRecord::HWPTAG_TRACKCHANGE as u32) {
+            // TODO: (@hahnlee) 파싱하기
+            cursor.current();
+        }
 
         Self {
             properties,
             id_mappings,
         }
     }
-}
-
-fn check_next_record_id(records: &[Record], tag_id: u32) -> bool {
-    if records.len() == 0 {
-        return false;
-    }
-
-    return records.last().unwrap().tag_id == tag_id;
 }

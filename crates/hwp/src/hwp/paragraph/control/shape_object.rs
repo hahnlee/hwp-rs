@@ -1,4 +1,7 @@
-use crate::hwp::{record::Record, version::Version};
+use crate::hwp::{
+    record::{Record, RecordCursor},
+    version::Version,
+};
 
 use super::common_properties::CommonProperties;
 
@@ -10,10 +13,13 @@ pub struct GenShapeObject {
 }
 
 impl GenShapeObject {
-    pub fn from_record(record: &mut Record, version: &Version) -> Self {
-        let common_properties = CommonProperties::from_record(record, version);
+    pub fn from_record(record: &mut Record, cursor: &mut RecordCursor, version: &Version) -> Self {
+        let common_properties = CommonProperties::from_record(record, cursor, version);
 
         // TODO: (@hahnlee) children 파싱하기
+        let children = cursor.collect_children(record.level);
+        assert_ne!(children.len(), 0);
+
         GenShapeObject { common_properties }
     }
 }
@@ -26,8 +32,8 @@ pub struct ShapeLine {
 }
 
 impl ShapeLine {
-    pub fn from_record(record: &mut Record, version: &Version) -> Self {
-        let common_properties = CommonProperties::from_record(record, version);
+    pub fn from_record(record: &mut Record, cursor: &mut RecordCursor, version: &Version) -> Self {
+        let common_properties = CommonProperties::from_record(record, cursor, version);
 
         // TODO: (@hahnlee) 남은 데이터 파싱하기
         Self { common_properties }
@@ -42,8 +48,8 @@ pub struct ShapeRectangle {
 }
 
 impl ShapeRectangle {
-    pub fn from_record(record: &mut Record, version: &Version) -> Self {
-        let common_properties = CommonProperties::from_record(record, version);
+    pub fn from_record(record: &mut Record, cursor: &mut RecordCursor, version: &Version) -> Self {
+        let common_properties = CommonProperties::from_record(record, cursor, version);
 
         // TODO: (@hahnlee) 남은 데이터 파싱하기
         Self { common_properties }
@@ -58,8 +64,8 @@ pub struct ShapeEllipse {
 }
 
 impl ShapeEllipse {
-    pub fn from_record(record: &mut Record, version: &Version) -> Self {
-        let common_properties = CommonProperties::from_record(record, version);
+    pub fn from_record(record: &mut Record, cursor: &mut RecordCursor, version: &Version) -> Self {
+        let common_properties = CommonProperties::from_record(record, cursor, version);
 
         // TODO: (@hahnlee) 남은 데이터 파싱하기
         Self { common_properties }
@@ -74,8 +80,8 @@ pub struct ShapeArc {
 }
 
 impl ShapeArc {
-    pub fn from_record(record: &mut Record, version: &Version) -> Self {
-        let common_properties = CommonProperties::from_record(record, version);
+    pub fn from_record(record: &mut Record, cursor: &mut RecordCursor, version: &Version) -> Self {
+        let common_properties = CommonProperties::from_record(record, cursor, version);
 
         // TODO: (@hahnlee) 남은 데이터 파싱하기
         Self { common_properties }
@@ -90,8 +96,8 @@ pub struct ShapePolygon {
 }
 
 impl ShapePolygon {
-    pub fn from_record(record: &mut Record, version: &Version) -> Self {
-        let common_properties = CommonProperties::from_record(record, version);
+    pub fn from_record(record: &mut Record, cursor: &mut RecordCursor, version: &Version) -> Self {
+        let common_properties = CommonProperties::from_record(record, cursor, version);
 
         // TODO: (@hahnlee) 남은 데이터 파싱하기
         Self { common_properties }
@@ -106,8 +112,8 @@ pub struct ShapeCurve {
 }
 
 impl ShapeCurve {
-    pub fn from_record(record: &mut Record, version: &Version) -> Self {
-        let common_properties = CommonProperties::from_record(record, version);
+    pub fn from_record(record: &mut Record, cursor: &mut RecordCursor, version: &Version) -> Self {
+        let common_properties = CommonProperties::from_record(record, cursor, version);
 
         // TODO: (@hahnlee) 남은 데이터 파싱하기
         Self { common_properties }

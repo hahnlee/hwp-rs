@@ -26,7 +26,7 @@ use byteorder::{LittleEndian, ReadBytesExt};
 use hwp_macro::make_4chid;
 
 use crate::hwp::{
-    record::{tags::BodyTextRecord, Record},
+    record::{tags::BodyTextRecord, RecordCursor},
     version::Version,
 };
 
@@ -96,7 +96,8 @@ pub enum Control {
     Unknown(UnknownControl),
 }
 
-pub fn parse_control(record: &mut Record, version: &Version) -> Control {
+pub fn parse_control(cursor: &mut RecordCursor, version: &Version) -> Control {
+    let mut record = cursor.current();
     assert_eq!(
         record.tag_id,
         BodyTextRecord::HWPTAG_CTRL_HEADER as u32,
@@ -112,71 +113,81 @@ pub fn parse_control(record: &mut Record, version: &Version) -> Control {
     match ctrl_id {
         // 개체 공통 속성 컨트롤
         make_4chid!('t', 'b', 'l', ' ') => {
-            Control::Table(TableControl::from_record(record, version))
+            Control::Table(TableControl::from_record(&mut record, cursor, version))
         }
         make_4chid!('g', 's', 'o', ' ') => {
-            Control::GenShapeObject(GenShapeObject::from_record(record, version))
+            Control::GenShapeObject(GenShapeObject::from_record(&mut record, cursor, version))
         }
         make_4chid!('$', 'l', 'i', 'n') => {
-            Control::ShapeLine(ShapeLine::from_record(record, version))
+            Control::ShapeLine(ShapeLine::from_record(&mut record, cursor, version))
         }
         make_4chid!('$', 'r', 'e', 'c') => {
-            Control::ShapeRectangle(ShapeRectangle::from_record(record, version))
+            Control::ShapeRectangle(ShapeRectangle::from_record(&mut record, cursor, version))
         }
         make_4chid!('$', 'e', 'l', 'l') => {
-            Control::ShapeEllipse(ShapeEllipse::from_record(record, version))
+            Control::ShapeEllipse(ShapeEllipse::from_record(&mut record, cursor, version))
         }
         make_4chid!('$', 'a', 'r', 'c') => {
-            Control::ShapeArc(ShapeArc::from_record(record, version))
+            Control::ShapeArc(ShapeArc::from_record(&mut record, cursor, version))
         }
         make_4chid!('$', 'p', 'o', 'l') => {
-            Control::ShapePolygon(ShapePolygon::from_record(record, version))
+            Control::ShapePolygon(ShapePolygon::from_record(&mut record, cursor, version))
         }
         make_4chid!('$', 'c', 'u', 'r') => {
-            Control::ShapeCurve(ShapeCurve::from_record(record, version))
+            Control::ShapeCurve(ShapeCurve::from_record(&mut record, cursor, version))
         }
         make_4chid!('e', 'q', 'e', 'd') => {
-            Control::Equation(Equation::from_record(record, version))
+            Control::Equation(Equation::from_record(&mut record, cursor, version))
         }
-        make_4chid!('$', 'p', 'i', 'c') => Control::Picture(Picture::from_record(record, version)),
-        make_4chid!('$', 'o', 'l', 'e') => Control::Ole(Ole::from_record(record, version)),
+        make_4chid!('$', 'p', 'i', 'c') => {
+            Control::Picture(Picture::from_record(&mut record, cursor, version))
+        }
+        make_4chid!('$', 'o', 'l', 'e') => {
+            Control::Ole(Ole::from_record(&mut record, cursor, version))
+        }
         make_4chid!('$', 'c', 'o', 'n') => {
-            Control::Container(Container::from_record(record, version))
+            Control::Container(Container::from_record(&mut record, cursor, version))
         }
 
-        make_4chid!('c', 'o', 'l', 'd') => Control::Column(ColumnControl::from_record(record)),
-        make_4chid!('a', 't', 'n', 'o') => Control::AutoNumber(AutoNumber::from_record(record)),
-        make_4chid!('n', 'w', 'n', 'o') => Control::NewNumber(NewNumber::from_record(record)),
-        make_4chid!('p', 'g', 'h', 'd') => Control::PageHiding(PageHiding::from_record(record)),
+        make_4chid!('c', 'o', 'l', 'd') => Control::Column(ColumnControl::from_record(&mut record)),
+        make_4chid!('a', 't', 'n', 'o') => {
+            Control::AutoNumber(AutoNumber::from_record(&mut record))
+        }
+        make_4chid!('n', 'w', 'n', 'o') => Control::NewNumber(NewNumber::from_record(&mut record)),
+        make_4chid!('p', 'g', 'h', 'd') => {
+            Control::PageHiding(PageHiding::from_record(&mut record))
+        }
         make_4chid!('p', 'g', 'c', 't') => {
-            Control::PageNumberControl(PageNumberControl::from_record(record))
+            Control::PageNumberControl(PageNumberControl::from_record(&mut record))
         }
         make_4chid!('p', 'g', 'n', 'p') => {
-            Control::PageNumberPosition(PageNumberPosition::from_record(record))
+            Control::PageNumberPosition(PageNumberPosition::from_record(&mut record))
         }
-        make_4chid!('i', 'd', 'x', 'm') => Control::IndexMark(IndexMark::from_record(record)),
-        make_4chid!('b', 'o', 'k', 'm') => Control::Bookmark(Bookmark::from_record(record)),
-        make_4chid!('t', 'c', 'p', 's') => Control::OverType(OverType::from_record(record)),
-        make_4chid!('t', 'd', 'u', 't') => Control::SubText(SubText::from_record(record)),
+        make_4chid!('i', 'd', 'x', 'm') => Control::IndexMark(IndexMark::from_record(&mut record)),
+        make_4chid!('b', 'o', 'k', 'm') => {
+            Control::Bookmark(Bookmark::from_record(&mut record, cursor))
+        }
+        make_4chid!('t', 'c', 'p', 's') => Control::OverType(OverType::from_record(&mut record)),
+        make_4chid!('t', 'd', 'u', 't') => Control::SubText(SubText::from_record(&mut record)),
 
         // 개체 이외 컨트롤 + 문단리스트
         make_4chid!('s', 'e', 'c', 'd') => {
-            Control::SectionDefinition(SectionControl::from_record(record, version))
+            Control::SectionDefinition(SectionControl::from_record(&mut record, cursor, version))
         }
         make_4chid!('h', 'e', 'a', 'd') => {
-            Control::Header(HeaderFooter::from_record(record, version))
+            Control::Header(HeaderFooter::from_record_cursor(cursor, version))
         }
         make_4chid!('f', 'o', 'o', 't') => {
-            Control::Footer(HeaderFooter::from_record(record, version))
+            Control::Footer(HeaderFooter::from_record_cursor(cursor, version))
         }
         make_4chid!('f', 'n', ' ', ' ') => {
-            Control::Footnote(FootnoteEndnote::from_record(record, version))
+            Control::Footnote(FootnoteEndnote::from_record_cursor(cursor, version))
         }
         make_4chid!('e', 'n', ' ', ' ') => {
-            Control::Endnote(FootnoteEndnote::from_record(record, version))
+            Control::Endnote(FootnoteEndnote::from_record_cursor(cursor, version))
         }
         make_4chid!('t', 'c', 'm', 't') => {
-            Control::HiddenComment(HiddenComment::from_record(record, version))
+            Control::HiddenComment(HiddenComment::from_record_cursor(cursor, version))
         }
 
         // 필드 컨트롤
@@ -214,6 +225,6 @@ pub fn parse_control(record: &mut Record, version: &Version) -> Control {
         | make_4chid!('%', '%', 'm', 'e')
         | make_4chid!('%', 'c', 'p', 'r')
         | make_4chid!('%', 't', 'o', 'c')
-        | _ => Control::Unknown(UnknownControl::from_record(record)),
+        | _ => Control::Unknown(UnknownControl::from_record(&mut record, cursor)),
     }
 }

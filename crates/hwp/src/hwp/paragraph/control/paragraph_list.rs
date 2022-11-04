@@ -5,7 +5,7 @@ use num::FromPrimitive;
 use num_derive::FromPrimitive;
 
 use crate::hwp::{
-    paragraph::Paragraph, record::Record, utils::bits::get_value_range, version::Version,
+    paragraph::Paragraph, record::RecordCursor, utils::bits::get_value_range, version::Version,
 };
 
 /// 문단 리스트
@@ -16,13 +16,17 @@ pub struct ParagraphList {
 }
 
 impl ParagraphList {
-    pub fn from_record<T: Read>(reader: &mut T, record: &mut Record, version: &Version) -> Self {
+    pub fn from_reader<T: Read>(
+        reader: &mut T,
+        cursor: &mut RecordCursor,
+        version: &Version,
+    ) -> Self {
         let header = ParagraphListHeader::from_reader(reader);
 
         // NOTE: 나머지 속성은 사용처에서 파싱해야함
         let mut paragraphs = Vec::new();
         for _ in 0..header.count {
-            let paragraph = Paragraph::from_record(&mut record.next_child(), version);
+            let paragraph = Paragraph::from_record_cursor(cursor, version);
             paragraphs.push(paragraph);
         }
 

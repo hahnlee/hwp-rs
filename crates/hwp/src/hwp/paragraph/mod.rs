@@ -17,7 +17,7 @@ use self::{
 };
 
 use super::{
-    record::{tags::BodyTextRecord, Record},
+    record::{tags::BodyTextRecord, Record, RecordCursor},
     version::Version,
 };
 
@@ -33,14 +33,15 @@ pub struct Paragraph {
 }
 
 impl Paragraph {
-    pub fn from_record(record: &mut Record, version: &Version) -> Self {
+    pub fn from_record_cursor(cursor: &mut RecordCursor, version: &Version) -> Self {
+        let record = cursor.current();
         assert_eq!(record.tag_id, BodyTextRecord::HWPTAG_PARA_HEADER as u32);
 
         let header = ParagraphHeader::from_reader(&mut record.get_data_reader(), version);
 
         // NOTE: (@hahnlee) 문서와 달리 header.chars가 0이 아니어도 없을 수 있다.
-        let char_list = if record.is_next_child_id(BodyTextRecord::HWPTAG_PARA_TEXT as u32) {
-            let data = record.next_child().data;
+        let char_list = if cursor.record_id(BodyTextRecord::HWPTAG_PARA_TEXT as u32) {
+            let data = cursor.current().data;
             CharList::from_data(data, header.chars as usize)
         } else {
             CharList::new()
@@ -49,10 +50,10 @@ impl Paragraph {
         let mut char_shapes = Vec::new();
         if header.char_shapes > 0 {
             assert!(
-                record.is_next_child_id(BodyTextRecord::HWPTAG_PARA_CHAR_SHAPE as u32),
+                cursor.record_id(BodyTextRecord::HWPTAG_PARA_CHAR_SHAPE as u32),
                 "잘못된 레코드 입니다"
             );
-            let child = record.next_child();
+            let child = cursor.current();
             let mut record = child.get_data_reader();
 
             for _ in 0..header.char_shapes {
@@ -64,10 +65,10 @@ impl Paragraph {
         let mut line_segments = Vec::new();
         if header.aligns > 0 {
             assert!(
-                record.is_next_child_id(BodyTextRecord::HWPTAG_PARA_LINE_SEG as u32),
+                cursor.record_id(BodyTextRecord::HWPTAG_PARA_LINE_SEG as u32),
                 "잘못된 레코드 입니다"
             );
-            let child = record.next_child();
+            let child = cursor.current();
             let mut reader = child.get_data_reader();
             for _ in 0..header.aligns {
                 let line_segment = LineSegment::from_reader(&mut reader);
@@ -78,10 +79,10 @@ impl Paragraph {
         let mut range_tags = Vec::new();
         if header.ranges > 0 {
             assert!(
-                record.is_next_child_id(BodyTextRecord::HWPTAG_PARA_RANGE_TAG as u32),
+                cursor.record_id(BodyTextRecord::HWPTAG_PARA_RANGE_TAG as u32),
                 "잘못된 레코드 입니다"
             );
-            let child = record.next_child();
+            let child = cursor.current();
             let mut reader = child.get_data_reader();
             for _ in 0..header.ranges {
                 let range_tag = RangeTag::from_reader(&mut reader);
@@ -92,11 +93,10 @@ impl Paragraph {
         let control_count = char_list.extend_control_count();
         let mut controls: Vec<Control> = Vec::with_capacity(control_count);
         for _ in 0..control_count {
-            let mut child = record.next_child();
-            controls.push(parse_control(&mut child, version));
+            controls.push(parse_control(cursor, version));
         }
 
-        let unknown = record.remain_children();
+        let unknown = cursor.collect_children(record.level);
 
         Self {
             header,

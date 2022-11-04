@@ -1,7 +1,7 @@
 use byteorder::{LittleEndian, ReadBytesExt};
 
 use crate::hwp::{
-    record::{read_items, tags::DocInfoRecord, Record},
+    record::{read_items, tags::DocInfoRecord, RecordCursor},
     version::Version,
 };
 
@@ -53,7 +53,8 @@ pub struct IDMappings {
 }
 
 impl IDMappings {
-    pub fn from_record(record: &mut Record, version: &Version) -> Self {
+    pub fn from_record_cursor(cursor: &mut RecordCursor, version: &Version) -> Self {
+        let record = cursor.current();
         assert_eq!(
             record.tag_id,
             DocInfoRecord::HWPTAG_ID_MAPPINGS as u32,
@@ -113,24 +114,24 @@ impl IDMappings {
         };
 
         Self {
-            binary_data: read_items(record, version, binary_data),
-            korean_fonts: read_items(record, version, korean_fonts),
-            english_fonts: read_items(record, version, english_fonts),
-            chinese_characters_fonts: read_items(record, version, chinese_characters_fonts),
-            japanese_fonts: read_items(record, version, japanese_fonts),
-            etc_fonts: read_items(record, version, etc_fonts),
-            symbol_fonts: read_items(record, version, symbol_fonts),
-            user_fonts: read_items(record, version, user_fonts),
-            border_fills: read_items(record, version, border_fills),
-            char_shapes: read_items(record, version, char_shapes),
-            tab_definitions: read_items(record, version, tab_definitions),
-            numberings: read_items(record, version, numberings),
-            bullets: read_items(record, version, bullets),
-            paragraph_shapes: read_items(record, version, paragraph_shapes),
-            styles: read_items(record, version, styles),
-            memo_shapes: read_items(record, version, memo_shapes),
-            change_trackings: read_items(record, version, change_trackings),
-            change_tracking_authors: read_items(record, version, change_tracking_authors),
+            binary_data: read_items(cursor, version, binary_data),
+            korean_fonts: read_items(cursor, version, korean_fonts),
+            english_fonts: read_items(cursor, version, english_fonts),
+            chinese_characters_fonts: read_items(cursor, version, chinese_characters_fonts),
+            japanese_fonts: read_items(cursor, version, japanese_fonts),
+            etc_fonts: read_items(cursor, version, etc_fonts),
+            symbol_fonts: read_items(cursor, version, symbol_fonts),
+            user_fonts: read_items(cursor, version, user_fonts),
+            border_fills: read_items(cursor, version, border_fills),
+            char_shapes: read_items(cursor, version, char_shapes),
+            tab_definitions: read_items(cursor, version, tab_definitions),
+            numberings: read_items(cursor, version, numberings),
+            bullets: read_items(cursor, version, bullets),
+            paragraph_shapes: read_items(cursor, version, paragraph_shapes),
+            styles: read_items(cursor, version, styles),
+            memo_shapes: read_items(cursor, version, memo_shapes),
+            change_trackings: read_items(cursor, version, change_trackings),
+            change_tracking_authors: read_items(cursor, version, change_tracking_authors),
         }
     }
 }
