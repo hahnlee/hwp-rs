@@ -13,13 +13,17 @@ pub mod paragraph_shape;
 pub mod properties;
 pub mod style;
 pub mod tab_definition;
+pub mod track_change;
 
 use std::io::{Read, Seek};
 
 use cfb::CompoundFile;
 use flate2::read::DeflateDecoder;
 
-use crate::hwp::{doc_info::compatible_document::CompatibleDocument, record::RecordCursor};
+use crate::hwp::{
+    doc_info::{compatible_document::CompatibleDocument, track_change::TrackChange},
+    record::RecordCursor,
+};
 
 use self::{id_mappings::IDMappings, properties::Properties};
 
@@ -29,6 +33,9 @@ use super::{header::Header, record::tags::DocInfoRecord, version::Version};
 pub struct DocInfo {
     pub properties: Properties,
     pub id_mappings: IDMappings,
+    pub compatible_document: Option<CompatibleDocument>,
+    /// 변경 추적 정보
+    pub track_change: Option<TrackChange>,
 }
 
 impl DocInfo {
@@ -56,18 +63,27 @@ impl DocInfo {
             // TODO: (@hahnlee) 파싱하기
             cursor.current();
         }
-        if cursor.record_id(DocInfoRecord::HWPTAG_COMPATIBLE_DOCUMENT as u32) {
-            CompatibleDocument::from_record_cursor(&mut cursor);
-        }
 
-        if cursor.record_id(DocInfoRecord::HWPTAG_TRACKCHANGE as u32) {
-            // TODO: (@hahnlee) 파싱하기
-            cursor.current();
-        }
+        let compatible_document =
+            if cursor.record_id(DocInfoRecord::HWPTAG_COMPATIBLE_DOCUMENT as u32) {
+                Some(CompatibleDocument::from_record_cursor(&mut cursor))
+            } else {
+                None
+            };
+
+        let track_change = if cursor.record_id(DocInfoRecord::HWPTAG_TRACKCHANGE as u32) {
+            Some(TrackChange::from_record_cursor(&mut cursor))
+        } else {
+            None
+        };
+
+        assert!(!cursor.has_next());
 
         Self {
             properties,
             id_mappings,
+            compatible_document,
+            track_change,
         }
     }
 }
