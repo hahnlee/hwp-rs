@@ -120,7 +120,7 @@ impl Panose {
 }
 
 #[repr(u8)]
-#[derive(Debug, FromPrimitive)]
+#[derive(Debug, PartialEq, Eq, FromPrimitive)]
 pub enum AlternativeKind {
     /// 원래 종류를 알 수 없을 때
     Unknown,

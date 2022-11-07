@@ -72,7 +72,7 @@ impl Image {
 }
 
 #[repr(u8)]
-#[derive(Debug, FromPrimitive)]
+#[derive(Debug, PartialEq, Eq, FromPrimitive)]
 pub enum ImageEffect {
     /// 원래 그림에서
     RealPic,

@@ -174,7 +174,7 @@ impl SectionControl {
 }
 
 #[repr(u32)]
-#[derive(Debug, Clone, FromPrimitive)]
+#[derive(Debug, Clone, PartialEq, Eq, FromPrimitive)]
 pub enum TextDirection {
     Horizontal,
     Vertical,
@@ -251,7 +251,7 @@ impl FootnoteEndnoteShape {
 
 /// 번호종류, hwpx 표준문서 참고
 #[repr(u32)]
-#[derive(Debug, Clone, FromPrimitive)]
+#[derive(Debug, Clone, PartialEq, Eq, FromPrimitive)]
 pub enum NumberShape {
     /// 1, 2, 3
     Digit,

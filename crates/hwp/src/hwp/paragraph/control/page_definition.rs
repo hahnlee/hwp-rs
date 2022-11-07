@@ -73,7 +73,7 @@ pub struct Padding {
 }
 
 #[repr(u8)]
-#[derive(Debug, Clone, FromPrimitive)]
+#[derive(Debug, Clone, PartialEq, Eq, FromPrimitive)]
 pub enum Landscape {
     /// 좁게
     Narrowly,
@@ -82,7 +82,7 @@ pub enum Landscape {
 }
 
 #[repr(u8)]
-#[derive(Debug, Clone, FromPrimitive)]
+#[derive(Debug, Clone, PartialEq, Eq, FromPrimitive)]
 pub enum GutterKind {
     /// 한쪽 편집
     LeftOnly,

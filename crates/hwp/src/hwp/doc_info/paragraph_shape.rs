@@ -208,7 +208,7 @@ impl FromRecordCursor for ParagraphShape {
 }
 
 #[repr(u8)]
-#[derive(Debug, FromPrimitive)]
+#[derive(Debug, PartialEq, Eq, FromPrimitive)]
 pub enum Align {
     /// 양쪽 정렬
     Justify,
@@ -225,7 +225,7 @@ pub enum Align {
 }
 
 #[repr(u8)]
-#[derive(Debug, FromPrimitive)]
+#[derive(Debug, PartialEq, Eq, FromPrimitive)]
 pub enum BreakLatinWord {
     /// 단어
     KeepWord,
@@ -236,7 +236,7 @@ pub enum BreakLatinWord {
 }
 
 #[repr(u8)]
-#[derive(Debug, FromPrimitive)]
+#[derive(Debug, PartialEq, Eq, FromPrimitive)]
 pub enum BreakNonLatinWord {
     /// 단어
     KeepWord,
@@ -245,7 +245,7 @@ pub enum BreakNonLatinWord {
 }
 
 #[repr(u8)]
-#[derive(Debug, FromPrimitive)]
+#[derive(Debug, PartialEq, Eq, FromPrimitive)]
 pub enum VerticalAlign {
     /// 글꼴기준
     Baseline,
@@ -258,7 +258,7 @@ pub enum VerticalAlign {
 }
 
 #[repr(u8)]
-#[derive(Debug, FromPrimitive)]
+#[derive(Debug, PartialEq, Eq, FromPrimitive)]
 pub enum ParagraphHeadingKind {
     /// 없음
     None,
@@ -271,7 +271,7 @@ pub enum ParagraphHeadingKind {
 }
 
 #[repr(u8)]
-#[derive(Debug, FromPrimitive)]
+#[derive(Debug, PartialEq, Eq, FromPrimitive)]
 pub enum LineSpacingKind {
     /// 글자에 따라 (%)
     Percent,

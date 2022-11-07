@@ -70,7 +70,7 @@ impl TabInfo {
 }
 
 #[repr(u8)]
-#[derive(Debug, FromPrimitive)]
+#[derive(Debug, PartialEq, Eq, FromPrimitive)]
 pub enum TabKind {
     Left,
     Right,

@@ -1,7 +1,7 @@
 const HWPTAG_BEGIN: u32 = 0x10;
 
 #[repr(u32)]
-#[derive(PartialEq, Eq)]
+#[derive(Debug, PartialEq, Eq)]
 #[allow(non_camel_case_types)]
 pub enum DocInfoRecord {
     /// 문서 속성
@@ -50,7 +50,7 @@ pub enum DocInfoRecord {
 }
 
 #[repr(u32)]
-#[derive(PartialEq, Eq)]
+#[derive(Debug, PartialEq, Eq)]
 #[allow(non_camel_case_types, dead_code)]
 pub enum BodyTextRecord {
     /// 문단 헤더
