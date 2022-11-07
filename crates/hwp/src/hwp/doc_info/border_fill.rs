@@ -113,7 +113,7 @@ pub enum BackSlashDiagonalShape {
 }
 
 #[repr(u8)]
-#[derive(Debug, Clone, FromPrimitive)]
+#[derive(Debug, Clone, PartialEq, FromPrimitive)]
 pub enum BorderKind {
     /// 실선
     Solid,
@@ -168,7 +168,7 @@ impl Border {
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct Fill {
     /// 채우기 종류
     pub kind: FillKind,
@@ -229,7 +229,7 @@ pub enum FillKind {
     Gradation = 0x00000004,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub enum FillContent {
     None(()),
     Color(ColorFill),
@@ -237,7 +237,7 @@ pub enum FillContent {
     Image(ImageFill),
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct ColorFill {
     /// 배경색
     pub background_color: ColorRef,
@@ -273,7 +273,7 @@ impl ColorFill {
 
 /// 채우기 무늬 종류
 #[repr(u8)]
-#[derive(Debug, PartialEq, FromPrimitive)]
+#[derive(Debug, Clone, PartialEq, FromPrimitive)]
 pub enum PatternKind {
     /// 없음
     None,
@@ -291,7 +291,7 @@ pub enum PatternKind {
     CrossDiagonal,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct GradationFill {
     /// 그러데이션 유형
     pub kind: GradationKind,
@@ -355,7 +355,7 @@ impl GradationFill {
 
 /// 그러데이션 유형
 #[repr(u8)]
-#[derive(Debug, PartialEq, FromPrimitive)]
+#[derive(Debug, Clone, PartialEq, FromPrimitive)]
 pub enum GradationKind {
     /// 줄무늬형
     Linear = 1,
@@ -367,7 +367,7 @@ pub enum GradationKind {
     Square = 4,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct ImageFill {}
 
 impl ImageFill {
