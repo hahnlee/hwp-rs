@@ -2,6 +2,7 @@ pub mod book_mark;
 pub mod column;
 pub mod common_properties;
 pub mod container;
+pub mod element_properties;
 pub mod equation;
 pub mod footnote_endnote;
 pub mod header_footer;
@@ -33,7 +34,7 @@ use crate::hwp::{
 use self::{
     book_mark::Bookmark,
     column::ColumnControl,
-    container::Container,
+    container::ContainerControl,
     equation::Equation,
     footnote_endnote::FootnoteEndnote,
     header_footer::HeaderFooter,
@@ -41,15 +42,16 @@ use self::{
     index_mark::IndexMark,
     number::AutoNumber,
     number::NewNumber,
-    ole::Ole,
+    ole::OleControl,
     over_type::OverType,
     page_hiding::PageHiding,
     page_number_control::PageNumberControl,
     page_number_position::PageNumberPosition,
-    picture::Picture,
+    picture::PictureControl,
     section::SectionControl,
     shape_object::{
-        GenShapeObject, ShapeArc, ShapeCurve, ShapeEllipse, ShapeLine, ShapePolygon, ShapeRectangle,
+        GenShapeObjectControl, ShapeArcControl, ShapeCurveControl, ShapeEllipseControl,
+        ShapeLineControl, ShapePolygonControl, ShapeRectangleControl,
     },
     sub_text::SubText,
     table::TableControl,
@@ -60,17 +62,17 @@ use self::{
 pub enum Control {
     // 개체 공통 속성 컨트롤
     Table(TableControl),
-    GenShapeObject(GenShapeObject),
-    ShapeLine(ShapeLine),
-    ShapeRectangle(ShapeRectangle),
-    ShapeEllipse(ShapeEllipse),
-    ShapeArc(ShapeArc),
-    ShapePolygon(ShapePolygon),
-    ShapeCurve(ShapeCurve),
+    GenShapeObject(GenShapeObjectControl),
+    ShapeLine(ShapeLineControl),
+    ShapeRectangle(ShapeRectangleControl),
+    ShapeEllipse(ShapeEllipseControl),
+    ShapeArc(ShapeArcControl),
+    ShapePolygon(ShapePolygonControl),
+    ShapeCurve(ShapeCurveControl),
     Equation(Equation),
-    Picture(Picture),
-    Ole(Ole),
-    Container(Container),
+    Picture(PictureControl),
+    Ole(OleControl),
+    Container(ContainerControl),
 
     // 개체 이외 컨트롤
     AutoNumber(AutoNumber),
@@ -115,38 +117,42 @@ pub fn parse_control(cursor: &mut RecordCursor, version: &Version) -> Control {
         make_4chid!('t', 'b', 'l', ' ') => {
             Control::Table(TableControl::from_record(&mut record, cursor, version))
         }
-        make_4chid!('g', 's', 'o', ' ') => {
-            Control::GenShapeObject(GenShapeObject::from_record(&mut record, cursor, version))
-        }
+        make_4chid!('g', 's', 'o', ' ') => Control::GenShapeObject(
+            GenShapeObjectControl::from_record(&mut record, cursor, version),
+        ),
         make_4chid!('$', 'l', 'i', 'n') => {
-            Control::ShapeLine(ShapeLine::from_record(&mut record, cursor, version))
+            Control::ShapeLine(ShapeLineControl::from_record(&mut record, cursor, version))
         }
-        make_4chid!('$', 'r', 'e', 'c') => {
-            Control::ShapeRectangle(ShapeRectangle::from_record(&mut record, cursor, version))
-        }
-        make_4chid!('$', 'e', 'l', 'l') => {
-            Control::ShapeEllipse(ShapeEllipse::from_record(&mut record, cursor, version))
-        }
+        make_4chid!('$', 'r', 'e', 'c') => Control::ShapeRectangle(
+            ShapeRectangleControl::from_record(&mut record, cursor, version),
+        ),
+        make_4chid!('$', 'e', 'l', 'l') => Control::ShapeEllipse(ShapeEllipseControl::from_record(
+            &mut record,
+            cursor,
+            version,
+        )),
         make_4chid!('$', 'a', 'r', 'c') => {
-            Control::ShapeArc(ShapeArc::from_record(&mut record, cursor, version))
+            Control::ShapeArc(ShapeArcControl::from_record(&mut record, cursor, version))
         }
-        make_4chid!('$', 'p', 'o', 'l') => {
-            Control::ShapePolygon(ShapePolygon::from_record(&mut record, cursor, version))
-        }
+        make_4chid!('$', 'p', 'o', 'l') => Control::ShapePolygon(ShapePolygonControl::from_record(
+            &mut record,
+            cursor,
+            version,
+        )),
         make_4chid!('$', 'c', 'u', 'r') => {
-            Control::ShapeCurve(ShapeCurve::from_record(&mut record, cursor, version))
+            Control::ShapeCurve(ShapeCurveControl::from_record(&mut record, cursor, version))
         }
         make_4chid!('e', 'q', 'e', 'd') => {
             Control::Equation(Equation::from_record(&mut record, cursor, version))
         }
         make_4chid!('$', 'p', 'i', 'c') => {
-            Control::Picture(Picture::from_record(&mut record, cursor, version))
+            Control::Picture(PictureControl::from_record(&mut record, cursor, version))
         }
         make_4chid!('$', 'o', 'l', 'e') => {
-            Control::Ole(Ole::from_record(&mut record, cursor, version))
+            Control::Ole(OleControl::from_record(&mut record, cursor, version))
         }
         make_4chid!('$', 'c', 'o', 'n') => {
-            Control::Container(Container::from_record(&mut record, cursor, version))
+            Control::Container(ContainerControl::from_record(&mut record, cursor, version))
         }
 
         make_4chid!('c', 'o', 'l', 'd') => Control::Column(ColumnControl::from_record(&mut record)),

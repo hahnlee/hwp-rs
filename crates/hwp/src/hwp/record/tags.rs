@@ -55,17 +55,65 @@ pub enum DocInfoRecord {
 pub enum BodyTextRecord {
     /// 문단 헤더
     HWPTAG_PARA_HEADER = HWPTAG_BEGIN + 50,
+    /// 문단의 텍스트
     HWPTAG_PARA_TEXT,
+    /// 문단의 글자 모양
     HWPTAG_PARA_CHAR_SHAPE,
+    /// 문단의 레이아웃
     HWPTAG_PARA_LINE_SEG,
+    /// 문단의 영역 태그
     HWPTAG_PARA_RANGE_TAG,
+    /// 컨트롤 헤더
     HWPTAG_CTRL_HEADER,
+    /// 문단 리스트 헤더
     HWPTAG_LIST_HEADER,
+    /// 용지 설정
     HWPTAG_PAGE_DEF,
+    /// 각주/미주 모양
     HWPTAG_FOOTNOTE_SHAPE,
+    /// 쪽 테두리/배경
     HWPTAG_PAGE_BORDER_FILL,
+    /// 개체
     HWPTAG_SHAPE_COMPONENT,
+    /// 표 개체
     HWPTAG_TABLE,
-    /// 수식
-    HWPTAG_EQEDIT = HWPTAG_BEGIN + 72,
+    /// 직선 개체
+    HWPTAG_SHAPE_COMPONENT_LINE,
+    /// 사각형 개체
+    HWPTAG_SHAPE_COMPONENT_RECTANGLE,
+    /// 타원 개체
+    HWPTAG_SHAPE_COMPONENT_ELLIPSE,
+    /// 호 개체
+    HWPTAG_SHAPE_COMPONENT_ARC,
+    /// 다각형 개체
+    HWPTAG_SHAPE_COMPONENT_POLYGON,
+    /// 곡선 개체
+    HWPTAG_SHAPE_COMPONENT_CURVE,
+    /// OLE 개체
+    HWPTAG_SHAPE_COMPONENT_OLE,
+    /// 그림 개체
+    HWPTAG_SHAPE_COMPONENT_PICTURE,
+    /// 컨테이너 개체
+    HWPTAG_SHAPE_COMPONENT_CONTAINER,
+    /// 컨트롤 임의의 데이터
+    HWPTAG_CTRL_DATA,
+    /// 수식 개체
+    HWPTAG_EQEDIT,
+    /// 예약
+    #[allow(dead_code)]
+    RESERVED,
+    /// 글맵시
+    HWPTAG_SHAPE_COMPONENT_TEXTART,
+    /// 양식 개체
+    HWPTAG_FORM_OBJECT,
+    /// 메모 모양
+    HWPTAG_MEMO_SHAPE,
+    /// 메모 리스트 헤더
+    HWPTAG_MEMO_LIST,
+    /// 차트 데이터
+    HWPTAG_CHART_DATA,
+    /// 비디오 데이터
+    HWPTAG_VIDEO_DATA = HWPTAG_BEGIN + 82,
+    /// Unknown
+    HWPTAG_SHAPE_COMPONENT_UNKNOWN = HWPTAG_BEGIN + 99,
 }
