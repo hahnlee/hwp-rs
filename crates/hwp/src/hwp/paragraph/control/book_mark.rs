@@ -23,7 +23,7 @@ impl Bookmark {
         let child = cursor.current();
         let mut data = child.get_data_reader();
 
-        // NOTE: (@hahnlee) 실제를 보니
+        // NOTE: (@hahnlee) 실제를 보니 u16으로 추정
         let parameter_set_id = data.read_u16::<LittleEndian>().unwrap();
 
         // NOTE: (@hahnlee) 확인필요. 표준문서에는 WORD로 제시되어 있으나 실제론 2바이트가 남음.

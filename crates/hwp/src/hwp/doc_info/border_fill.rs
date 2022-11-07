@@ -180,19 +180,38 @@ impl Fill {
     pub fn from_reader<T: Read>(reader: &mut T) -> Self {
         let kind = FillKind::from_u32(reader.read_u32::<LittleEndian>().unwrap()).unwrap();
 
-        // TODO: (@hahnlee) 나머지 채우기
         let content = match kind {
             FillKind::Color => FillContent::Color(ColorFill::from_reader(reader)),
-            _ => FillContent::None(()),
+            FillKind::Gradation => FillContent::Gradation(GradationFill::from_reader(reader)),
+            FillKind::Image => FillContent::Image(ImageFill::from_reader(reader)),
+            FillKind::None => {
+                // NOTE: (@hahnlee) 추가정보의 길이, 항상 0이다
+                assert_eq!(reader.read_u32::<LittleEndian>().unwrap(), 0);
+                FillContent::None(())
+            }
         };
 
         Self { kind, content }
     }
 
-    pub fn as_color_fill(&self) -> &ColorFill {
+    pub fn as_color_fill(&self) -> Result<&ColorFill, ()> {
         match &self.content {
-            FillContent::Color(color) => color,
-            _ => panic!("color_fill이 아닙니다"),
+            FillContent::Color(color) => Ok(color),
+            _ => Err(()),
+        }
+    }
+
+    pub fn as_gradation_fill(&self) -> Result<&GradationFill, ()> {
+        match &self.content {
+            FillContent::Gradation(gradation) => Ok(gradation),
+            _ => Err(()),
+        }
+    }
+
+    pub fn as_image_fill(&self) -> Result<&ImageFill, ()> {
+        match &self.content {
+            FillContent::Image(image) => Ok(image),
+            _ => Err(()),
         }
     }
 }
@@ -214,19 +233,79 @@ pub enum FillKind {
 pub enum FillContent {
     None(()),
     Color(ColorFill),
+    Gradation(GradationFill),
+    Image(ImageFill),
 }
 
 #[derive(Debug)]
 pub struct ColorFill {
-    pub background: ColorRef,
-    pub pattern: ColorRef,
+    /// 배경색
+    pub background_color: ColorRef,
+    /// 무늬색
+    pub pattern_color: ColorRef,
+    /// 무늬종류
+    pub pattern_kind: PatternKind,
+    /// 투명도
+    pub alpha: u8,
 }
 
 impl ColorFill {
     fn from_reader<T: Read>(reader: &mut T) -> Self {
+        let background_color = ColorRef::from_u32(reader.read_u32::<LittleEndian>().unwrap());
+        let pattern_color = ColorRef::from_u32(reader.read_u32::<LittleEndian>().unwrap());
+        let pattern_kind =
+            PatternKind::from_i32(reader.read_i32::<LittleEndian>().unwrap() + 1).unwrap();
+
+        // NOTE: (@hahnlee) HWPX에 정의되어 있음
+        let alpha = reader.read_u8().unwrap();
+
+        // NOTE: (@hahnlee) 추가정보의 길이, 여기서는 무시한다
+        assert_eq!(reader.read_u32::<LittleEndian>().unwrap(), 0);
+
         Self {
-            background: ColorRef::from_u32(reader.read_u32::<LittleEndian>().unwrap()),
-            pattern: ColorRef::from_u32(reader.read_u32::<LittleEndian>().unwrap()),
+            background_color,
+            pattern_color,
+            pattern_kind,
+            alpha,
         }
+    }
+}
+
+/// 채우기 무늬 종류
+#[derive(Debug, PartialEq, FromPrimitive)]
+pub enum PatternKind {
+    /// 없음
+    None,
+    /// - - - -
+    Horizontal,
+    /// |||||
+    Vertical,
+    /// \\\\\
+    BackSlash,
+    /// /////
+    Slash,
+    /// +++++
+    Cross,
+    /// xxxxx
+    CrossDiagonal,
+}
+
+#[derive(Debug)]
+pub struct GradationFill {}
+
+impl GradationFill {
+    fn from_reader<T: Read>(_: &mut T) -> Self {
+        // TODO: (@hahnlee)
+        Self {}
+    }
+}
+
+#[derive(Debug)]
+pub struct ImageFill {}
+
+impl ImageFill {
+    fn from_reader<T: Read>(_: &mut T) -> Self {
+        // TODO: (@hahnlee)
+        Self {}
     }
 }
