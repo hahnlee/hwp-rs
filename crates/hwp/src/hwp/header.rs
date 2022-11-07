@@ -69,7 +69,7 @@ impl Header {
 }
 
 #[repr(u32)]
-#[derive(Debug, FromPrimitive)]
+#[derive(Debug, PartialEq, Eq, FromPrimitive)]
 pub enum EncryptVersion {
     None,
     /// 한/글 2.5 버전 이하
@@ -83,7 +83,7 @@ pub enum EncryptVersion {
 }
 
 #[repr(u8)]
-#[derive(Debug, FromPrimitive)]
+#[derive(Debug, PartialEq, Eq, FromPrimitive)]
 pub enum KOGL {
     None,
     KOR = 6,

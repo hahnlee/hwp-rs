@@ -32,7 +32,7 @@ impl CompatibleDocument {
 }
 
 #[repr(u8)]
-#[derive(Debug, FromPrimitive)]
+#[derive(Debug, PartialEq, Eq, FromPrimitive)]
 pub enum TargetProgram {
     /// 한/글 문서(현재 버전)
     HWP201X,

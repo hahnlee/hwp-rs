@@ -216,14 +216,14 @@ impl Outline {
 }
 
 #[repr(u8)]
-#[derive(Debug, Clone, PartialEq, FromPrimitive)]
+#[derive(Debug, Clone, PartialEq, Eq, FromPrimitive)]
 pub enum EndCap {
     Round,
     Flat,
 }
 
 #[repr(u8)]
-#[derive(Debug, Clone, PartialEq, FromPrimitive)]
+#[derive(Debug, Clone, PartialEq, Eq, FromPrimitive)]
 pub enum OutlineStyle {
     Normal,
     Outer,
@@ -233,7 +233,7 @@ pub enum OutlineStyle {
 /// 화살표 모양
 /// NOTE: 창모양은 문서에 누락되어있음. (HWPX참고)
 #[repr(u8)]
-#[derive(Debug, Clone, PartialEq, FromPrimitive)]
+#[derive(Debug, Clone, PartialEq, Eq, FromPrimitive)]
 pub enum ArrowStyle {
     /// 모양 없음
     None,
@@ -259,7 +259,7 @@ pub enum ArrowStyle {
 
 /// 화살표 사이즈
 #[repr(u8)]
-#[derive(Debug, Clone, PartialEq, FromPrimitive)]
+#[derive(Debug, Clone, PartialEq, Eq, FromPrimitive)]
 pub enum ArrowSize {
     /// 작은-작은
     SmallSmall,

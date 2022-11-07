@@ -51,7 +51,7 @@ impl PageNumberPosition {
 }
 
 #[repr(u32)]
-#[derive(Debug, Clone, FromPrimitive)]
+#[derive(Debug, Clone, PartialEq, Eq, FromPrimitive)]
 pub enum DisplayPosition {
     /// 쪽 번호 없음
     None,

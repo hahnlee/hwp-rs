@@ -67,7 +67,7 @@ pub struct TableRecord {
 }
 
 #[repr(u32)]
-#[derive(Debug, Clone, FromPrimitive)]
+#[derive(Debug, Clone, PartialEq, Eq, FromPrimitive)]
 pub enum PageBreak {
     /// 나누지 않음
     None,

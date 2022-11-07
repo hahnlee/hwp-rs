@@ -63,7 +63,7 @@ impl FromRecordCursor for Style {
 }
 
 #[repr(u8)]
-#[derive(Debug, FromPrimitive)]
+#[derive(Debug, PartialEq, Eq, FromPrimitive)]
 pub enum StyleKind {
     /// 문단 스타일
     Para,

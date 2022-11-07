@@ -210,7 +210,7 @@ impl FromRecordCursor for CharShape {
 }
 
 #[repr(u8)]
-#[derive(Debug, FromPrimitive)]
+#[derive(Debug, PartialEq, Eq, FromPrimitive)]
 pub enum UnderlineKind {
     None,
     Bottom,
@@ -218,7 +218,7 @@ pub enum UnderlineKind {
 }
 
 #[repr(u8)]
-#[derive(Debug, FromPrimitive)]
+#[derive(Debug, PartialEq, Eq, FromPrimitive)]
 pub enum OutlineKind {
     /// 없음
     None,
@@ -237,7 +237,7 @@ pub enum OutlineKind {
 }
 
 #[repr(u8)]
-#[derive(Debug, FromPrimitive)]
+#[derive(Debug, PartialEq, Eq, FromPrimitive)]
 pub enum ShadowKind {
     /// 없음
     None,
@@ -248,7 +248,7 @@ pub enum ShadowKind {
 }
 
 #[repr(u8)]
-#[derive(Debug, FromPrimitive)]
+#[derive(Debug, PartialEq, Eq, FromPrimitive)]
 pub enum SymMark {
     /// 없음
     None,

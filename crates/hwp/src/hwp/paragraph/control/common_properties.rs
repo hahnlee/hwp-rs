@@ -213,7 +213,7 @@ impl CommonProperties {
 
 /// 세로 위치의 기준
 #[repr(u8)]
-#[derive(Debug, Clone, PartialEq, FromPrimitive)]
+#[derive(Debug, Clone, PartialEq, Eq, FromPrimitive)]
 pub enum VerticalRelativeTo {
     Paper,
     Page,
@@ -222,7 +222,7 @@ pub enum VerticalRelativeTo {
 
 /// 배열 방식
 #[repr(u8)]
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub enum Align {
     Top,
     Center,
@@ -254,7 +254,7 @@ fn map_to_align(value: u32, rel_to: u8) -> Align {
 
 /// 가로 배열 방식
 #[repr(u8)]
-#[derive(Debug, Clone, PartialEq, FromPrimitive)]
+#[derive(Debug, Clone, PartialEq, Eq, FromPrimitive)]
 pub enum HorizontalRelativeTo {
     Paper,
     Page,
@@ -264,7 +264,7 @@ pub enum HorizontalRelativeTo {
 
 /// 오브젝트 폭의 기준
 #[repr(u8)]
-#[derive(Debug, Clone, PartialEq, FromPrimitive)]
+#[derive(Debug, Clone, PartialEq, Eq, FromPrimitive)]
 pub enum WidthRelativeTo {
     Paper,
     Page,
@@ -275,7 +275,7 @@ pub enum WidthRelativeTo {
 
 /// 오브젝트 높이의 기준
 #[repr(u8)]
-#[derive(Debug, Clone, PartialEq, FromPrimitive)]
+#[derive(Debug, Clone, PartialEq, Eq, FromPrimitive)]
 pub enum HeightRelativeTo {
     Paper,
     Page,
@@ -284,7 +284,7 @@ pub enum HeightRelativeTo {
 
 /// 오브젝트 주위를 텍스트가 어떻게 흘러갈지 지정하는 옵션
 #[repr(u8)]
-#[derive(Debug, Clone, PartialEq, FromPrimitive)]
+#[derive(Debug, Clone, PartialEq, Eq, FromPrimitive)]
 pub enum TextWrap {
     /// bound rect를 따라
     Square,
@@ -302,7 +302,7 @@ pub enum TextWrap {
 
 /// 오브젝트의 좌/우 어느 쪽에 글을 배치할지
 #[repr(u8)]
-#[derive(Debug, Clone, PartialEq, FromPrimitive)]
+#[derive(Debug, Clone, PartialEq, Eq, FromPrimitive)]
 pub enum TextFlow {
     BothSides,
     LeftOnly,
@@ -312,7 +312,7 @@ pub enum TextFlow {
 
 /// 이 개체가 속하는 번호 범주
 #[repr(u8)]
-#[derive(Debug, Clone, PartialEq, FromPrimitive)]
+#[derive(Debug, Clone, PartialEq, Eq, FromPrimitive)]
 pub enum NumberingKind {
     None,
     Figure,
@@ -376,7 +376,7 @@ impl Caption {
 }
 
 #[repr(u32)]
-#[derive(Debug, Clone, FromPrimitive)]
+#[derive(Debug, Clone, PartialEq, Eq, FromPrimitive)]
 pub enum CaptionAlign {
     Left,
     Right,

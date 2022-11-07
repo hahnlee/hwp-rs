@@ -3,7 +3,7 @@ use std::io::Read;
 use byteorder::{LittleEndian, ReadBytesExt};
 
 #[repr(u16)]
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub enum CharControls {
     Unusable = 0,
     LineBreak = 10,
@@ -20,7 +20,7 @@ pub enum CharControls {
     FixedWidthSpace = 31,
 }
 
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub enum Char {
     CharCode(u16),
     CharControl(CharControls),

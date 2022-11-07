@@ -93,7 +93,7 @@ impl FromRecordCursor for BorderFill {
 }
 
 #[repr(u8)]
-#[derive(Debug, Clone, FromPrimitive)]
+#[derive(Debug, Clone, PartialEq, Eq, FromPrimitive)]
 pub enum SlashDiagonalShape {
     None = 0b000,
     Slash = 0b010,
@@ -103,7 +103,7 @@ pub enum SlashDiagonalShape {
 }
 
 #[repr(u8)]
-#[derive(Debug, Clone, FromPrimitive)]
+#[derive(Debug, Clone, PartialEq, Eq, FromPrimitive)]
 pub enum BackSlashDiagonalShape {
     None = 0b000,
     BackSlash = 0b010,
@@ -113,7 +113,7 @@ pub enum BackSlashDiagonalShape {
 }
 
 #[repr(u8)]
-#[derive(Debug, Clone, PartialEq, FromPrimitive)]
+#[derive(Debug, Clone, PartialEq, Eq, FromPrimitive)]
 pub enum BorderKind {
     /// 실선
     Solid,
@@ -217,7 +217,7 @@ impl Fill {
 }
 
 #[repr(u32)]
-#[derive(Debug, Clone, FromPrimitive, PartialEq)]
+#[derive(Debug, Clone, PartialEq, Eq, FromPrimitive)]
 pub enum FillKind {
     /// 채우기 없음
     None = 0x00000000,
@@ -273,7 +273,7 @@ impl ColorFill {
 
 /// 채우기 무늬 종류
 #[repr(u8)]
-#[derive(Debug, Clone, PartialEq, FromPrimitive)]
+#[derive(Debug, Clone, PartialEq, Eq, FromPrimitive)]
 pub enum PatternKind {
     /// 없음
     None,
@@ -355,7 +355,7 @@ impl GradationFill {
 
 /// 그러데이션 유형
 #[repr(u8)]
-#[derive(Debug, Clone, PartialEq, FromPrimitive)]
+#[derive(Debug, Clone, PartialEq, Eq, FromPrimitive)]
 pub enum GradationKind {
     /// 줄무늬형
     Linear = 1,

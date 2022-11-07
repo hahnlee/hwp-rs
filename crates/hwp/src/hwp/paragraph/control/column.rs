@@ -69,7 +69,7 @@ impl ColumnControl {
 
 /// 단 방향
 #[repr(u16)]
-#[derive(Debug, Clone, FromPrimitive)]
+#[derive(Debug, Clone, PartialEq, Eq, FromPrimitive)]
 pub enum ColumnKind {
     /// 일반 다단
     Normal,
@@ -80,7 +80,7 @@ pub enum ColumnKind {
 }
 
 #[repr(u16)]
-#[derive(Debug, Clone, FromPrimitive)]
+#[derive(Debug, Clone, PartialEq, Eq, FromPrimitive)]
 pub enum ColumnDirection {
     /// 왼쪽부터
     Left,

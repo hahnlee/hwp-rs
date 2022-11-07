@@ -120,7 +120,7 @@ impl ParagraphHead {
 }
 
 #[repr(u8)]
-#[derive(Debug, FromPrimitive)]
+#[derive(Debug, PartialEq, Eq, FromPrimitive)]
 pub enum ParagraphHeadAlign {
     Left,
     Center,
@@ -128,7 +128,7 @@ pub enum ParagraphHeadAlign {
 }
 
 #[repr(u8)]
-#[derive(Debug, FromPrimitive)]
+#[derive(Debug, PartialEq, Eq, FromPrimitive)]
 pub enum TextOffsetKind {
     /// 글자 크기에 대한 상대 비율
     Percent,

@@ -11,7 +11,7 @@ use super::section::{NumberShape, format_number_shape};
 
 /// 번호 종류
 #[repr(u32)]
-#[derive(Debug, Clone, FromPrimitive)]
+#[derive(Debug, Clone, PartialEq, Eq, FromPrimitive)]
 pub enum NumberKind {
     /// 쪽 번호
     Page,

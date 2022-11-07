@@ -67,14 +67,14 @@ impl ParagraphListHeader {
 }
 
 #[repr(u8)]
-#[derive(Debug, Clone, FromPrimitive)]
+#[derive(Debug, Clone, PartialEq, Eq, FromPrimitive)]
 pub enum Direction {
     Horizontal,
     Vertical,
 }
 
 #[repr(u8)]
-#[derive(Debug, Clone, FromPrimitive)]
+#[derive(Debug, Clone, PartialEq, Eq, FromPrimitive)]
 pub enum LineBreak {
     /// 일반적인 줄바꿈
     Normal,
@@ -85,7 +85,7 @@ pub enum LineBreak {
 }
 
 #[repr(u8)]
-#[derive(Debug, Clone, FromPrimitive)]
+#[derive(Debug, Clone, PartialEq, Eq, FromPrimitive)]
 pub enum VerticalAlign {
     Top,
     Center,

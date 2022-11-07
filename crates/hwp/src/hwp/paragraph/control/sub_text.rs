@@ -49,7 +49,7 @@ impl SubText {
 }
 
 #[repr(u8)]
-#[derive(Debug, Clone, FromPrimitive)]
+#[derive(Debug, Clone, PartialEq, Eq, FromPrimitive)]
 pub enum SubTextPosition {
     Top,
     Bottom,
@@ -57,7 +57,7 @@ pub enum SubTextPosition {
 }
 
 #[repr(u8)]
-#[derive(Debug, Clone, FromPrimitive)]
+#[derive(Debug, Clone, PartialEq, Eq, FromPrimitive)]
 pub enum SubTextAlign {
     /// 양쪽 정렬
     Justify,
