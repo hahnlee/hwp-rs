@@ -272,6 +272,7 @@ impl ColorFill {
 }
 
 /// 채우기 무늬 종류
+#[repr(u8)]
 #[derive(Debug, PartialEq, FromPrimitive)]
 pub enum PatternKind {
     /// 없음
@@ -291,13 +292,79 @@ pub enum PatternKind {
 }
 
 #[derive(Debug)]
-pub struct GradationFill {}
+pub struct GradationFill {
+    /// 그러데이션 유형
+    pub kind: GradationKind,
+    /// 그러데이션의 기울임(시작 각)
+    pub angle: u32,
+    /// 그러데이션의 가로 중심(중심 X 좌표)
+    pub center_x: u32,
+    /// 그러데이션의 세로 중심(중심 Y 좌표)
+    pub center_y: u32,
+    /// 그러데이션 번짐 정도
+    pub step: u32,
+    /// 색상이 바뀌는 곳의 위치
+    pub change_points: Vec<u32>,
+    /// 색상
+    pub colors: Vec<ColorRef>,
+    /// 번짐 정도의 중심
+    pub step_center: u8,
+    /// 투명도
+    pub alpha: u8,
+}
 
 impl GradationFill {
-    fn from_reader<T: Read>(_: &mut T) -> Self {
-        // TODO: (@hahnlee)
-        Self {}
+    /// NOTE: (@hahnlee) 전체적으로 문서 오류가 있어 바이트가 다르다
+    fn from_reader<T: Read>(reader: &mut T) -> Self {
+        let kind = GradationKind::from_u8(reader.read_u8().unwrap()).unwrap();
+        let angle = reader.read_u32::<LittleEndian>().unwrap();
+        let center_x = reader.read_u32::<LittleEndian>().unwrap();
+        let center_y = reader.read_u32::<LittleEndian>().unwrap();
+        let step = reader.read_u32::<LittleEndian>().unwrap();
+        let count = reader.read_u32::<LittleEndian>().unwrap();
+        let mut change_points = vec![];
+        if count > 2 {
+            change_points.push(reader.read_u32::<LittleEndian>().unwrap());
+        }
+        let mut colors = vec![];
+        for _ in 0..count {
+            colors.push(ColorRef::from_u32(
+                reader.read_u32::<LittleEndian>().unwrap(),
+            ));
+        }
+
+        // NOTE: (@hahnlee) 추가정보 개수, 항상 1이다
+        assert_eq!(reader.read_u32::<LittleEndian>().unwrap(), 1);
+
+        let step_center = reader.read_u8().unwrap();
+        let alpha = reader.read_u8().unwrap();
+
+        Self {
+            kind,
+            angle,
+            center_x,
+            center_y,
+            step,
+            change_points,
+            colors,
+            step_center,
+            alpha,
+        }
     }
+}
+
+/// 그러데이션 유형
+#[repr(u8)]
+#[derive(Debug, PartialEq, FromPrimitive)]
+pub enum GradationKind {
+    /// 줄무늬형
+    Linear = 1,
+    /// 원형
+    Radial = 2,
+    /// 원뿔형
+    Conical = 3,
+    /// 사각형
+    Square = 4,
 }
 
 #[derive(Debug)]
