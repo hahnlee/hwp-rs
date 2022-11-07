@@ -195,7 +195,7 @@ impl Outline {
         let head_size = ArrowSize::from_u32(get_value_range(attribute, 22, 25)).unwrap();
         let tail_size = ArrowSize::from_u32(get_value_range(attribute, 26, 29)).unwrap();
         let head_fill = get_flag(attribute, 30);
-        let tail_fill = get_flag(attribute, 331);
+        let tail_fill = get_flag(attribute, 31);
 
         let style = OutlineStyle::from_u8(reader.read_u8().unwrap()).unwrap();
 
