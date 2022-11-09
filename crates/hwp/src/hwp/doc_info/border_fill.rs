@@ -368,11 +368,91 @@ pub enum GradationKind {
 }
 
 #[derive(Debug, Clone)]
-pub struct ImageFill {}
+pub struct ImageFill {
+    /// 이미지 채우기 유형
+    pub kind: ImageFillKind,
+    /// 밝기
+    pub brightness: u8,
+    /// 명암
+    pub contrast: u8,
+    /// 그림 효과
+    pub effect: ImageFillEffect,
+    /// 참조값
+    pub bin_data_id: u16,
+    /// 문서에 미정의된 값
+    pub unknown: Vec<u8>,
+}
 
 impl ImageFill {
-    fn from_reader<T: Read>(_: &mut T) -> Self {
-        // TODO: (@hahnlee)
-        Self {}
+    fn from_reader<T: Read>(reader: &mut T) -> Self {
+        let kind = ImageFillKind::from_u8(reader.read_u8().unwrap()).unwrap();
+
+        let brightness = reader.read_u8().unwrap();
+        let contrast = reader.read_u8().unwrap();
+
+        let effect = ImageFillEffect::from_u8(reader.read_u8().unwrap()).unwrap();
+
+        let bin_data_id = reader.read_u16::<LittleEndian>().unwrap();
+
+        // NOTE: (@hahnlee) 추가정보 개수, 항상 0이다
+        assert_eq!(reader.read_u32::<LittleEndian>().unwrap(), 0);
+
+        let mut unknown = vec![];
+        reader.read_to_end(&mut unknown).unwrap();
+
+        Self {
+            kind,
+            brightness,
+            contrast,
+            effect,
+            bin_data_id,
+            unknown,
+        }
     }
+}
+
+#[repr(u8)]
+#[derive(Debug, Clone, PartialEq, Eq, FromPrimitive)]
+pub enum ImageFillKind {
+    /// 바둑판식으로-모두
+    Tile,
+    /// 바둑판식으로-가로/위
+    TileHorizontalTop,
+    /// 바둑판식으로-가로/아래
+    TileHorizontalBottom,
+    /// 바둑판식으로-세로/왼쪽
+    TileVerticalLeft,
+    /// 바둑판식으로-세로/오른쪽
+    TileVerticalRight,
+    /// 크기에 맞추어
+    Total,
+    /// 가운데로
+    Center,
+    /// 가운데 위로
+    CenterTop,
+    /// 가운데 아래로
+    CenterBottom,
+    /// 왼쪽 가운데로
+    CenterLeft,
+    /// 왼쪽 위로
+    LeftTop,
+    /// 왼쪽 아래로
+    LeftBottom,
+    /// 오른쪽 가운데로
+    RightCenter,
+    /// 오른쪽 위로
+    RightTop,
+    /// 오른쪽 아래로
+    RightBottom,
+    /// NONE
+    None,
+}
+
+#[repr(u8)]
+#[derive(Debug, Clone, PartialEq, Eq, FromPrimitive)]
+pub enum ImageFillEffect {
+    RealPic,
+    GrayScale,
+    BlackWhite,
+    Pattern8x8,
 }
