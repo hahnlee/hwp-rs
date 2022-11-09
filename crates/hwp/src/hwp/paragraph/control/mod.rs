@@ -2,6 +2,7 @@ pub mod book_mark;
 pub mod column;
 pub mod common_properties;
 pub mod container;
+pub mod draw_text;
 pub mod element_properties;
 pub mod equation;
 pub mod footnote_endnote;
