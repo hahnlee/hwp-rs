@@ -1,6 +1,6 @@
 use crate::hwp::{
-    paragraph::control::element_properties::ElementProperties,
-    record::{Record, RecordCursor},
+    paragraph::control::{draw_text::DrawText, element_properties::ElementProperties},
+    record::{tags::BodyTextRecord, Record, RecordCursor},
     version::Version,
 };
 
@@ -13,12 +13,20 @@ pub struct GenShapeObjectControl {
     pub common_properties: CommonProperties,
     /// 개체 요소 속성
     pub element_properties: ElementProperties,
+    /// 글상자
+    pub draw_text: Option<DrawText>,
 }
 
 impl GenShapeObjectControl {
     pub fn from_record(record: &mut Record, cursor: &mut RecordCursor, version: &Version) -> Self {
         let common_properties = CommonProperties::from_record(record, cursor, version);
         let element_properties = ElementProperties::from_record_cursor(cursor, true);
+
+        let draw_text = if cursor.record_id(BodyTextRecord::HWPTAG_LIST_HEADER as u32) {
+            Some(DrawText::from_record_cursor(cursor, version))
+        } else {
+            None
+        };
 
         // TODO: (@hahnlee) children 파싱하기
         let children = cursor.collect_children(record.level);
@@ -27,6 +35,7 @@ impl GenShapeObjectControl {
         Self {
             common_properties,
             element_properties,
+            draw_text,
         }
     }
 }
@@ -38,6 +47,8 @@ pub struct ShapeLineControl {
     pub common_properties: CommonProperties,
     /// 개체 요소 속성
     pub element_properties: ElementProperties,
+    /// 글상자
+    pub draw_text: Option<DrawText>,
 }
 
 impl ShapeLineControl {
@@ -45,10 +56,17 @@ impl ShapeLineControl {
         let common_properties = CommonProperties::from_record(record, cursor, version);
         let element_properties = ElementProperties::from_record_cursor(cursor, false);
 
+        let draw_text = if cursor.record_id(BodyTextRecord::HWPTAG_LIST_HEADER as u32) {
+            Some(DrawText::from_record_cursor(cursor, version))
+        } else {
+            None
+        };
+
         // TODO: (@hahnlee) 남은 데이터 파싱하기
         Self {
             common_properties,
             element_properties,
+            draw_text,
         }
     }
 }
@@ -60,6 +78,8 @@ pub struct ShapeRectangleControl {
     pub common_properties: CommonProperties,
     /// 개체 요소 속성
     pub element_properties: ElementProperties,
+    /// 글상자
+    pub draw_text: Option<DrawText>,
 }
 
 impl ShapeRectangleControl {
@@ -67,10 +87,17 @@ impl ShapeRectangleControl {
         let common_properties = CommonProperties::from_record(record, cursor, version);
         let element_properties = ElementProperties::from_record_cursor(cursor, false);
 
+        let draw_text = if cursor.record_id(BodyTextRecord::HWPTAG_LIST_HEADER as u32) {
+            Some(DrawText::from_record_cursor(cursor, version))
+        } else {
+            None
+        };
+
         // TODO: (@hahnlee) 남은 데이터 파싱하기
         Self {
             common_properties,
             element_properties,
+            draw_text,
         }
     }
 }
@@ -82,6 +109,8 @@ pub struct ShapeEllipseControl {
     pub common_properties: CommonProperties,
     /// 개체 요소 속성
     pub element_properties: ElementProperties,
+    /// 글상자
+    pub draw_text: Option<DrawText>,
 }
 
 impl ShapeEllipseControl {
@@ -89,10 +118,17 @@ impl ShapeEllipseControl {
         let common_properties = CommonProperties::from_record(record, cursor, version);
         let element_properties = ElementProperties::from_record_cursor(cursor, false);
 
+        let draw_text = if cursor.record_id(BodyTextRecord::HWPTAG_LIST_HEADER as u32) {
+            Some(DrawText::from_record_cursor(cursor, version))
+        } else {
+            None
+        };
+
         // TODO: (@hahnlee) 남은 데이터 파싱하기
         Self {
             common_properties,
             element_properties,
+            draw_text,
         }
     }
 }
@@ -104,6 +140,8 @@ pub struct ShapeArcControl {
     pub common_properties: CommonProperties,
     /// 개체 요소 속성
     pub element_properties: ElementProperties,
+    /// 글상자
+    pub draw_text: Option<DrawText>,
 }
 
 impl ShapeArcControl {
@@ -111,10 +149,17 @@ impl ShapeArcControl {
         let common_properties = CommonProperties::from_record(record, cursor, version);
         let element_properties = ElementProperties::from_record_cursor(cursor, false);
 
+        let draw_text = if cursor.record_id(BodyTextRecord::HWPTAG_LIST_HEADER as u32) {
+            Some(DrawText::from_record_cursor(cursor, version))
+        } else {
+            None
+        };
+
         // TODO: (@hahnlee) 남은 데이터 파싱하기
         Self {
             common_properties,
             element_properties,
+            draw_text,
         }
     }
 }
@@ -126,6 +171,8 @@ pub struct ShapePolygonControl {
     pub common_properties: CommonProperties,
     /// 개체 요소 속성
     pub element_properties: ElementProperties,
+    /// 글상자
+    pub draw_text: Option<DrawText>,
 }
 
 impl ShapePolygonControl {
@@ -133,10 +180,17 @@ impl ShapePolygonControl {
         let common_properties = CommonProperties::from_record(record, cursor, version);
         let element_properties = ElementProperties::from_record_cursor(cursor, false);
 
+        let draw_text = if cursor.record_id(BodyTextRecord::HWPTAG_LIST_HEADER as u32) {
+            Some(DrawText::from_record_cursor(cursor, version))
+        } else {
+            None
+        };
+
         // TODO: (@hahnlee) 남은 데이터 파싱하기
         Self {
             common_properties,
             element_properties,
+            draw_text,
         }
     }
 }
@@ -148,6 +202,8 @@ pub struct ShapeCurveControl {
     pub common_properties: CommonProperties,
     /// 개체 요소 속성
     pub element_properties: ElementProperties,
+    /// 글상자
+    pub draw_text: Option<DrawText>,
 }
 
 impl ShapeCurveControl {
@@ -155,10 +211,17 @@ impl ShapeCurveControl {
         let common_properties = CommonProperties::from_record(record, cursor, version);
         let element_properties = ElementProperties::from_record_cursor(cursor, false);
 
+        let draw_text = if cursor.record_id(BodyTextRecord::HWPTAG_LIST_HEADER as u32) {
+            Some(DrawText::from_record_cursor(cursor, version))
+        } else {
+            None
+        };
+
         // TODO: (@hahnlee) 남은 데이터 파싱하기
         Self {
             common_properties,
             element_properties,
+            draw_text,
         }
     }
 }
