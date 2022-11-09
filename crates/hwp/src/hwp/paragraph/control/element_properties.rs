@@ -59,6 +59,8 @@ pub struct ElementProperties {
     pub outline: Option<Outline>,
     /// 채우기 정보
     pub fill: Option<Fill>,
+    /// 그림자 정보
+    pub shadow: Option<Shadow>,
 }
 
 impl ElementProperties {
@@ -114,7 +116,7 @@ impl ElementProperties {
         }
 
         let outline = if record.size as u64 > reader.position() {
-            Some(Outline::from_reader(&mut reader))
+            Some(Outline::from_reader(&mut reader, ctrl_id))
         } else {
             None
         };
@@ -125,7 +127,13 @@ impl ElementProperties {
             None
         };
 
-        // TODO: (@hahnlee) 불분명한 속성 채우기
+        let shadow = if record.size as u64 > reader.position() {
+            Some(Shadow::from_reader(&mut reader))
+        } else {
+            None
+        };
+
+        assert_eq!(record.size as u64, reader.position());
 
         Self {
             ctrl_id,
@@ -149,6 +157,7 @@ impl ElementProperties {
             instance_id,
             outline,
             fill,
+            shadow,
         }
     }
 }
@@ -181,7 +190,7 @@ pub struct Outline {
 }
 
 impl Outline {
-    pub fn from_reader<T: Read>(reader: &mut T) -> Self {
+    pub fn from_reader<T: Read>(reader: &mut T, ctrl_id: u32) -> Self {
         let color = ColorRef::from_u32(reader.read_u32::<LittleEndian>().unwrap());
 
         // NOTE: (@hahnlee) 문서와 사이즈가 다름
@@ -189,7 +198,12 @@ impl Outline {
 
         let attribute = reader.read_u32::<LittleEndian>().unwrap();
         let kind = BorderKind::from_u32(get_value_range(attribute, 0, 5)).unwrap();
-        let end_cap = EndCap::from_u32(get_value_range(attribute, 6, 9)).unwrap();
+        let default_cap = if ctrl_id == make_4chid!('$', 'p', 'i', 'c') {
+            EndCap::Round
+        } else {
+            EndCap::Flat
+        };
+        let end_cap = EndCap::from_u32(get_value_range(attribute, 6, 9)).unwrap_or(default_cap);
         let head_style = ArrowStyle::from_u32(get_value_range(attribute, 10, 15)).unwrap();
         let tail_style = ArrowStyle::from_u32(get_value_range(attribute, 16, 21)).unwrap();
         let head_size = ArrowSize::from_u32(get_value_range(attribute, 22, 25)).unwrap();
@@ -279,6 +293,74 @@ pub enum ArrowSize {
     LargeMedium,
     /// 큰-큰
     LargeLarge,
+}
+
+#[derive(Debug, Clone)]
+pub struct Shadow {
+    /// 그림자 종류
+    pub kind: ShadowKind,
+    /// 그림자 색상
+    pub color: ColorRef,
+    /// 그림자 간격 X
+    pub offset_x: i32,
+    /// 그림자 간격 Y
+    pub offset_y: i32,
+    /// 그림자 간격 투명도
+    pub alpha: u8,
+    /// 알 수 없는 바이트
+    pub unknown: [u8; 5],
+}
+
+impl Shadow {
+    pub fn from_reader<T: Read>(reader: &mut T) -> Self {
+        let kind = ShadowKind::from_u32(reader.read_u32::<LittleEndian>().unwrap()).unwrap();
+
+        let color = ColorRef::from_u32(reader.read_u32::<LittleEndian>().unwrap());
+
+        let offset_x = reader.read_i32::<LittleEndian>().unwrap();
+        let offset_y = reader.read_i32::<LittleEndian>().unwrap();
+
+        let mut unknown = [0u8; 5];
+        reader.read_exact(&mut unknown).unwrap();
+
+        let alpha = reader.read_u8().unwrap();
+
+        Self {
+            kind,
+            color,
+            offset_x,
+            offset_y,
+            unknown,
+            alpha,
+        }
+    }
+}
+
+#[repr(u8)]
+#[derive(Debug, Clone, PartialEq, Eq, FromPrimitive)]
+pub enum ShadowKind {
+    /// 없음
+    None,
+    /// 왼쪽 위
+    LeftTop,
+    /// 오른쪽 위
+    RightTop,
+    /// 왼쪽 아래
+    LeftBottom,
+    /// 오른쪽 아래
+    RightBottom,
+    /// 왼쪽 뒤
+    LeftBack,
+    /// 오른쪽 뒤
+    RightBack,
+    /// 왼쪽 앞
+    LeftFront,
+    /// 오른쪽 앞
+    RightFront,
+    /// 작게
+    Small,
+    /// 크게
+    Large,
 }
 
 fn read_transformation_matrix<T: Read>(reader: &mut T) -> TransformationMatrix {
