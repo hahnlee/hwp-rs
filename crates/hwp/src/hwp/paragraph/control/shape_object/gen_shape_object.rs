@@ -1,9 +1,12 @@
+use hwp_macro::make_4chid;
+
 use crate::hwp::{
     paragraph::control::{
         common_properties::CommonProperties, draw_text::DrawText,
         element_properties::ElementProperties,
     },
     record::{tags::BodyTextRecord, Record, RecordCursor},
+    unknown::UnknownRecord,
     version::Version,
 };
 
@@ -30,8 +33,14 @@ impl GenShapeObjectControl {
         };
 
         // TODO: (@hahnlee) children 파싱하기
-        let children = cursor.collect_children(record.level);
-        assert_ne!(children.len(), 0);
+        if element_properties.ctrl_id == make_4chid!('$', 'c', 'o', 'n') {
+            for _ in element_properties.children_ids.as_ref().unwrap() {
+                ElementProperties::from_record_cursor(cursor, false);
+                UnknownRecord::from_record_cursor(cursor);
+            }
+        } else {
+            UnknownRecord::from_record_cursor(cursor);
+        }
 
         Self {
             common_properties,
