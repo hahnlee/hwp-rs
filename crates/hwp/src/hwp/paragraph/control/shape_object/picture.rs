@@ -1,7 +1,6 @@
 use crate::hwp::{
     paragraph::control::{
-        common_properties::CommonProperties,
-        element_properties::ElementProperties,
+        common_properties::CommonProperties, element_properties::ElementProperties,
     },
     record::{Record, RecordCursor},
     version::Version,
@@ -21,7 +20,6 @@ impl PictureControl {
         let common_properties = CommonProperties::from_record(record, cursor, version);
         let element_properties = ElementProperties::from_record_cursor(cursor, false);
 
-        // TODO: (@hahnlee) 남은 데이터 파싱하기
         Self {
             common_properties,
             element_properties,

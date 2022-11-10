@@ -1,9 +1,10 @@
 use crate::hwp::{
+    paragraph::control::{
+        common_properties::CommonProperties, element_properties::ElementProperties,
+    },
     record::{Record, RecordCursor},
     version::Version,
 };
-
-use super::{common_properties::CommonProperties, element_properties::ElementProperties};
 
 /// OLE
 #[derive(Debug, Clone)]

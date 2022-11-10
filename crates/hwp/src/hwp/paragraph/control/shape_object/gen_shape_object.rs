@@ -1,14 +1,13 @@
-use hwp_macro::make_4chid;
-
 use crate::hwp::{
     paragraph::control::{
         common_properties::CommonProperties, draw_text::DrawText,
         element_properties::ElementProperties,
     },
     record::{tags::BodyTextRecord, Record, RecordCursor},
-    unknown::UnknownRecord,
     version::Version,
 };
+
+use super::content::{parse_content, GenShapeObjectContent};
 
 /// 그리기 객체
 #[derive(Debug, Clone)]
@@ -19,6 +18,8 @@ pub struct GenShapeObjectControl {
     pub element_properties: ElementProperties,
     /// 글상자
     pub draw_text: Option<DrawText>,
+    /// 컨텐츠
+    pub content: GenShapeObjectContent,
 }
 
 impl GenShapeObjectControl {
@@ -32,20 +33,13 @@ impl GenShapeObjectControl {
             None
         };
 
-        // TODO: (@hahnlee) children 파싱하기
-        if element_properties.ctrl_id == make_4chid!('$', 'c', 'o', 'n') {
-            for _ in element_properties.children_ids.as_ref().unwrap() {
-                ElementProperties::from_record_cursor(cursor, false);
-                UnknownRecord::from_record_cursor(cursor);
-            }
-        } else {
-            UnknownRecord::from_record_cursor(cursor);
-        }
+        let content = parse_content(&element_properties, cursor);
 
         Self {
             common_properties,
             element_properties,
             draw_text,
+            content,
         }
     }
 }
