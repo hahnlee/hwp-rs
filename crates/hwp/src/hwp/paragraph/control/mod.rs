@@ -1,7 +1,6 @@
 pub mod book_mark;
 pub mod column;
 pub mod common_properties;
-pub mod container;
 pub mod draw_text;
 pub mod element_properties;
 pub mod equation;
@@ -17,7 +16,6 @@ pub mod page_hiding;
 pub mod page_number_control;
 pub mod page_number_position;
 pub mod paragraph_list;
-pub mod picture;
 pub mod section;
 pub mod shape_object;
 pub mod sub_text;
@@ -35,7 +33,6 @@ use crate::hwp::{
 use self::{
     book_mark::Bookmark,
     column::ColumnControl,
-    container::ContainerControl,
     equation::Equation,
     footnote_endnote::FootnoteEndnote,
     header_footer::HeaderFooter,
@@ -48,11 +45,12 @@ use self::{
     page_hiding::PageHiding,
     page_number_control::PageNumberControl,
     page_number_position::PageNumberPosition,
-    picture::PictureControl,
     section::SectionControl,
     shape_object::{
-        GenShapeObjectControl, ShapeArcControl, ShapeCurveControl, ShapeEllipseControl,
-        ShapeLineControl, ShapePolygonControl, ShapeRectangleControl,
+        arc::ShapeArcControl, container::ContainerControl, curve::ShapeCurveControl,
+        ellipse::ShapeEllipseControl, gen_shape_object::GenShapeObjectControl,
+        line::ShapeLineControl, picture::PictureControl, polygon::ShapePolygonControl,
+        rectangle::ShapeRectangleControl,
     },
     sub_text::SubText,
     table::TableControl,
