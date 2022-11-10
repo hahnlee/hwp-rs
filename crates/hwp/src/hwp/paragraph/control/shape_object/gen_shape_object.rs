@@ -7,6 +7,8 @@ use crate::hwp::{
     version::Version,
 };
 
+use super::content::{parse_content, GenShapeObjectContent};
+
 /// 그리기 객체
 #[derive(Debug, Clone)]
 pub struct GenShapeObjectControl {
@@ -16,6 +18,8 @@ pub struct GenShapeObjectControl {
     pub element_properties: ElementProperties,
     /// 글상자
     pub draw_text: Option<DrawText>,
+    /// 컨텐츠
+    pub content: GenShapeObjectContent,
 }
 
 impl GenShapeObjectControl {
@@ -29,14 +33,13 @@ impl GenShapeObjectControl {
             None
         };
 
-        // TODO: (@hahnlee) children 파싱하기
-        let children = cursor.collect_children(record.level);
-        assert_ne!(children.len(), 0);
+        let content = parse_content(&element_properties, cursor);
 
         Self {
             common_properties,
             element_properties,
             draw_text,
+            content,
         }
     }
 }

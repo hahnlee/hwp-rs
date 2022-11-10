@@ -9,7 +9,6 @@ pub mod header_footer;
 pub mod hidden_comment;
 pub mod index_mark;
 pub mod number;
-pub mod ole;
 pub mod over_type;
 pub mod page_definition;
 pub mod page_hiding;
@@ -40,7 +39,6 @@ use self::{
     index_mark::IndexMark,
     number::AutoNumber,
     number::NewNumber,
-    ole::OleControl,
     over_type::OverType,
     page_hiding::PageHiding,
     page_number_control::PageNumberControl,
@@ -50,7 +48,7 @@ use self::{
         arc::ShapeArcControl, container::ContainerControl, curve::ShapeCurveControl,
         ellipse::ShapeEllipseControl, gen_shape_object::GenShapeObjectControl,
         line::ShapeLineControl, picture::PictureControl, polygon::ShapePolygonControl,
-        rectangle::ShapeRectangleControl,
+        rectangle::ShapeRectangleControl, ole::OleControl,
     },
     sub_text::SubText,
     table::TableControl,
