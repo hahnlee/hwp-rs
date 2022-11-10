@@ -11,6 +11,8 @@ use crate::hwp::{
     version::Version,
 };
 
+use super::bullet::Image;
+
 #[derive(Debug)]
 pub struct BorderFill {
     /// 3D 효과의 유무
@@ -371,14 +373,8 @@ pub enum GradationKind {
 pub struct ImageFill {
     /// 이미지 채우기 유형
     pub kind: ImageFillKind,
-    /// 밝기
-    pub brightness: u8,
-    /// 명암
-    pub contrast: u8,
-    /// 그림 효과
-    pub effect: ImageFillEffect,
-    /// 참조값
-    pub bin_data_id: u16,
+    /// 이미지 정보
+    pub image: Image,
     /// 문서에 미정의된 값
     pub unknown: Vec<u8>,
 }
@@ -386,13 +382,7 @@ pub struct ImageFill {
 impl ImageFill {
     fn from_reader<T: Read>(reader: &mut T) -> Self {
         let kind = ImageFillKind::from_u8(reader.read_u8().unwrap()).unwrap();
-
-        let brightness = reader.read_u8().unwrap();
-        let contrast = reader.read_u8().unwrap();
-
-        let effect = ImageFillEffect::from_u8(reader.read_u8().unwrap()).unwrap();
-
-        let bin_data_id = reader.read_u16::<LittleEndian>().unwrap();
+        let image = Image::from_reader(reader);
 
         // NOTE: (@hahnlee) 추가정보 개수, 항상 0이다
         assert_eq!(reader.read_u32::<LittleEndian>().unwrap(), 0);
@@ -402,10 +392,7 @@ impl ImageFill {
 
         Self {
             kind,
-            brightness,
-            contrast,
-            effect,
-            bin_data_id,
+            image,
             unknown,
         }
     }
@@ -446,13 +433,4 @@ pub enum ImageFillKind {
     RightBottom,
     /// NONE
     None,
-}
-
-#[repr(u8)]
-#[derive(Debug, Clone, PartialEq, Eq, FromPrimitive)]
-pub enum ImageFillEffect {
-    RealPic,
-    GrayScale,
-    BlackWhite,
-    Pattern8x8,
 }

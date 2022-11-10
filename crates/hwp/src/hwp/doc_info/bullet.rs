@@ -48,7 +48,7 @@ impl FromRecordCursor for Bullet {
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct Image {
     /// 밝기
     pub bright: u8,
@@ -72,7 +72,7 @@ impl Image {
 }
 
 #[repr(u8)]
-#[derive(Debug, PartialEq, Eq, FromPrimitive)]
+#[derive(Debug, Clone, PartialEq, Eq, FromPrimitive)]
 pub enum ImageEffect {
     /// 원래 그림에서
     RealPic,
