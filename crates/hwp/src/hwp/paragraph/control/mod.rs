@@ -47,8 +47,8 @@ use self::{
     shape_object::{
         arc::ShapeArcControl, container::ContainerControl, curve::ShapeCurveControl,
         ellipse::ShapeEllipseControl, gen_shape_object::GenShapeObjectControl,
-        line::ShapeLineControl, picture::PictureControl, polygon::ShapePolygonControl,
-        rectangle::ShapeRectangleControl, ole::OleControl,
+        line::ShapeLineControl, ole::OleControl, picture::PictureControl,
+        polygon::ShapePolygonControl, rectangle::ShapeRectangleControl,
     },
     sub_text::SubText,
     table::TableControl,
@@ -70,6 +70,7 @@ pub enum Control {
     Picture(PictureControl),
     Ole(OleControl),
     Container(ContainerControl),
+    ConnectLine(ShapeLineControl),
 
     // 개체 이외 컨트롤
     AutoNumber(AutoNumber),
@@ -150,6 +151,9 @@ pub fn parse_control(cursor: &mut RecordCursor, version: &Version) -> Control {
         }
         make_4chid!('$', 'c', 'o', 'n') => {
             Control::Container(ContainerControl::from_record(&mut record, cursor, version))
+        }
+        make_4chid!('$', 'c', 'o', 'l') => {
+            Control::ConnectLine(ShapeLineControl::from_record(&mut record, cursor, version))
         }
 
         make_4chid!('c', 'o', 'l', 'd') => Control::Column(ColumnControl::from_record(&mut record)),

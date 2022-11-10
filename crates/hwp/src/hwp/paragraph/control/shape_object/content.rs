@@ -15,6 +15,7 @@ use super::{
 pub enum ShapeObjectContent {
     Arc(ArcRecord),
     Container(ContainerContent),
+    ConnectLine(LineRecord),
     Curve(CurveRecord),
     Ellipse(EllipseRecord),
     Line(LineRecord),
@@ -56,6 +57,9 @@ pub fn parse_content(
         }
         make_4chid!('$', 'r', 'e', 'c') => {
             ShapeObjectContent::Rectangle(RectangleRecord::from_record_cursor(cursor))
+        }
+        make_4chid!('$', 'c', 'o', 'l') => {
+            ShapeObjectContent::ConnectLine(LineRecord::from_record_cursor(cursor))
         }
         _ => ShapeObjectContent::Unknown(UnknownRecord::from_record_cursor(cursor)),
     }
