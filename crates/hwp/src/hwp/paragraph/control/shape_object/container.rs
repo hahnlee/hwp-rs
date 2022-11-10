@@ -6,7 +6,7 @@ use crate::hwp::{
     version::Version,
 };
 
-use super::content::{parse_content, GenShapeObjectContent};
+use super::content::{parse_content, ShapeObjectContent};
 
 /// 묶음 개체
 #[derive(Debug, Clone)]
@@ -57,7 +57,7 @@ pub struct ContainerElement {
     /// 개체 요소 속성
     pub element_properties: ElementProperties,
     /// 컨텐츠
-    pub content: GenShapeObjectContent,
+    pub content: ShapeObjectContent,
 }
 
 impl ContainerElement {
