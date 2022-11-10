@@ -16,6 +16,8 @@ pub struct ShapeArcControl {
     pub element_properties: ElementProperties,
     /// 글상자
     pub draw_text: Option<DrawText>,
+    /// 컨텐츠
+    pub content: ArcRecord,
 }
 
 impl ShapeArcControl {
@@ -29,11 +31,29 @@ impl ShapeArcControl {
             None
         };
 
-        // TODO: (@hahnlee) 남은 데이터 파싱하기
+        let content = ArcRecord::from_record_cursor(cursor);
+
         Self {
             common_properties,
             element_properties,
             draw_text,
+            content,
         }
+    }
+}
+
+#[derive(Debug, Clone)]
+pub struct ArcRecord {}
+
+impl ArcRecord {
+    pub fn from_record_cursor(cursor: &mut RecordCursor) -> Self {
+        let record = cursor.current();
+        assert_eq!(
+            record.tag_id,
+            BodyTextRecord::HWPTAG_SHAPE_COMPONENT_ARC as u32
+        );
+
+        // TODO: (@hahnlee)
+        Self {}
     }
 }

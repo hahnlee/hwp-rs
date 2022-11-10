@@ -7,7 +7,7 @@ use crate::hwp::{
     version::Version,
 };
 
-use super::content::{parse_content, GenShapeObjectContent};
+use super::content::{parse_content, ShapeObjectContent};
 
 /// 그리기 객체
 #[derive(Debug, Clone)]
@@ -19,7 +19,7 @@ pub struct GenShapeObjectControl {
     /// 글상자
     pub draw_text: Option<DrawText>,
     /// 컨텐츠
-    pub content: GenShapeObjectContent,
+    pub content: ShapeObjectContent,
 }
 
 impl GenShapeObjectControl {
