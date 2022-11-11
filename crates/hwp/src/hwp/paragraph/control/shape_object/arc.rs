@@ -1,9 +1,11 @@
+use byteorder::ReadBytesExt;
+use num::FromPrimitive;
 use num_derive::FromPrimitive;
 
 use crate::hwp::{
     paragraph::control::{
         common_properties::CommonProperties, draw_text::DrawText,
-        element_properties::ElementProperties,
+        element_properties::ElementProperties, shape_object::picture::Point,
     },
     record::{tags::BodyTextRecord, Record, RecordCursor},
     version::Version,
@@ -45,7 +47,16 @@ impl ShapeArcControl {
 }
 
 #[derive(Debug, Clone)]
-pub struct ArcRecord {}
+pub struct ArcRecord {
+    /// 호(ARC)의 종류
+    pub arc_kind: ArcKind,
+    /// 중심 좌표
+    pub center: Point,
+    /// 제1축 좌표
+    pub axis_1: Point,
+    /// 제2축 좌표
+    pub axis_2: Point,
+}
 
 impl ArcRecord {
     pub fn from_record_cursor(cursor: &mut RecordCursor) -> Self {
@@ -55,8 +66,22 @@ impl ArcRecord {
             BodyTextRecord::HWPTAG_SHAPE_COMPONENT_ARC as u32
         );
 
-        // TODO: (@hahnlee)
-        Self {}
+        let mut reader = record.get_data_reader();
+
+        let arc_kind = ArcKind::from_u8(reader.read_u8().unwrap()).unwrap();
+
+        let center = Point::from_reader(&mut reader);
+        let axis_1 = Point::from_reader(&mut reader);
+        let axis_2 = Point::from_reader(&mut reader);
+
+        assert_eq!(record.size as u64, reader.position());
+
+        Self {
+            arc_kind,
+            center,
+            axis_1,
+            axis_2,
+        }
     }
 }
 
