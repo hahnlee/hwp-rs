@@ -2,7 +2,7 @@ use hwp_macro::make_4chid;
 
 use crate::hwp::{
     paragraph::control::element_properties::ElementProperties, record::RecordCursor,
-    unknown::UnknownRecord,
+    unknown::UnknownRecord, version::Version,
 };
 
 use super::{
@@ -29,14 +29,15 @@ pub enum ShapeObjectContent {
 pub fn parse_content(
     properties: &ElementProperties,
     cursor: &mut RecordCursor,
+    version: &Version,
 ) -> ShapeObjectContent {
     match properties.ctrl_id {
         make_4chid!('$', 'a', 'r', 'c') => {
             ShapeObjectContent::Arc(ArcRecord::from_record_cursor(cursor))
         }
-        make_4chid!('$', 'c', 'o', 'n') => {
-            ShapeObjectContent::Container(ContainerContent::from_record_cursor(properties, cursor))
-        }
+        make_4chid!('$', 'c', 'o', 'n') => ShapeObjectContent::Container(
+            ContainerContent::from_record_cursor(properties, cursor, version),
+        ),
         make_4chid!('$', 'c', 'u', 'r') => {
             ShapeObjectContent::Curve(CurveRecord::from_record_cursor(cursor))
         }

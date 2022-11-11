@@ -1,8 +1,9 @@
 use crate::hwp::{
     paragraph::control::{
-        common_properties::CommonProperties, element_properties::ElementProperties,
+        common_properties::CommonProperties, draw_text::DrawText,
+        element_properties::ElementProperties,
     },
-    record::{Record, RecordCursor},
+    record::{tags::BodyTextRecord, Record, RecordCursor},
     version::Version,
 };
 
@@ -23,7 +24,7 @@ impl ContainerControl {
     pub fn from_record(record: &mut Record, cursor: &mut RecordCursor, version: &Version) -> Self {
         let common_properties = CommonProperties::from_record(record, cursor, version);
         let element_properties = ElementProperties::from_record_cursor(cursor, false);
-        let content = ContainerContent::from_record_cursor(&element_properties, cursor);
+        let content = ContainerContent::from_record_cursor(&element_properties, cursor, version);
 
         Self {
             common_properties,
@@ -39,13 +40,17 @@ pub struct ContainerContent {
 }
 
 impl ContainerContent {
-    pub fn from_record_cursor(properties: &ElementProperties, cursor: &mut RecordCursor) -> Self {
+    pub fn from_record_cursor(
+        properties: &ElementProperties,
+        cursor: &mut RecordCursor,
+        version: &Version,
+    ) -> Self {
         let children = properties
             .children_ids
             .as_ref()
             .unwrap()
             .into_iter()
-            .map(|_| ContainerElement::from_record_cursor(cursor))
+            .map(|_| ContainerElement::from_record_cursor(cursor, version))
             .collect();
 
         Self { children }
@@ -58,16 +63,24 @@ pub struct ContainerElement {
     pub element_properties: ElementProperties,
     /// 컨텐츠
     pub content: ShapeObjectContent,
+    /// 글상자
+    pub draw_text: Option<DrawText>,
 }
 
 impl ContainerElement {
-    pub fn from_record_cursor(cursor: &mut RecordCursor) -> Self {
+    pub fn from_record_cursor(cursor: &mut RecordCursor, version: &Version) -> Self {
         let element_properties = ElementProperties::from_record_cursor(cursor, false);
-        let content = parse_content(&element_properties, cursor);
+        let draw_text = if cursor.record_id(BodyTextRecord::HWPTAG_LIST_HEADER as u32) {
+            Some(DrawText::from_record_cursor(cursor, version))
+        } else {
+            None
+        };
+        let content = parse_content(&element_properties, cursor, version);
 
         Self {
             element_properties,
             content,
+            draw_text,
         }
     }
 }
