@@ -1,7 +1,11 @@
+use byteorder::{LittleEndian, ReadBytesExt};
+use num::FromPrimitive;
+use num_derive::FromPrimitive;
+
 use crate::hwp::{
     paragraph::control::{
         common_properties::CommonProperties, draw_text::DrawText,
-        element_properties::ElementProperties,
+        element_properties::ElementProperties, shape_object::picture::Point,
     },
     record::{tags::BodyTextRecord, Record, RecordCursor},
     version::Version,
@@ -43,7 +47,12 @@ impl ShapeCurveControl {
 }
 
 #[derive(Debug, Clone)]
-pub struct CurveRecord {}
+pub struct CurveRecord {
+    /// 좌표
+    pub points: Vec<Point>,
+    /// 세그먼트 타입
+    pub segment_kinds: Vec<SegmentKind>,
+}
 
 impl CurveRecord {
     pub fn from_record_cursor(cursor: &mut RecordCursor) -> Self {
@@ -53,7 +62,29 @@ impl CurveRecord {
             BodyTextRecord::HWPTAG_SHAPE_COMPONENT_CURVE as u32
         );
 
-        // TODO: (@hahnlee)
-        Self {}
+        let mut reader = record.get_data_reader();
+
+        let count = reader.read_u32::<LittleEndian>().unwrap();
+        let mut points = vec![];
+        for _ in 0..count {
+            points.push(Point::from_reader(&mut reader));
+        }
+
+        let mut segment_kinds = vec![];
+        for _ in 0..count - 1 {
+            segment_kinds.push(SegmentKind::from_u8(reader.read_u8().unwrap()).unwrap());
+        }
+
+        Self {
+            points,
+            segment_kinds,
+        }
     }
+}
+
+#[repr(u8)]
+#[derive(Debug, Clone, PartialEq, Eq, FromPrimitive)]
+pub enum SegmentKind {
+    Line,
+    Curve,
 }
