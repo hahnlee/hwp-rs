@@ -1,3 +1,5 @@
+use byteorder::ReadBytesExt;
+
 use crate::hwp::{
     paragraph::control::{
         common_properties::CommonProperties, draw_text::DrawText,
@@ -6,6 +8,8 @@ use crate::hwp::{
     record::{tags::BodyTextRecord, Record, RecordCursor},
     version::Version,
 };
+
+use super::picture::Point;
 
 /// 사각형
 #[derive(Debug, Clone)]
@@ -43,7 +47,13 @@ impl ShapeRectangleControl {
 }
 
 #[derive(Debug, Clone)]
-pub struct RectangleRecord {}
+pub struct RectangleRecord {
+    /// 사각형 모서리 곡률(%) 직각은 0, 둥근 모양은 20, 반원은 50,
+    /// 그 외는 적당한 값을 % 단위로 사용한다.
+    pub ratio: u8,
+    /// 좌표
+    pub points: [Point; 4],
+}
 
 impl RectangleRecord {
     pub fn from_record_cursor(cursor: &mut RecordCursor) -> Self {
@@ -53,7 +63,18 @@ impl RectangleRecord {
             BodyTextRecord::HWPTAG_SHAPE_COMPONENT_RECTANGLE as u32
         );
 
-        // TODO: (@hahnlee)
-        Self {}
+        let mut reader = record.get_data_reader();
+
+        let ratio = reader.read_u8().unwrap();
+        let points = [
+            Point::from_reader(&mut reader),
+            Point::from_reader(&mut reader),
+            Point::from_reader(&mut reader),
+            Point::from_reader(&mut reader),
+        ];
+
+        assert_eq!(record.size as u64, reader.position());
+
+        Self { ratio, points }
     }
 }
