@@ -1,3 +1,5 @@
+use num_derive::FromPrimitive;
+
 use crate::hwp::{
     paragraph::control::{
         common_properties::CommonProperties, draw_text::DrawText,
@@ -56,4 +58,15 @@ impl ArcRecord {
         // TODO: (@hahnlee)
         Self {}
     }
+}
+
+#[repr(u8)]
+#[derive(Debug, Clone, PartialEq, Eq, FromPrimitive)]
+pub enum ArcKind {
+    /// 호
+    Normal,
+    /// 부채꼴
+    Pie,
+    /// 활
+    Chord,
 }
