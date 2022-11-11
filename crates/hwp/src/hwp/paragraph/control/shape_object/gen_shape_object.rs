@@ -33,7 +33,7 @@ impl GenShapeObjectControl {
             None
         };
 
-        let content = parse_content(&element_properties, cursor);
+        let content = parse_content(&element_properties, cursor, version);
 
         Self {
             common_properties,
