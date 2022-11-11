@@ -1,7 +1,9 @@
+use byteorder::{LittleEndian, ReadBytesExt};
+
 use crate::hwp::{
     paragraph::control::{
         common_properties::CommonProperties, draw_text::DrawText,
-        element_properties::ElementProperties,
+        element_properties::ElementProperties, shape_object::picture::Point,
     },
     record::{tags::BodyTextRecord, Record, RecordCursor},
     version::Version,
@@ -43,7 +45,10 @@ impl ShapePolygonControl {
 }
 
 #[derive(Debug, Clone)]
-pub struct PolygonRecord {}
+pub struct PolygonRecord {
+    /// 다각형 좌표
+    pub points: Vec<Point>,
+}
 
 impl PolygonRecord {
     pub fn from_record_cursor(cursor: &mut RecordCursor) -> Self {
@@ -53,7 +58,14 @@ impl PolygonRecord {
             BodyTextRecord::HWPTAG_SHAPE_COMPONENT_POLYGON as u32
         );
 
-        // TODO: (@hahnlee)
-        Self {}
+        let mut reader = record.get_data_reader();
+
+        let count = reader.read_u32::<LittleEndian>().unwrap();
+        let mut points = vec![];
+        for _ in 0..count {
+            points.push(Point::from_reader(&mut reader));
+        }
+
+        Self { points }
     }
 }
