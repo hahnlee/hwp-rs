@@ -2,7 +2,11 @@ pub mod char;
 pub mod control;
 
 use hwp::hwp::paragraph::{
-    control::{paragraph_list::ParagraphList, Control},
+    control::{
+        paragraph_list::ParagraphList,
+        shape_object::{container::ContainerContent, content::ShapeObjectContent},
+        Control,
+    },
     Paragraph,
 };
 use pyo3::prelude::*;
@@ -10,7 +14,10 @@ use pyo3::types::PyDict;
 
 use self::{
     char::PyChar,
-    control::{common_properties::PyCaption, table::PyTable, equation::PyEquation, footnote_endnote::PyFootnoteEndnote, header_footer::PyHeaderFooter},
+    control::{
+        common_properties::PyCaption, equation::PyEquation, footnote_endnote::PyFootnoteEndnote,
+        header_footer::PyHeaderFooter, table::PyTable,
+    },
 };
 
 #[derive(Clone)]
@@ -99,8 +106,18 @@ impl PyParagraph {
                         result =
                             concat_paragraph_in_list(result, &caption.paragraph_list, recursive);
                     }
+
+                    if let ShapeObjectContent::Container(content) = &control.content {
+                        result = search_paragraph_in_shape_object(content, result, recursive);
+                    }
                 }
                 Control::ShapeLine(control) => {
+                    if control.draw_text.is_some() {
+                        let draw_text = control.draw_text.as_ref().unwrap();
+                        result =
+                            concat_paragraph_in_list(result, &draw_text.paragraph_list, recursive);
+                    }
+
                     if control.common_properties.caption.is_some() {
                         let caption = control.common_properties.caption.as_ref().unwrap();
                         result =
@@ -108,6 +125,12 @@ impl PyParagraph {
                     }
                 }
                 Control::ShapeRectangle(control) => {
+                    if control.draw_text.is_some() {
+                        let draw_text = control.draw_text.as_ref().unwrap();
+                        result =
+                            concat_paragraph_in_list(result, &draw_text.paragraph_list, recursive);
+                    }
+
                     if control.common_properties.caption.is_some() {
                         let caption = control.common_properties.caption.as_ref().unwrap();
                         result =
@@ -115,6 +138,12 @@ impl PyParagraph {
                     }
                 }
                 Control::ShapeEllipse(control) => {
+                    if control.draw_text.is_some() {
+                        let draw_text = control.draw_text.as_ref().unwrap();
+                        result =
+                            concat_paragraph_in_list(result, &draw_text.paragraph_list, recursive);
+                    }
+
                     if control.common_properties.caption.is_some() {
                         let caption = control.common_properties.caption.as_ref().unwrap();
                         result =
@@ -122,6 +151,12 @@ impl PyParagraph {
                     }
                 }
                 Control::ShapeArc(control) => {
+                    if control.draw_text.is_some() {
+                        let draw_text = control.draw_text.as_ref().unwrap();
+                        result =
+                            concat_paragraph_in_list(result, &draw_text.paragraph_list, recursive);
+                    }
+
                     if control.common_properties.caption.is_some() {
                         let caption = control.common_properties.caption.as_ref().unwrap();
                         result =
@@ -129,6 +164,12 @@ impl PyParagraph {
                     }
                 }
                 Control::ShapePolygon(control) => {
+                    if control.draw_text.is_some() {
+                        let draw_text = control.draw_text.as_ref().unwrap();
+                        result =
+                            concat_paragraph_in_list(result, &draw_text.paragraph_list, recursive);
+                    }
+
                     if control.common_properties.caption.is_some() {
                         let caption = control.common_properties.caption.as_ref().unwrap();
                         result =
@@ -136,6 +177,12 @@ impl PyParagraph {
                     }
                 }
                 Control::ShapeCurve(control) => {
+                    if control.draw_text.is_some() {
+                        let draw_text = control.draw_text.as_ref().unwrap();
+                        result =
+                            concat_paragraph_in_list(result, &draw_text.paragraph_list, recursive);
+                    }
+
                     if control.common_properties.caption.is_some() {
                         let caption = control.common_properties.caption.as_ref().unwrap();
                         result =
@@ -169,6 +216,8 @@ impl PyParagraph {
                         result =
                             concat_paragraph_in_list(result, &caption.paragraph_list, recursive);
                     }
+
+                    result = search_paragraph_in_shape_object(&control.content, result, recursive);
                 }
                 // 개체 이외 컨트롤 + 문단리스트
                 Control::Header(control) | Control::Footer(control) => {
@@ -465,4 +514,23 @@ pub fn to_py_paragraphs(list: &ParagraphList) -> Vec<PyParagraph> {
         .into_iter()
         .map(|p| PyParagraph::from_rust(p))
         .collect()
+}
+
+fn search_paragraph_in_shape_object(
+    content: &ContainerContent,
+    mut result: Vec<Py<PyAny>>,
+    recursive: bool,
+) -> Vec<Py<PyAny>> {
+    for child in &content.children {
+        if child.draw_text.is_some() {
+            let draw_text = child.draw_text.as_ref().unwrap();
+            result = concat_paragraph_in_list(result, &draw_text.paragraph_list, recursive);
+        }
+
+        if let ShapeObjectContent::Container(container) = &child.content {
+            result = search_paragraph_in_shape_object(container, result, recursive);
+        }
+    }
+
+    result
 }
