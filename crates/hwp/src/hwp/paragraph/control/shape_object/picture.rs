@@ -318,7 +318,7 @@ impl Shadow {
             skew_y: reader.read_f32::<LittleEndian>().unwrap(),
             scale_x: reader.read_f32::<LittleEndian>().unwrap(),
             scale_y: reader.read_f32::<LittleEndian>().unwrap(),
-            rotation: reader.read_i32::<LittleEndian>().unwrap() == 0,
+            rotation: reader.read_i32::<LittleEndian>().unwrap() > 0,
             color: EffectColor::from_reader(reader),
         }
     }
@@ -535,7 +535,7 @@ impl Reflection {
             skew_y: reader.read_f32::<LittleEndian>().unwrap(),
             scale_x: reader.read_f32::<LittleEndian>().unwrap(),
             scale_y: reader.read_f32::<LittleEndian>().unwrap(),
-            rotation: reader.read_i32::<LittleEndian>().unwrap() == 0,
+            rotation: reader.read_i32::<LittleEndian>().unwrap() > 0,
             start_alpha: reader.read_f32::<LittleEndian>().unwrap(),
             start_position: reader.read_f32::<LittleEndian>().unwrap(),
             end_alpha: reader.read_f32::<LittleEndian>().unwrap(),
